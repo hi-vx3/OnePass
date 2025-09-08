@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اتصل بنا | BrandMe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        :root {
+            --color-background: #F9FAFB;
+            --color-card: #FFFFFF;
+            --color-primary: #2563EB;
+            --color-secondary: #9CA3AF;
+            --color-success: #22C55E;
+            --color-error: #EF4444;
+            --color-text: #374151;
+            --color-text-light: #6B7280;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-background);
+        }
+        
+        .contact-container {
+            background-color: var(--color-background);
+        }
+        
+        .contact-card {
+            transition: all 0.3s ease;
+            background-color: var(--color-card);
+        }
+        
+        .contact-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-input {
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .btn-primary {
+            transition: all 0.2s ease;
+            background-color: var(--color-primary);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .success-message {
+            animation: slideDown 0.5s ease forwards;
+            background-color: rgba(34, 197, 94, 0.1);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+        
+        .error-message {
+            animation: slideDown 0.5s ease forwards;
+            background-color: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .social-icon {
+            transition: all 0.3s ease;
+        }
+        
+        .social-icon:hover {
+            transform: translateY(-3px);
+        }
+        
+        .loading-spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--color-primary);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen contact-container">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-feather="shield" class="text-indigo-600 w-8 h-8"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">BrandMe</span>
+                    </div>
+                    <nav class="hidden md:ml-6 md:flex md:items-center md:space-x-4 mr-6">
+                        <a href="index.html"
+                            class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">الرئيسية</a>
+                        <a href="dashboard.html"
+                            class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">لوحة
+                            التحكم</a>
+                        <a href="faq.html"
+                            class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">الأسئلة
+                            الشائعة</a>
+                        <a href="contact.html"
+                            class="px-3 py-2 text-sm font-medium text-indigo-600 border-b-2 border-indigo-600 transition-colors">اتصل
+                            بنا</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="login.html"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors">تسجيل
+                        الدخول</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-blue-50 to-indigo-50 py-16">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center fade-in">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">تواصل معنا</h1>
+            <p class="text-xl text-gray-600">
+                أرسل لنا استفسارك أو مشكلتك وسنرد عليك في أقرب وقت.
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Contact Form -->
+            <div class="fade-in">
+                <div class="contact-card bg-white rounded-xl shadow-md p-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">أرسل رسالة</h2>
+
+                    <!-- Success Message (Hidden by default) -->
+                    <div id="successMessage"
+                        class="hidden success-message border rounded-lg p-4 mb-6">
+                        <div class="flex items-center">
+                            <i data-feather="check-circle" class="text-green-600 w-5 h-5 ml-2"></i>
+                            <span class="text-green-800 font-medium">تم إرسال رسالتك بنجاح!</span>
+                        </div>
+                        <p class="text-green-700 text-sm mt-1">سوف نرد عليك في خلال 24 ساعة.</p>
+                    </div>
+
+                    <!-- Error Message (Hidden by default) -->
+                    <div id="errorMessage"
+                        class="hidden error-message border rounded-lg p-4 mb-6">
+                        <div class="flex items-center">
+                            <i data-feather="alert-circle" class="text-red-600 w-5 h-5 ml-2"></i>
+                            <span id="errorText" class="text-red-800 font-medium">حدث خطأ أثناء الإرسال</span>
+                        </div>
+                        <p id="errorDetails" class="text-red-700 text-sm mt-1">يرجى المحاولة مرة أخرى لاحقاً.</p>
+                    </div>
+
+                    <form id="contactForm" class="space-y-6">
+                        <div class="contact-form__name">
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">الاسم الكامل (اختياري)</label>
+                            <input type="text" id="name" name="name"
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                                placeholder="أدخل اسمك الكامل">
+                        </div>
+
+                        <div class="contact-form__email">
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">البريد
+                                الإلكتروني *</label>
+                            <input type="email" id="email" name="email" required
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                                placeholder="example@email.com">
+                        </div>
+
+                        <div class="contact-form__subject">
+                            <label for="subject" class="block text-sm font-medium text-gray-700 mb-2">موضوع الرسالة *</label>
+                            <input type="text" id="subject" name="subject" required
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                                placeholder="موضوع رسالتك">
+                        </div>
+
+                        <div class="contact-form__message">
+                            <label for="message" class="block text-sm font-medium text-gray-700 mb-2">الرسالة *</label>
+                            <textarea id="message" name="message" rows="5" required
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                                placeholder="اكتب رسالتك هنا..."></textarea>
+                        </div>
+
+                        <button type="submit" id="submitButton"
+                            class="btn-primary w-full px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all flex items-center justify-center">
+                            <span id="submitText">إرسال الرسالة</span>
+                            <div id="submitSpinner" class="loading-spinner hidden mr-2"></div>
+                            <i data-feather="send" class="w-5 h-5 ml-2" id="submitIcon"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="fade-in">
+                <div class="contact-card bg-white rounded-xl shadow-md p-8 h-full">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">معلومات التواصل</h2>
+
+                    <div class="space-y-6">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <i data-feather="mail" class="text-blue-600 w-6 h-6"></i>
+                                </div>
+                            </div>
+                            <div class="mr-4">
+                                <h3 class="text-lg font-semibold text-gray-900">البريد الإلكتروني</h3>
+                                <p class="text-gray-600">support@brandme.me</p>
+                                <p class="text-gray-500 text-sm mt-1">نرد خلال 24 ساعة</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                                    <i data-feather="clock" class="text-green-600 w-6 h-6"></i>
+                                </div>
+                            </div>
+                            <div class="mr-4">
+                                <h3 class="text-lg font-semibold text-gray-900">ساعات العمل</h3>
+                                <p class="text-gray-600">الأحد - الخميس: 8:00 ص - 6:00 م</p>
+                                <p class="text-gray-600">الجمعة - السبت: 10:00 ص - 4:00 م</p>
+                                <p class="text-gray-500 text-sm mt-1">بتوقيت السعودية</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                                    <i data-feather="help-circle" class="text-purple-600 w-6 h-6"></i>
+                                </div>
+                            </div>
+                            <div class="mr-4">
+                                <h3 class="text-lg font-semibold text-gray-900">الأسئلة الشائعة</h3>
+                                <p class="text-gray-600">قد تجد إجابة سؤالك في قسم الأسئلة الشائعة</p>
+                                <a href="faq.html"
+                                    class="text-indigo-600 hover:text-indigo-800 text-sm font-medium transition-colors">استعرض
+                                    الأسئلة الشائعة →</a>
+                            </div>
+                        </div>
+
+                        <div class="pt-6 border-t border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">تابعنا على</h3>
+                            <div class="flex space-x-4">
+                                <a href="#"
+                                    class="social-icon w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                                    <i data-feather="twitter" class="text-gray-600 w-5 h-5"></i>
+                                </a>
+                                <a href="#"
+                                    class="social-icon w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                                    <i data-feather="facebook" class="text-gray-600 w-5 h-5"></i>
+                                </a>
+                                <a href="#"
+                                    class="social-icon w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                                    <i data-feather="linkedin" class="text-gray-600 w-5 h-5"></i>
+                                </a>
+                                <a href="#"
+                                    class="social-icon w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                                    <i data-feather="github" class="text-gray-600 w-5 h-5"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Help Section -->
+        <section class="mt-16 fade-in">
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">هل تحتاج مساعدة سريعة؟</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <a href="faq.html" class="bg-white rounded-lg p-6 text-center hover:shadow-md transition-shadow">
+                        <i data-feather="help-circle" class="text-indigo-600 w-8 h-8 mx-auto mb-3"></i>
+                        <h3 class="font-semibold text-gray-900 mb-2">الأسئلة الشائعة</h3>
+                        <p class="text-gray-600 text-sm">ابحث عن إجابات للأسئلة المتكررة</p>
+                    </a>
+
+                    <a href="docs.html" class="bg-white rounded-lg p-6 text-center hover:shadow-md transition-shadow">
+                        <i data-feather="book-open" class="text-indigo-600 w-8 h-8 mx-auto mb-3"></i>
+                        <h3 class="font-semibold text-gray-900 mb-2">التوثيق</h3>
+                        <p class="text-gray-600 text-sm">استكشف دليل الاستخدام الشامل</p>
+                    </a>
+
+                    <a href="status.html" class="bg-white rounded-lg p-6 text-center hover:shadow-md transition-shadow">
+                        <i data-feather="activity" class="text-indigo-600 w-8 h-8 mx-auto mb-3"></i>
+                        <h3 class="font-semibold text-gray-900 mb-2">حالة الخدمة</h3>
+                        <p class="text-gray-600 text-sm">تحقق من حالة النظام الحالية</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-12 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <i data-feather="shield" class="text-indigo-600 w-5 h-5"></i>
+                    <span class="mr-2 text-sm text-gray-600">© 2025 BrandMe. جميع الحقوق محفوظة.</span>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="privacy.html" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">سياسة
+                        الخصوصية</a>
+                    <a href="terms.html" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">شروط
+                        الخدمة</a>
+                    <a href="about.html" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">من
+                        نحن</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        feather.replace();
+        
+        // حالة التحميل
+        let isLoading = false;
+        
+        // DOM Elements
+        const contactForm = document.getElementById('contactForm');
+        const submitButton = document.getElementById('submitButton');
+        const submitText = document.getElementById('submitText');
+        const submitSpinner = document.getElementById('submitSpinner');
+        const submitIcon = document.getElementById('submitIcon');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        const errorDetails = document.getElementById('errorDetails');
+        
+        // إدارة نموذج الاتصال
+        contactForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (isLoading) return;
+            
+            setLoadingState(true);
+            hideMessages();
+            
+            try {
+                // جمع بيانات النموذج
+                const formData = {
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    subject: document.getElementById('subject').value,
+                    message: document.getElementById('message').value
+                };
+                
+                // التحقق من صحة البيانات
+                if (!formData.email || !formData.subject || !formData.message) {
+                    throw new Error('يرجى ملء جميع الحقول الإجبارية');
+                }
+                
+                // إرسال البيانات إلى API
+                const response = await axios.post('/api/support/contact', formData);
+                
+                // عرض رسالة النجاح
+                showSuccess('تم إرسال رسالتك بنجاح، سنتواصل معك قريباً.');
+                
+                // إعادة تعيين النموذج
+                contactForm.reset();
+                
+            } catch (error) {
+                console.error('Error submitting contact form:', error);
+                
+                // عرض رسالة الخطأ المناسبة
+                if (error.response && error.response.data && error.response.data.message) {
+                    showError(error.response.data.message);
+                } else if (error.message) {
+                    showError(error.message);
+                } else {
+                    showError('حدث خطأ أثناء إرسال الرسالة، يرجى المحاولة مرة أخرى.');
+                }
+            } finally {
+                setLoadingState(false);
+            }
+        });
+        
+        // تعيين حالة التحميل
+        function setLoadingState(loading) {
+            isLoading = loading;
+            
+            if (loading) {
+                submitText.textContent = 'جاري الإرسال...';
+                submitSpinner.classList.remove('hidden');
+                submitIcon.classList.add('hidden');
+                submitButton.disabled = true;
+            } else {
+                submitText.textContent = 'إرسال الرسالة';
+                submitSpinner.classList.add('hidden');
+                submitIcon.classList.remove('hidden');
+                submitButton.disabled = false;
+            }
+        }
+        
+        // عرض رسالة النجاح
+        function showSuccess(message) {
+            successMessage.querySelector('span').textContent = message;
+            successMessage.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+            
+            // إخفاء الرسالة بعد 5 ثوان
+            setTimeout(() => {
+                successMessage.classList.add('hidden');
+            }, 5000);
+        }
+        
+        // عرض رسالة الخطأ
+        function showError(message, details = '') {
+            errorText.textContent = message;
+            errorDetails.textContent = details || 'يرجى المحاولة مرة أخرى لاحقاً.';
+            errorMessage.classList.remove('hidden');
+            successMessage.classList.add('hidden');
+            
+            // إخفاء الرسالة بعد 5 ثوان
+            setTimeout(() => {
+                errorMessage.classList.add('hidden');
+            }, 5000);
+        }
+        
+        // إخفاء جميع الرسائل
+        function hideMessages() {
+            successMessage.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+        }
+        
+        // تأثيرات عند التحميل
+        document.addEventListener('DOMContentLoaded', function() {
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((element, index) => {
+                element.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html>

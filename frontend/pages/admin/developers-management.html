@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة المطورين | BrandMe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #2563EB;
+            --color-secondary: #22C55E;
+            --color-bg: #FFFFFF;
+            --color-card: #F3F4F6;
+            --font-main: 'Inter', sans-serif;
+            --transition-default: all 0.3s ease;
+            --shadow-default: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: var(--font-main);
+            background-color: var(--color-bg);
+        }
+        
+        /* Layout Components */
+        .admin-container {
+            background-color: #F9FAFB;
+            min-height: 100vh;
+        }
+        
+        .admin-header {
+            background-color: var(--color-bg);
+            box-shadow: var(--shadow-default);
+        }
+        
+        .admin-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        
+        .admin-section {
+            margin-bottom: 2rem;
+        }
+        
+        .admin-card {
+            background-color: var(--color-bg);
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-default);
+            padding: 1.5rem;
+            transition: var(--transition-default);
+        }
+        
+        .admin-card--hover:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .stats-card {
+            composes: admin-card admin-card--hover;
+            display: flex;
+            align-items: center;
+        }
+        
+        .stats-card__icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 1rem;
+        }
+        
+        .stats-card__icon--active {
+            background-color: #DCFCE7;
+            color: #16A34A;
+        }
+        
+        .stats-card__icon--suspended {
+            background-color: #FEE2E2;
+            color: #DC2626;
+        }
+        
+        .stats-card__icon--total {
+            background-color: #DBEAFE;
+            color: #2563EB;
+        }
+        
+        .stats-card__content {
+            flex: 1;
+        }
+        
+        .stats-card__label {
+            font-size: 0.875rem;
+            color: #6B7280;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stats-card__value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #111827;
+        }
+        
+        /* Search & Filters */
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .search-box {
+            composes: admin-card;
+            position: relative;
+        }
+        
+        .search-box__input {
+            width: 100%;
+            padding: 0.5rem 1rem 0.5rem 2.5rem;
+            border: 1px solid #D1D5DB;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: var(--transition-default);
+        }
+        
+        .search-box__input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .search-box__icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1rem;
+            height: 1rem;
+            color: #9CA3AF;
+        }
+        
+        .filter-select {
+            composes: admin-card;
+            padding: 0;
+        }
+        
+        .filter-select__control {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border: 1px solid #D1D5DB;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            background-color: transparent;
+            transition: var(--transition-default);
+        }
+        
+        .filter-select__control:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        /* Bulk Actions */
+        .bulk-actions {
+            composes: admin-card;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+        }
+        
+        .bulk-actions__selection {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .bulk-actions__checkbox {
+            width: 1rem;
+            height: 1rem;
+            color: var(--color-primary);
+            border-color: #D1D5DB;
+            border-radius: 0.25rem;
+        }
+        
+        .bulk-actions__label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .bulk-actions__buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .bulk-action-btn {
+            display: flex;
+            align-items: center;
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: var(--transition-default);
+        }
+        
+        .bulk-action-btn--activate {
+            color: #059669;
+            background-color: #D1FAE5;
+        }
+        
+        .bulk-action-btn--activate:hover {
+            background-color: #A7F3D0;
+        }
+        
+        .bulk-action-btn--suspend {
+            color: #DC2626;
+            background-color: #FEE2E2;
+        }
+        
+        .bulk-action-btn--suspend:hover {
+            background-color: #FECACA;
+        }
+        
+        .bulk-action-btn--regenerate {
+            color: #D97706;
+            background-color: #FEF3C7;
+        }
+        
+        .bulk-action-btn--regenerate:hover {
+            background-color: #FDE68A;
+        }
+        
+        .bulk-action-btn__icon {
+            width: 1rem;
+            height: 1rem;
+            margin-left: 0.25rem;
+        }
+        
+        /* Developers Table */
+        .developers-table {
+            composes: admin-card;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .developers-table__container {
+            overflow-x: auto;
+        }
+        
+        .developers-table__table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .developers-table__header {
+            background-color: #F9FAFB;
+        }
+        
+        .developers-table__header-cell {
+            padding: 0.75rem 1.5rem;
+            text-align: right;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #6B7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .developers-table__row {
+            border-bottom: 1px solid #E5E7EB;
+            transition: var(--transition-default);
+        }
+        
+        .developers-table__row:hover {
+            background-color: #F3F4F6;
+        }
+        
+        .developers-table__cell {
+            padding: 1rem 1.5rem;
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+        
+        .developers-table__checkbox {
+            width: 1rem;
+            height: 1rem;
+            color: var(--color-primary);
+            border-color: #D1D5DB;
+            border-radius: 0.25rem;
+        }
+        
+        .developer-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .developer-info__avatar {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background-color: #E5E7EB;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 0.75rem;
+        }
+        
+        .developer-info__avatar-icon {
+            width: 1rem;
+            height: 1rem;
+            color: #6B7280;
+        }
+        
+        .developer-info__name {
+            font-weight: 500;
+            color: #111827;
+        }
+        
+        .developer-info__email {
+            color: #111827;
+        }
+        
+        .developer-info__app {
+            color: #6B7280;
+        }
+        
+        .api-key {
+            font-family: 'Courier New', monospace;
+            background-color: #F3F4F6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: var(--transition-default);
+        }
+        
+        .status-badge:hover {
+            transform: scale(1.05);
+        }
+        
+        .status-badge--active {
+            background-color: #D1FAE5;
+            color: #059669;
+        }
+        
+        .status-badge--suspended {
+            background-color: #FEE2E2;
+            color: #DC2626;
+        }
+        
+        .status-badge--inactive {
+            background-color: #F3F4F6;
+            color: #374151;
+        }
+        
+        .date-info {
+            color: #6B7280;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            color: #6B7280;
+            transition: var(--transition-default);
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-1px);
+            color: var(--color-primary);
+        }
+        
+        .action-btn--view:hover {
+            color: var(--color-primary);
+        }
+        
+        .action-btn--regenerate:hover {
+            color: #D97706;
+        }
+        
+        .action-btn--activate:hover {
+            color: #059669;
+        }
+        
+        .action-btn--suspend:hover {
+            color: #DC2626;
+        }
+        
+        .action-btn__icon {
+            width: 1rem;
+            height: 1rem;
+        }
+        
+        /* Pagination */
+        .pagination {
+            composes: admin-card;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #E5E7EB;
+        }
+        
+        .pagination__info {
+            font-size: 0.875rem;
+            color: #374151;
+        }
+        
+        .pagination__count {
+            font-weight: 500;
+        }
+        
+        .pagination__buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .pagination-btn {
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: var(--transition-default);
+        }
+        
+        .pagination-btn--normal {
+            color: #374151;
+            background-color: #F3F4F6;
+        }
+        
+        .pagination-btn--normal:hover {
+            background-color: #E5E7EB;
+        }
+        
+        .pagination-btn--active {
+            color: white;
+            background-color: var(--color-primary);
+        }
+        
+        .pagination-btn--active:hover {
+            background-color: #1D4ED8;
+        }
+        
+        /* Recent Keys */
+        .recent-keys {
+            composes: admin-card;
+        }
+        
+        .recent-keys__title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 1.5rem;
+        }
+        
+        .recent-keys__list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .recent-key {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #F3F4F6;
+        }
+        
+        .recent-key__info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .recent-key__time {
+            font-size: 0.875rem;
+            color: #6B7280;
+        }
+        
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+            opacity: 0;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .admin-main {
+                padding: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .bulk-actions {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            
+            .bulk-actions__buttons {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+            
+            .developers-table__header-cell,
+            .developers-table__cell {
+                padding: 0.5rem 0.75rem;
+            }
+            
+            .pagination {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            
+            .pagination__buttons {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .developer-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .developer-info__avatar {
+                margin-left: 0;
+                margin-bottom: 0.5rem;
+            }
+            
+            .action-buttons {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body class="admin-container">
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-feather="shield" class="text-indigo-600 w-8 h-8"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">BrandMe</span>
+                    </div>
+                    <nav class="hidden md:ml-6 md:flex md:items-center md:space-x-4 mr-6">
+                        <a href="dashboard.html" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">لوحة التحكم</a>
+                        <a href="profile.html" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">الإعدادات</a>
+                        <a href="users.html" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">إدارة المستخدمين</a>
+                        <a href="developers.html" class="px-3 py-2 text-sm font-medium text-indigo-600 border-b-2 border-indigo-600 transition-colors">إدارة المطورين</a>
+                        <a href="logs.html" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">سجلات النظام</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-600">مسؤول النظام</span>
+                    <a href="login.html" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors">تسجيل الخروج</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <!-- Page Title -->
+        <div class="admin-section fade-in">
+            <h1 class="text-3xl font-bold text-gray-900">إدارة المطورين</h1>
+            <p class="text-gray-600 mt-2">إدارة حسابات المطورين ومفاتيحهم الخاصة بـ BrandMe API.</p>
+        </div>
+
+        <!-- Statistics Dashboard -->
+        <section class="admin-section fade-in">
+            <div class="stats-grid">
+                <div class="stats-card">
+                    <div class="stats-card__icon stats-card__icon--active">
+                        <i data-feather="users" class="w-6 h-6"></i>
+                    </div>
+                    <div class="stats-card__content">
+                        <p class="stats-card__label">المطورين النشطين</p>
+                        <p class="stats-card__value" id="active-developers-count">42</p>
+                    </div>
+                </div>
+                
+                <div class="stats-card">
+                    <div class="stats-card__icon stats-card__icon--suspended">
+                        <i data-feather="pause" class="w-6 h-6"></i>
+                    </div>
+                    <div class="stats-card__content">
+                        <p class="stats-card__label">المفاتيح المعلقة</p>
+                        <p class="stats-card__value" id="suspended-keys-count">8</p>
+                    </div>
+                </div>
+                
+                <div class="stats-card">
+                    <div class="stats-card__icon stats-card__icon--total">
+                        <i data-feather="key" class="w-6 h-6"></i>
+                    </div>
+                    <div class="stats-card__content">
+                        <p class="stats-card__label">إجمالي المفاتيح</p>
+                        <p class="stats-card__value" id="total-keys-count">127</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search & Filters Section -->
+        <section class="admin-section fade-in">
+            <div class="admin-card">
+                <div class="filters-grid">
+                    <!-- Search -->
+                    <div class="search-box">
+                        <input type="text" id="search-input" placeholder="ابحث بالبريد أو اسم التطبيق..." class="search-box__input">
+                        <i data-feather="search" class="search-box__icon"></i>
+                    </div>
+                    
+                    <!-- Status Filter -->
+                    <div class="filter-select">
+                        <select id="status-filter" class="filter-select__control">
+                            <option value="">جميع الحالات</option>
+                            <option value="active">نشط</option>
+                            <option value="inactive">غير نشط</option>
+                            <option value="suspended">موقوف</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Sort -->
+                    <div class="filter-select">
+                        <select id="sort-by" class="filter-select__control">
+                            <option value="newest">الأحدث أولاً</option>
+                            <option value="oldest">الأقدم أولاً</option>
+                            <option value="last-used">آخر استخدام</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bulk Actions Section -->
+        <section class="admin-section fade-in">
+            <div class="bulk-actions">
+                <div class="bulk-actions__selection">
+                    <input type="checkbox" id="select-all" class="bulk-actions__checkbox">
+                    <label for="select-all" class="bulk-actions__label">تحديد الكل</label>
+                </div>
+                
+                <div class="bulk-actions__buttons">
+                    <button id="bulk-activate" class="bulk-action-btn bulk-action-btn--activate">
+                        <i data-feather="check-circle" class="bulk-action-btn__icon"></i>
+                        تفعيل المحدد
+                    </button>
+                    <button id="bulk-suspend" class="bulk-action-btn bulk-action-btn--suspend">
+                        <i data-feather="pause" class="bulk-action-btn__icon"></i>
+                        إيقاف المحدد
+                    </button>
+                    <button id="bulk-regenerate" class="bulk-action-btn bulk-action-btn--regenerate">
+                        <i data-feather="refresh-cw" class="bulk-action-btn__icon"></i>
+                        إعادة توليد المفاتيح
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Developers Table Section -->
+        <section class="admin-section fade-in">
+            <div class="developers-table">
+                <div class="developers-table__container">
+                    <table class="developers-table__table">
+                        <thead class="developers-table__header">
+                            <tr>
+                                <th class="developers-table__header-cell">
+                                    <input type="checkbox" class="developers-table__checkbox" id="table-select-all">
+                                </th>
+                                <th class="developers-table__header-cell">المطور / الشركة</th>
+                                <th class="developers-table__header-cell">البريد</th>
+                                <th class="developers-table__header-cell">اسم التطبيق</th>
+                                <th class="developers-table__header-cell">مفتاح API</th>
+                                <th class="developers-table__header-cell">الحالة</th>
+                                <th class="developers-table__header-cell">تاريخ التسجيل</th>
+                                <th class="developers-table__header-cell">آخر استخدام</th>
+                                <th class="developers-table__header-cell">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="developers-table-body">
+                            <!-- سيتم ملء هذا القسم ديناميكياً عبر JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination">
+                    <div class="pagination__info">
+                        عرض <span class="pagination__count" id="pagination-start">1</span> إلى 
+                        <span class="pagination__count" id="pagination-end">10</span> من 
+                        <span class="pagination__count" id="pagination-total">0</span> نتائج
+                    </div>
+                    <div class="pagination__buttons">
+                        <button id="pagination-prev" class="pagination-btn pagination-btn--normal">السابق</button>
+                        <button id="pagination-page-1" class="pagination-btn pagination-btn--active">1</button>
+                        <button id="pagination-page-2" class="pagination-btn pagination-btn--normal">2</button>
+                        <button id="pagination-page-3" class="pagination-btn pagination-btn--normal">3</button>
+                        <button id="pagination-next" class="pagination-btn pagination-btn--normal">التالي</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Keys Section -->
+        <section class="admin-section fade-in">
+            <h2 class="recent-keys__title">آخر المفاتيح المنشأة</h2>
+            <div class="recent-keys">
+                <div class="recent-keys__list" id="recent-keys-list">
+                    <!-- سيتم ملء هذا القسم ديناميكياً عبر JavaScript -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-12 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <i data-feather="shield" class="text-indigo-600 w-5 h-5"></i>
+                    <span class="mr-2 text-sm text-gray-600">© 2025 BrandMe. جميع الحقوق محفوظة.</span>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="privacy.html" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">سياسة الخصوصية</a>
+                    <a href="terms.html" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">شروط الخدمة</a>
+                    <a href="contact.html" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">اتصل بنا</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // تهيئة Feather Icons
+        feather.replace();
+        
+        // متغيرات التطبيق
+        const appState = {
+            developers: [],
+            filteredDevelopers: [],
+            currentPage: 1,
+            pageSize: 10,
+            searchTerm: '',
+            statusFilter: '',
+            sortBy: 'newest',
+            selectedDevelopers: new Set()
+        };
+        
+        // DOM Elements
+        const elements = {
+            developersTableBody: document.getElementById('developers-table-body'),
+            recentKeysList: document.getElementById('recent-keys-list'),
+            searchInput: document.getElementById('search-input'),
+            statusFilter: document.getElementById('status-filter'),
+            sortBy: document.getElementById('sort-by'),
+            selectAll: document.getElementById('select-all'),
+            tableSelectAll: document.getElementById('table-select-all'),
+            bulkActivate: document.getElementById('bulk-activate'),
+            bulkSuspend: document.getElementById('bulk-suspend'),
+            bulkRegenerate: document.getElementById('bulk-regenerate'),
+            paginationStart: document.getElementById('pagination-start'),
+            paginationEnd: document.getElementById('pagination-end'),
+            paginationTotal: document.getElementById('pagination-total'),
+            paginationPrev: document.getElementById('pagination-prev'),
+            paginationNext: document.getElementById('pagination-next'),
+            activeDevelopersCount: document.getElementById('active-developers-count'),
+            suspendedKeysCount: document.getElementById('suspended-keys-count'),
+            totalKeysCount: document.getElementById('total-keys-count')
+        };
+        
+        // وظائف إدارة الجدول
+        document.addEventListener('DOMContentLoaded', function() {
+            // تهيئة الرسوم المتحركة
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach((element, index) => {
+                element.style.animationDelay = `${index * 0.1}s`;
+            });
+            
+            // جلب البيانات من API
+            fetchDevelopers();
+            
+            // إعداد معالجات الأحداث
+            setupEventListeners();
+        });
+        
+        // جلب بيانات المطورين من API
+        async function fetchDevelopers() {
+            try {
+                const response = await fetch('/api/developers');
+                if (!response.ok) throw new Error('فشل في جلب البيانات');
+                
+                const data = await response.json();
+                appState.developers = data;
+                appState.filteredDevelopers = [...data];
+                
+                updateStatistics();
+                renderDevelopersTable();
+                renderRecentKeys();
+                updatePagination();
+            } catch (error) {
+                console.error('Error fetching developers:', error);
+                // عرض بيانات تجريبية في حالة فشل الاتصال
+                loadSampleData();
+            }
+        }
+        
+        // تحميل بيانات تجريبية (للتنمية فقط)
+        function loadSampleData() {
+            appState.developers = [
+                {
+                    id: 1,
+                    name: "شركة التقنية",
+                    email: "tech@example.com",
+                    appName: "My Shopping App",
+                    apiKey: "sk_live_********abcd",
+                    status: "active",
+                    registrationDate: "١٥ أكتوبر ٢٠٢٣",
+                    lastUsed: "منذ ساعتين",
+                    avatarType: "briefcase"
+                },
+                {
+                    id: 2,
+                    name: "أحمد عبدالله",
+                    email: "ahmed@example.com",
+                    appName: "Blog Platform",
+                    apiKey: "sk_live_********efgh",
+                    status: "suspended",
+                    registrationDate: "١٠ أكتوبر ٢٠٢٣",
+                    lastUsed: "منذ 5 أيام",
+                    avatarType: "user"
+                },
+                {
+                    id: 3,
+                    name: "مؤسسة النور",
+                    email: "info@alnoor.com",
+                    appName: "E-commerce Store",
+                    apiKey: "sk_live_********ijkl",
+                    status: "inactive",
+                    registrationDate: "٨ أكتوبر ٢٠٢٣",
+                    lastUsed: "منذ أسبوع",
+                    avatarType: "briefcase"
+                }
+            ];
+            
+            appState.filteredDevelopers = [...appState.developers];
+            updateStatistics();
+            renderDevelopersTable();
+            renderRecentKeys();
+            updatePagination();
+        }
+        
+        // إعداد معالجات الأحداث
+        function setupEventListeners() {
+            // البحث والتصفية
+            elements.searchInput.addEventListener('input', handleSearch);
+            elements.statusFilter.addEventListener('change', handleFilter);
+            elements.sortBy.addEventListener('change', handleSort);
+            
+            // تحديد/إلغاء تحديد الكل
+            elements.selectAll.addEventListener('change', toggleSelectAll);
+            elements.tableSelectAll.addEventListener('change', toggleTableSelectAll);
+            
+            // إجراءات المجموعة
+            elements.bulkActivate.addEventListener('click', handleBulkActivate);
+            elements.bulkSuspend.addEventListener('click', handleBulkSuspend);
+            elements.bulkRegenerate.addEventListener('click', handleBulkRegenerate);
+            
+            // التصفح بين الصفحات
+            elements.paginationPrev.addEventListener('click', goToPrevPage);
+            elements.paginationNext.addEventListener('click', goToNextPage);
+        }
+        
+        // معالجة البحث
+        function handleSearch(e) {
+            appState.searchTerm = e.target.value.toLowerCase();
+            filterDevelopers();
+        }
+        
+        // معالجة التصفية
+        function handleFilter(e) {
+            appState.statusFilter = e.target.value;
+            filterDevelopers();
+        }
+        
+        // معالجة الترتيب
+        function handleSort(e) {
+            appState.sortBy = e.target.value;
+            sortDevelopers();
+        }
+        
+        // تصفية المطورين
+        function filterDevelopers() {
+            appState.filteredDevelopers = appState.developers.filter(developer => {
+                const matchesSearch = !appState.searchTerm || 
+                    developer.email.toLowerCase().includes(appState.searchTerm) ||
+                    developer.appName.toLowerCase().includes(appState.searchTerm);
+                
+                const matchesStatus = !appState.statusFilter || 
+                    developer.status === appState.statusFilter;
+                
+                return matchesSearch && matchesStatus;
+            });
+            
+            sortDevelopers();
+        }
+        
+        // ترتيب المطورين
+        function sortDevelopers() {
+            switch (appState.sortBy) {
+                case 'newest':
+                    appState.filteredDevelopers.sort((a, b) => new Date(b.registrationDate) - new Date(a.registrationDate));
+                    break;
+                case 'oldest':
+                    appState.filteredDevelopers.sort((a, b) => new Date(a.registrationDate) - new Date(b.registrationDate));
+                    break;
+                case 'last-used':
+                    // هذا مثال مبسط، في التطبيق الحقيقي تحتاج إلى معالجة تاريخ آخر استخدام
+                    appState.filteredDevelopers.sort((a, b) => a.lastUsed.localeCompare(b.lastUsed));
+                    break;
+            }
+            
+            renderDevelopersTable();
+            updatePagination();
+        }
+        
+        // عرض المطورين في الجدول
+        function renderDevelopersTable() {
+            const startIndex = (appState.currentPage - 1) * appState.pageSize;
+            const endIndex = Math.min(startIndex + appState.pageSize, appState.filteredDevelopers.length);
+            const developersToShow = appState.filteredDevelopers.slice(startIndex, endIndex);
+            
+            elements.developersTableBody.innerHTML = '';
+            
+            developersToShow.forEach(developer => {
+                const row = document.createElement('tr');
+                row.className = 'developers-table__row';
+                row.innerHTML = `
+                    <td class="developers-table__cell">
+                        <input type="checkbox" class="developers-table__checkbox" data-id="${developer.id}">
+                    </td>
+                    <td class="developers-table__cell">
+                        <div class="developer-info">
+                            <div class="developer-info__avatar">
+                                <i data-feather="${developer.avatarType || 'user'}" class="developer-info__avatar-icon"></i>
+                            </div>
+                            <div class="developer-info__name">${developer.name}</div>
+                        </div>
+                    </td>
+                    <td class="developers-table__cell">
+                        <div class="developer-info__email">${developer.email}</div>
+                    </td>
+                    <td class="developers-table__cell">
+                        <div class="developer-info__app">${developer.appName}</div>
+                    </td>
+                    <td class="developers-table__cell">
+                        <span class="api-key">${developer.apiKey}</span>
+                    </td>
+                    <td class="developers-table__cell">
+                        <span class="status-badge status-badge--${developer.status}">
+                            ${getStatusText(developer.status)}
+                        </span>
+                    </td>
+                    <td class="developers-table__cell">
+                        <div class="date-info">${developer.registrationDate}</div>
+                    </td>
+                    <td class="developers-table__cell">
+                        <div class="date-info">${developer.lastUsed}</div>
+                    </td>
+                    <td class="developers-table__cell">
+                        <div class="action-buttons">
+                            <button class="action-btn action-btn--view" data-id="${developer.id}">
+                                <i data-feather="eye" class="action-btn__icon"></i>
+                            </button>
+                            <button class="action-btn action-btn--regenerate" data-id="${developer.id}">
+                                <i data-feather="refresh-cw" class="action-btn__icon"></i>
+                            </button>
+                            ${developer.status === 'active' ? 
+                                `<button class="action-btn action-btn--suspend" data-id="${developer.id}">
+                                    <i data-feather="pause" class="action-btn__icon"></i>
+                                </button>` :
+                                `<button class="action-btn action-btn--activate" data-id="${developer.id}">
+                                    <i data-feather="check-circle" class="action-btn__icon"></i>
+                                </button>`
+                            }
+                        </div>
+                    </td>
+                `;
+                
+                elements.developersTableBody.appendChild(row);
+                
+                // إضافة معالجات الأحداث للأزرار
+                setTimeout(() => {
+                    feather.replace();
+                    attachActionHandlers(row);
+                }, 0);
+            });
+            
+            updateCheckboxStates();
+        }
+        
+        // إرفاق معالجات الأحداث لأزرار الإجراءات
+        function attachActionHandlers(row) {
+            const viewBtn = row.querySelector('.action-btn--view');
+            const regenerateBtn = row.querySelector('.action-btn--regenerate');
+            const activateBtn = row.querySelector('.action-btn--activate');
+            const suspendBtn = row.querySelector('.action-btn--suspend');
+            const checkbox = row.querySelector('.developers-table__checkbox');
+            
+            const developerId = viewBtn.getAttribute('data-id');
+            
+            viewBtn.addEventListener('click', () => viewDeveloper(developerId));
+            regenerateBtn.addEventListener('click', () => regenerateKey(developerId));
+            
+            if (activateBtn) {
+                activateBtn.addEventListener('click', () => activateDeveloper(developerId));
+            }
+            
+            if (suspendBtn) {
+                suspendBtn.addEventListener('click', () => suspendDeveloper(developerId));
+            }
+            
+            checkbox.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    appState.selectedDevelopers.add(developerId);
+                } else {
+                    appState.selectedDevelopers.delete(developerId);
+                }
+                updateBulkActionsState();
+            });
+        }
+        
+        // عرض تفاصيل المطور
+        function viewDeveloper(id) {
+            const developer = appState.developers.find(d => d.id == id);
+            alert(`عرض تفاصيل المطور: ${developer.name}\nالبريد: ${developer.email}\nالتطبيق: ${developer.appName}`);
+        }
+        
+        // إعادة توليد المفتاح
+        async function regenerateKey(id) {
+            if (!confirm('هل أنت متأكد من رغبتك في إعادة توليد مفتاح API؟ هذا الإجراء سيجعل المفتاح الحالي غير صالح.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/developers/${id}/regenerate-key`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) throw new Error('فشل في إعادة توليد المفتاح');
+                
+                const result = await response.json();
+                alert(`تم إعادة توليد المفتاح بنجاح. المفتاح الجديد: ${result.newKey}`);
+                
+                // تحديث البيانات المحلية
+                const developer = appState.developers.find(d => d.id == id);
+                if (developer) {
+                    developer.apiKey = result.newKey;
+                    renderDevelopersTable();
+                    renderRecentKeys();
+                }
+            } catch (error) {
+                console.error('Error regenerating key:', error);
+                alert('حدث خطأ أثناء إعادة توليد المفتاح');
+            }
+        }
+        
+        // تفعيل المطور
+        async function activateDeveloper(id) {
+            try {
+                const response = await fetch(`/api/developers/${id}/activate`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) throw new Error('فشل في تفعيل المطور');
+                
+                // تحديث البيانات المحلية
+                const developer = appState.developers.find(d => d.id == id);
+                if (developer) {
+                    developer.status = 'active';
+                    renderDevelopersTable();
+                    updateStatistics();
+                }
+                
+                alert('تم تفعيل المفتاح بنجاح');
+            } catch (error) {
+                console.error('Error activating developer:', error);
+                alert('حدث خطأ أثناء تفعيل المطور');
+            }
+        }
+        
+        // تعطيل المطور
+        async function suspendDeveloper(id) {
+            try {
+                const response = await fetch(`/api/developers/${id}/suspend`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) throw new Error('فشل في تعطيل المطور');
+                
+                // تحديث البيانات المحلية
+                const developer = appState.developers.find(d => d.id == id);
+                if (developer) {
+                    developer.status = 'suspended';
+                    renderDevelopersTable();
+                    updateStatistics();
+                }
+                
+                alert('تم إيقاف المفتاح بنجاح');
+            } catch (error) {
+                console.error('Error suspending developer:', error);
+                alert('حدث خطأ أثناء تعطيل المطور');
+            }
+        }
+        
+        // عرض المفاتيح الحديثة
+        function renderRecentKeys() {
+            // في التطبيق الحقيقي، ستحتاج إلى جلب هذه البيانات من API منفصل
+            const recentKeys = [
+                { key: "sk_live_********mnop", status: "active", time: "منذ 5 دقائق" },
+                { key: "sk_live_********qrst", status: "active", time: "منذ ساعة" },
+                { key: "sk_live_********uvwx", status: "inactive", time: "منذ 3 ساعات" }
+            ];
+            
+            elements.recentKeysList.innerHTML = '';
+            
+            recentKeys.forEach(key => {
+                const keyElement = document.createElement('div');
+                keyElement.className = 'recent-key';
+                keyElement.innerHTML = `
+                    <div class="recent-key__info">
+                        <span class="api-key">${key.key}</span>
+                        <span class="status-badge status-badge--${key.status}">
+                            ${getStatusText(key.status)}
+                        </span>
+                    </div>
+                    <div class="recent-key__time">${key.time}</div>
+                `;
+                
+                elements.recentKeysList.appendChild(keyElement);
+            });
+        }
+        
+        // تحديث إحصائيات الصفحة
+        function updateStatistics() {
+            const activeCount = appState.developers.filter(d => d.status === 'active').length;
+            const suspendedCount = appState.developers.filter(d => d.status === 'suspended').length;
+            const totalCount = appState.developers.length;
+            
+            elements.activeDevelopersCount.textContent = activeCount;
+            elements.suspendedKeysCount.textContent = suspendedCount;
+            elements.totalKeysCount.textContent = totalCount;
+        }
+        
+        // تحديث حالة التصفح بين الصفحات
+        function updatePagination() {
+            const totalItems = appState.filteredDevelopers.length;
+            const startIndex = (appState.currentPage - 1) * appState.pageSize + 1;
+            const endIndex = Math.min(startIndex + appState.pageSize - 1, totalItems);
+            
+            elements.paginationStart.textContent = startIndex;
+            elements.paginationEnd.textContent = endIndex;
+            elements.paginationTotal.textContent = totalItems;
+            
+            // تحديث حالة أزرار التصفح
+            elements.paginationPrev.disabled = appState.currentPage === 1;
+            elements.paginationNext.disabled = endIndex >= totalItems;
+        }
+        
+        // الانتقال للصفحة السابقة
+        function goToPrevPage() {
+            if (appState.currentPage > 1) {
+                appState.currentPage--;
+                renderDevelopersTable();
+                updatePagination();
+            }
+        }
+        
+        // الانتقال للصفحة التالية
+        function goToNextPage() {
+            const totalPages = Math.ceil(appState.filteredDevelopers.length / appState.pageSize);
+            if (appState.currentPage < totalPages) {
+                appState.currentPage++;
+                renderDevelopersTable();
+                updatePagination();
+            }
+        }
+        
+        // تحديد/إلغاء تحديد الكل
+        function toggleSelectAll() {
+            const isChecked = elements.selectAll.checked;
+            elements.tableSelectAll.checked = isChecked;
+            
+            const checkboxes = document.querySelectorAll('.developers-table__checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = isChecked;
+                const developerId = checkbox.getAttribute('data-id');
+                
+                if (isChecked) {
+                    appState.selectedDevelopers.add(developerId);
+                } else {
+                    appState.selectedDevelopers.delete(developerId);
+                }
+            });
+            
+            updateBulkActionsState();
+        }
+        
+        // تحديد/إلغاء تحديد الكل من الجدول
+        function toggleTableSelectAll() {
+            const isChecked = elements.tableSelectAll.checked;
+            elements.selectAll.checked = isChecked;
+            
+            const checkboxes = document.querySelectorAll('.developers-table__checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = isChecked;
+                const developerId = checkbox.getAttribute('data-id');
+                
+                if (isChecked) {
+                    appState.selectedDevelopers.add(developerId);
+                } else {
+                    appState.selectedDevelopers.delete(developerId);
+                }
+            });
+            
+            updateBulkActionsState();
+        }
+        
+        // تحديث حالة خانات الاختيار
+        function updateCheckboxStates() {
+            const checkboxes = document.querySelectorAll('.developers-table__checkbox');
+            let allChecked = true;
+            let anyChecked = false;
+            
+            checkboxes.forEach(checkbox => {
+                const developerId = checkbox.getAttribute('data-id');
+                checkbox.checked = appState.selectedDevelopers.has(developerId);
+                
+                if (!checkbox.checked) allChecked = false;
+                if (checkbox.checked) anyChecked = true;
+            });
+            
+            elements.selectAll.checked = allChecked;
+            elements.tableSelectAll.checked = allChecked;
+            updateBulkActionsState();
+        }
+        
+        // تحديث حالة أزرار الإجراءات الجماعية
+        function updateBulkActionsState() {
+            const hasSelection = appState.selectedDevelopers.size > 0;
+            elements.bulkActivate.disabled = !hasSelection;
+            elements.bulkSuspend.disabled = !hasSelection;
+            elements.bulkRegenerate.disabled = !hasSelection;
+        }
+        
+        // معالجة التفعيل الجماعي
+        async function handleBulkActivate() {
+            if (appState.selectedDevelopers.size === 0) return;
+            
+            if (!confirm(`هل أنت متأكد من رغبتك في تفعيل ${appState.selectedDevelopers.size} مفتاح؟`)) {
+                return;
+            }
+            
+            try {
+                const promises = Array.from(appState.selectedDevelopers).map(id => 
+                    fetch(`/api/developers/${id}/activate`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                );
+                
+                const responses = await Promise.all(promises);
+                const allOk = responses.every(response => response.ok);
+                
+                if (!allOk) throw new Error('فشل في تفعيل بعض المفاتيح');
+                
+                // تحديث البيانات المحلية
+                appState.developers.forEach(developer => {
+                    if (appState.selectedDevelopers.has(developer.id.toString())) {
+                        developer.status = 'active';
+                    }
+                });
+                
+                renderDevelopersTable();
+                updateStatistics();
+                appState.selectedDevelopers.clear();
+                updateCheckboxStates();
+                
+                alert('تم تفعيل المفاتيح المحددة بنجاح');
+            } catch (error) {
+                console.error('Error bulk activating:', error);
+                alert('حدث خطأ أثناء تفعيل المفاتيح');
+            }
+        }
+        
+        // معالجة التعطيل الجماعي
+        async function handleBulkSuspend() {
+            if (appState.selectedDevelopers.size === 0) return;
+            
+            if (!confirm(`هل أنت متأكد من رغبتك في تعطيل ${appState.selectedDevelopers.size} مفتاح؟`)) {
+                return;
+            }
+            
+            try {
+                const promises = Array.from(appState.selectedDevelopers).map(id => 
+                    fetch(`/api/developers/${id}/suspend`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                );
+                
+                const responses = await Promise.all(promises);
+                const allOk = responses.every(response => response.ok);
+                
+                if (!allOk) throw new Error('فشل في تعطيل بعض المفاتيح');
+                
+                // تحديث البيانات المحلية
+                appState.developers.forEach(developer => {
+                    if (appState.selectedDevelopers.has(developer.id.toString())) {
+                        developer.status = 'suspended';
+                    }
+                });
+                
+                renderDevelopersTable();
+                updateStatistics();
+                appState.selectedDevelopers.clear();
+                updateCheckboxStates();
+                
+                alert('تم تعطيل المفاتيح المحددة بنجاح');
+            } catch (error) {
+                console.error('Error bulk suspending:', error);
+                alert('حدث خطأ أثناء تعطيل المفاتيح');
+            }
+        }
+        
+        // معالجة إعادة التوليد الجماعي
+        async function handleBulkRegenerate() {
+            if (appState.selectedDevelopers.size === 0) return;
+            
+            if (!confirm(`هل أنت متأكد من رغبتك في إعادة توليد ${appState.selectedDevelopers.size} مفتاح؟ هذا الإجراء سيجعل المفاتيح الحالية غير صالحة.`)) {
+                return;
+            }
+            
+            try {
+                const promises = Array.from(appState.selectedDevelopers).map(id => 
+                    fetch(`/api/developers/${id}/regenerate-key`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                );
+                
+                const responses = await Promise.all(promises);
+                const allOk = responses.every(response => response.ok);
+                
+                if (!allOk) throw new Error('فشل في إعادة توليد بعض المفاتيح');
+                
+                const results = await Promise.all(responses.map(r => r.json()));
+                
+                // تحديث البيانات المحلية
+                results.forEach((result, index) => {
+                    const developerId = Array.from(appState.selectedDevelopers)[index];
+                    const developer = appState.developers.find(d => d.id == developerId);
+                    if (developer) {
+                        developer.apiKey = result.newKey;
+                    }
+                });
+                
+                renderDevelopersTable();
+                renderRecentKeys();
+                appState.selectedDevelopers.clear();
+                updateCheckboxStates();
+                
+                alert('تم إعادة توليد المفاتيح المحددة بنجاح');
+            } catch (error) {
+                console.error('Error bulk regenerating:', error);
+                alert('حدث خطأ أثناء إعادة توليد المفاتيح');
+            }
+        }
+        
+        // الحصول على نص الحالة
+        function getStatusText(status) {
+            switch (status) {
+                case 'active': return 'نشط';
+                case 'suspended': return 'موقوف';
+                case 'inactive': return 'غير نشط';
+                default: return status;
+            }
+        }
+    </script>
+</body>
+</html>

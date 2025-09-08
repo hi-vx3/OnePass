@@ -1,0 +1,117 @@
+openapi: 3.0.0
+info:
+  title: User Registration API
+  description: واجهة برمجة تطبيقات لتسجيل المستخدمين وإرسال بريد التحقق
+  version: 1.0.0
+servers:
+  - url: https://api.example.com
+    description: الخادم الرئيسي
+components:
+  schemas:
+    RegisterInput:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: البريد الإلكتروني للمستخدم
+      required:
+        - email
+    VerificationEmailInput:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: البريد الإلكتروني للمستخدم
+      required:
+        - email
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: رسالة الخطأ
+      required:
+        - message
+paths:
+  /api/auth/register:
+    post:
+      summary: تسجيل مستخدم جديد
+      description: إنشاء حساب مستخدم جديد باستخدام البريد الإلكتروني
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterInput'
+      responses:
+        '201':
+          description: تم إنشاء الحساب بنجاح
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: رسالة تأكيد التسجيل
+        '400':
+          description: طلب غير صحيح (مثل بريد إلكتروني غير صالح)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: البريد الإلكتروني مسجل مسبقًا
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: خطأ في الخادم
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/auth/send-verification-email:
+    post:
+      summary: إرسال بريد تحقق
+      description: إرسال رابط تحقق إلى البريد الإلكتروني للمستخدم
+      operationId: sendVerificationEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerificationEmailInput'
+      responses:
+        '200':
+          description: تم إرسال رابط التحقق بنجاح
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: رسالة تأكيد الإرسال
+        '400':
+          description: طلب غير صحيح (مثل بريد إلكتروني غير صالح)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: البريد الإلكتروني غير مسجل
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: خطأ في الخادم
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

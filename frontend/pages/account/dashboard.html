@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم | BrandMe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        :root {
+            --color-background: #F9FAFB;
+            --color-card: #FFFFFF;
+            --color-primary: #2563EB;
+            --color-secondary: #9CA3AF;
+            --color-success: #22C55E;
+            --color-error: #EF4444;
+            --color-text: #374151;
+            --color-text-light: #6B7280;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-background);
+        }
+        
+        .brand-gradient {
+            background: linear-gradient(135deg, var(--color-primary) 0%, #3B82F6 100%);
+        }
+        
+        .dashboard-container {
+            background-color: #F3F4F6;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .status-badge {
+            transition: all 0.3s ease;
+        }
+        
+        .status-badge:hover {
+            transform: scale(1.05);
+        }
+        
+        .nav-item {
+            transition: all 0.2s ease;
+        }
+        
+        .nav-item:hover {
+            background-color: #E5E7EB;
+        }
+        
+        .nav-item.active {
+            background-color: var(--color-primary);
+            color: white;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .btn-primary {
+            transition: all 0.2s ease;
+            background-color: var(--color-primary);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+        }
+        
+        .btn-secondary {
+            transition: all 0.2s ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--color-background);
+        }
+        
+        .notification-dot {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .loading-spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--color-primary);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen dashboard-container">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-feather="shield" class="text-indigo-600 w-8 h-8"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">BrandMe</span>
+                    </div>
+                    <nav class="hidden md:ml-6 md:flex md:items-center md:space-x-4 mr-6">
+                        <a href="index.html" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">الرئيسية</a>
+                        <a href="#" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">المطورون</a>
+                        <a href="#" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">الإعدادات</a>
+                    </nav>
+                </div>
+                <div class="flex items-center">
+                    <div class="flex items-center mr-4">
+                        <div class="status-badge flex items-center bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full">
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                            نشط
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <button class="flex items-center text-sm focus:outline-none">
+                            <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium">
+                                م
+                            </div>
+                            <span class="mr-2 text-gray-700">محمد أحمد</span>
+                            <i data-feather="chevron-down" class="w-4 h-4 text-gray-500"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Title -->
+        <div class="mb-8 fade-in">
+            <h1 class="text-3xl font-bold text-gray-900">لوحة التحكم الخاصة بك</h1>
+            <p class="text-gray-600 mt-2">إدارة بريدك الوهمي، المواقع المرتبطة، والإشعارات.</p>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="stats-grid mb-8 fade-in">
+            <div class="dashboard-stats__card bg-white rounded-xl shadow-md p-6 card-hover">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                        <i data-feather="mail" class="text-blue-600 w-6 h-6"></i>
+                    </div>
+                    <div class="mr-3">
+                        <p class="text-sm text-gray-600">إجمالي الرسائل</p>
+                        <p class="text-2xl font-bold text-gray-900" id="totalMessages">128</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-stats__card bg-white rounded-xl shadow-md p-6 card-hover">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                        <i data-feather="link" class="text-green-600 w-6 h-6"></i>
+                    </div>
+                    <div class="mr-3">
+                        <p class="text-sm text-gray-600">المواقع المرتبطة</p>
+                        <p class="text-2xl font-bold text-gray-900" id="linkedSites">5</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-stats__card bg-white rounded-xl shadow-md p-6 card-hover">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                        <i data-feather="shield" class="text-purple-600 w-6 h-6"></i>
+                    </div>
+                    <div class="mr-3">
+                        <p class="text-sm text-gray-600">مفاتيح API</p>
+                        <p class="text-2xl font-bold text-gray-900" id="apiKeysCount">2</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Sidebar -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Virtual Email Card -->
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover fade-in">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">البريد الوهمي</h2>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <i data-feather="mail" class="text-indigo-600 w-5 h-5 ml-2"></i>
+                            <span class="text-gray-700 font-medium" id="virtual-email">mohamed123@brandme.me</span>
+                        </div>
+                        <button class="text-indigo-600 hover:text-indigo-800 transition-colors" id="copy-email">
+                            <i data-feather="copy" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="status-badge flex items-center bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">
+                            <div class="w-2 h-2 bg-green-500 rounded-full ml-1"></div>
+                            نشط
+                        </div>
+                        <button class="btn-secondary text-red-600 hover:text-red-800 text-sm font-medium transition-colors" id="toggleEmail">
+                            <i data-feather="power" class="w-4 h-4 ml-1"></i>
+                            إيقاف مؤقت
+                        </button>
+                    </div>
+                </div>
+
+                <!-- API Keys Card -->
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover fade-in">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900">مفاتيح API</h2>
+                        <button class="btn-primary text-sm px-3 py-1 rounded-md" id="addApiKey">
+                            <i data-feather="plus" class="w-4 h-4 ml-1"></i>
+                            جديد
+                        </button>
+                    </div>
+                    <div class="space-y-3" id="apiKeysList">
+                        <!-- API keys will be loaded here dynamically -->
+                        <div class="flex items-center justify-between py-2">
+                            <div class="flex items-center">
+                                <i data-feather="key" class="text-gray-500 w-4 h-4 ml-2"></i>
+                                <span class="text-sm text-gray-700">••••••••••••1234</span>
+                            </div>
+                            <button class="text-gray-500 hover:text-red-600 transition-colors">
+                                <i data-feather="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications Card -->
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover fade-in">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900">الإشعارات</h2>
+                        <span class="notification-dot w-2 h-2 bg-red-500 rounded-full"></span>
+                    </div>
+                    <div class="space-y-4" id="notificationsList">
+                        <!-- Notifications will be loaded here dynamically -->
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <label class="flex items-center text-sm text-gray-700">
+                            <input type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500" checked id="notificationsToggle">
+                            <span class="mr-2">تشغيل الإشعارات</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Linked Sites Section -->
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover fade-in">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900">المواقع المرتبطة</h2>
+                        <span class="text-sm text-gray-500" id="sitesCount">5 مواقع</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">اسم الموقع</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">البريد المستخدم</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">آخر نشاط</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200" id="sitesTableBody">
+                                <!-- Sites will be loaded here dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Section -->
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover fade-in">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900">آخر النشاطات</h2>
+                        <button class="text-sm text-indigo-600 hover:text-indigo-800">عرض الكل</button>
+                    </div>
+                    <div class="space-y-4" id="recentActivities">
+                        <!-- Activities will be loaded here dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-16 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <i data-feather="shield" class="text-indigo-600 w-5 h-5"></i>
+                    <span class="mr-2 text-sm text-gray-600">© 2025 BrandMe. جميع الحقوق محفوظة.</span>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">سياسة الخصوصية</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">شروط الخدمة</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">اتصل بنا</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        feather.replace();
+        
+        // حالة التحميل
+        let isLoading = false;
+        
+        // DOM Elements
+        const virtualEmail = document.getElementById('virtual-email');
+        const copyEmailBtn = document.getElementById('copy-email');
+        const toggleEmailBtn = document.getElementById('toggleEmail');
+        const addApiKeyBtn = document.getElementById('addApiKey');
+        const apiKeysList = document.getElementById('apiKeysList');
+        const notificationsList = document.getElementById('notificationsList');
+        const notificationsToggle = document.getElementById('notificationsToggle');
+        const sitesTableBody = document.getElementById('sitesTableBody');
+        const recentActivities = document.getElementById('recentActivities');
+        const totalMessages = document.getElementById('totalMessages');
+        const linkedSites = document.getElementById('linkedSites');
+        const apiKeysCount = document.getElementById('apiKeysCount');
+        const sitesCount = document.getElementById('sitesCount');
+        
+        // جلب بيانات لوحة التحكم عند التحميل
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboardData();
+            
+            // تأثيرات عند التحميل
+            const cards = document.querySelectorAll('.fade-in');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+        
+        // جلب بيانات لوحة التحكم من API
+        async function loadDashboardData() {
+            setLoadingState(true);
+            
+            try {
+                // جلب الإحصائيات
+                const statsResponse = await axios.get('/api/dashboard/stats');
+                const statsData = statsResponse.data;
+                
+                // تحديث الإحصائيات
+                totalMessages.textContent = statsData.totalMessages;
+                linkedSites.textContent = statsData.linkedSites;
+                apiKeysCount.textContent = statsData.apiKeys;
+                sitesCount.textContent = `${statsData.linkedSites} مواقع`;
+                
+                // جلب مفاتيح API
+                const apiKeysResponse = await axios.get('/api/user/api-keys');
+                const apiKeysData = apiKeysResponse.data;
+                renderApiKeys(apiKeysData);
+                
+                // جلب الإشعارات
+                const notificationsResponse = await axios.get('/api/notifications');
+                const notificationsData = notificationsResponse.data;
+                renderNotifications(notificationsData);
+                
+                // جلب المواقع المرتبطة
+                renderLinkedSites(statsData.linkedSitesList || []);
+                
+                // جلب النشاطات الحديثة
+                renderRecentActivities(statsData.recentActivities || []);
+                
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                showError('حدث خطأ أثناء تحميل بيانات لوحة التحكم');
+            } finally {
+                setLoadingState(false);
+            }
+        }
+        
+        // عرض مفاتيح API
+        function renderApiKeys(apiKeys) {
+            apiKeysList.innerHTML = '';
+            
+            if (apiKeys.length === 0) {
+                apiKeysList.innerHTML = `
+                    <div class="text-center py-4 text-gray-500">
+                        <i data-feather="key" class="w-8 h-8 mx-auto mb-2"></i>
+                        <p>لا توجد مفاتيح API</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            apiKeys.forEach(key => {
+                const keyElement = document.createElement('div');
+                keyElement.className = 'flex items-center justify-between py-2';
+                keyElement.innerHTML = `
+                    <div class="flex items-center">
+                        <i data-feather="key" class="text-gray-500 w-4 h-4 ml-2"></i>
+                        <span class="text-sm text-gray-700">${key.maskedKey}</span>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="text-gray-500 hover:text-indigo-600 transition-colors copy-api-key" data-key="${key.actualKey}">
+                            <i data-feather="copy" class="w-4 h-4"></i>
+                        </button>
+                        <button class="text-gray-500 hover:text-red-600 transition-colors delete-api-key" data-id="${key.id}">
+                            <i data-feather="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+                apiKeysList.appendChild(keyElement);
+            });
+            
+            feather.replace();
+            
+            // إضافة مستمعي الأحداث للأزرار الجديدة
+            document.querySelectorAll('.copy-api-key').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const apiKey = this.getAttribute('data-key');
+                    copyToClipboard(apiKey);
+                });
+            });
+            
+            document.querySelectorAll('.delete-api-key').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const keyId = this.getAttribute('data-id');
+                    deleteApiKey(keyId);
+                });
+            });
+        }
+        
+        // عرض الإشعارات
+        function renderNotifications(notifications) {
+            notificationsList.innerHTML = '';
+            
+            if (notifications.length === 0) {
+                notificationsList.innerHTML = `
+                    <div class="text-center py-4 text-gray-500">
+                        <i data-feather="bell-off" class="w-8 h-8 mx-auto mb-2"></i>
+                        <p>لا توجد إشعارات جديدة</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            notifications.forEach(notification => {
+                const notificationElement = document.createElement('div');
+                notificationElement.className = 'flex items-start';
+                notificationElement.innerHTML = `
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 rounded-full ${getNotificationColor(notification.type).bg} flex items-center justify-center">
+                            <i data-feather="${getNotificationIcon(notification.type)}" class="${getNotificationColor(notification.type).text} w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="mr-3">
+                        <p class="text-sm font-medium text-gray-900">${notification.title}</p>
+                        <p class="text-xs text-gray-500">${notification.message}</p>
+                        <p class="text-xs text-gray-400">${formatTimeAgo(notification.timestamp)}</p>
+                    </div>
+                `;
+                notificationsList.appendChild(notificationElement);
+            });
+            
+            feather.replace();
+        }
+        
+        // عرض المواقع المرتبطة
+        function renderLinkedSites(sites) {
+            sitesTableBody.innerHTML = '';
+            
+            if (sites.length === 0) {
+                sitesTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-4 py-8 text-center text-gray-500">
+                            <i data-feather="link" class="w-8 h-8 mx-auto mb-2"></i>
+                            <p>لا توجد مواقع مرتبطة</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            sites.forEach(site => {
+                const siteRow = document.createElement('tr');
+                siteRow.innerHTML = `
+                    <td class="px-4 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full ${getSiteColor(site.name).bg} flex items-center justify-center ml-3">
+                                <i data-feather="${getSiteIcon(site.name)}" class="${getSiteColor(site.name).text} w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">${site.name}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">${site.email}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">${formatTimeAgo(site.lastActivity)}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="${site.url}" class="text-indigo-600 hover:text-indigo-900 mr-3">زيارة</a>
+                        <a href="#" class="text-red-600 hover:text-red-900 unlink-site" data-id="${site.id}">فصل</a>
+                    </td>
+                `;
+                sitesTableBody.appendChild(siteRow);
+            });
+            
+            feather.replace();
+            
+            // إضافة مستمعي الأحداث لأزرار الفصل
+            document.querySelectorAll('.unlink-site').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const siteId = this.getAttribute('data-id');
+                    unlinkSite(siteId);
+                });
+            });
+        }
+        
+        // عرض النشاطات الحديثة
+        function renderRecentActivities(activities) {
+            recentActivities.innerHTML = '';
+            
+            if (activities.length === 0) {
+                recentActivities.innerHTML = `
+                    <div class="text-center py-4 text-gray-500">
+                        <i data-feather="activity" class="w-8 h-8 mx-auto mb-2"></i>
+                        <p>لا توجد نشاطات حديثة</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            activities.forEach(activity => {
+                const activityElement = document.createElement('div');
+                activityElement.className = 'flex items-start';
+                activityElement.innerHTML = `
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 rounded-full ${getActivityColor(activity.type).bg} flex items-center justify-center">
+                            <i data-feather="${getActivityIcon(activity.type)}" class="${getActivityColor(activity.type).text} w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="mr-3">
+                        <p class="text-sm font-medium text-gray-900">${activity.title}</p>
+                        <p class="text-xs text-gray-500">${activity.description}</p>
+                        <p class="text-xs text-gray-400">${formatTimeAgo(activity.timestamp)}</p>
+                    </div>
+                `;
+                recentActivities.appendChild(activityElement);
+            });
+            
+            feather.replace();
+        }
+        
+        // نسخ البريد إلى الحافظة
+        copyEmailBtn.addEventListener('click', function() {
+            copyToClipboard(virtualEmail.textContent);
+            
+            // تغيير الأيقونة مؤقتاً للإشارة إلى النسخ
+            const icon = this.querySelector('i');
+            const originalData = icon.getAttribute('data-feather');
+            
+            icon.setAttribute('data-feather', 'check');
+            feather.replace();
+            
+            setTimeout(() => {
+                icon.setAttribute('data-feather', originalData);
+                feather.replace();
+            }, 2000);
+        });
+        
+        // تبديل حالة البريد الوهمي
+        toggleEmailBtn.addEventListener('click', async function() {
+            const isCurrentlyActive = virtualEmail.textContent.includes('@');
+            
+            try {
+                const response = await axios.patch('/api/user/virtual-email', { 
+                    active: !isCurrentlyActive 
+                });
+                
+                if (response.data.success) {
+                    const newStatus = !isCurrentlyActive ? 'نشط' : 'موقوف';
+                    const newColor = !isCurrentlyActive ? 'green' : 'gray';
+                    
+                    // تحديث الواجهة
+                    const statusBadge = document.querySelector('.status-badge');
+                    statusBadge.className = `status-badge flex items-center bg-${newColor}-100 text-${newColor}-800 text-sm font-medium px-3 py-1 rounded-full`;
+                    statusBadge.innerHTML = `
+                        <div class="w-2 h-2 bg-${newColor}-500 rounded-full ml-1"></div>
+                        ${newStatus}
+                    `;
+                    
+                    toggleEmailBtn.innerHTML = isCurrentlyActive ? 
+                        '<i data-feather="power" class="w-4 h-4 ml-1"></i> تفعيل' : 
+                        '<i data-feather="power" class="w-4 h-4 ml-1"></i> إيقاف مؤقت';
+                    
+                    feather.replace();
+                }
+            } catch (error) {
+                console.error('Error toggling virtual email:', error);
+                showError('حدث خطأ أثناء تغيير حالة البريد الوهمي');
+            }
+        });
+        
+        // إضافة مفتاح API جديد
+        addApiKeyBtn.addEventListener('click', async function() {
+            try {
+                const response = await axios.post('/api/user/api-keys');
+                const newKey = response.data.key;
+                
+                // إضافة المفتاح الجديد إلى القائمة
+                const keyElement = document.createElement('div');
+                keyElement.className = 'flex items-center justify-between py-2';
+                keyElement.innerHTML = `
+                    <div class="flex items-center">
+                        <i data-feather="key" class="text-gray-500 w-4 h-4 ml-2"></i>
+                        <span class="text-sm text-gray-700">${newKey.masked}</span>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="text-gray-500 hover:text-indigo-600 transition-colors copy-api-key" data-key="${newKey.actual}">
+                            <i data-feather="copy" class="w-4 h-4"></i>
+                        </button>
+                        <button class="text-gray-500 hover:text-red-600 transition-colors delete-api-key" data-id="${newKey.id}">
+                            <i data-feather="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+                apiKeysList.prepend(keyElement);
+                
+                feather.replace();
+                
+                // تحديث العدد
+                apiKeysCount.textContent = parseInt(apiKeysCount.textContent) + 1;
+                
+                // نسخ المفتاح تلقائياً
+                copyToClipboard(newKey.actual);
+                
+            } catch (error) {
+                console.error('Error adding API key:', error);
+                showError('حدث خطأ أثناء إنشاء مفتاح API جديد');
+            }
+        });
+        
+        // حذف مفتاح API
+        async function deleteApiKey(keyId) {
+            if (!confirm('هل أنت متأكد من حذف مفتاح API هذا؟')) return;
+            
+            try {
+                await axios.delete(`/api/user/api-keys/${keyId}`);
+                
+                // إعادة تحميل قائمة مفاتيح API
+                const apiKeysResponse = await axios.get('/api/user/api-keys');
+                renderApiKeys(apiKeysResponse.data);
+                
+                // تحديث العدد
+                apiKeysCount.textContent = parseInt(apiKeysCount.textContent) - 1;
+                
+            } catch (error) {
+                console.error('Error deleting API key:', error);
+                showError('حدث خطأ أثناء حذف مفتاح API');
+            }
+        }
+        
+        // فصل موقع
+        async function unlinkSite(siteId) {
+            if (!confirm('هل أنت متأكد من فصل هذا الموقع؟')) return;
+            
+            try {
+                await axios.delete(`/api/user/linked-sites/${siteId}`);
+                
+                // إعادة تحميل البيانات
+                loadDashboardData();
+                
+            } catch (error) {
+                console.error('Error unlinking site:', error);
+                showError('حدث خطأ أثناء فصل الموقع');
+            }
+        }
+        
+        // تبديل الإشعارات
+        notificationsToggle.addEventListener('change', async function() {
+            try {
+                await axios.patch('/api/user/notifications', {
+                    enabled: this.checked
+                });
+            } catch (error) {
+                console.error('Error toggling notifications:', error);
+                this.checked = !this.checked; // التراجع عن التغيير
+                showError('حدث خطأ أثناء تغيير إعدادات الإشعارات');
+            }
+        });
+        
+        // وظائف مساعدة
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // يمكن إضافة رسالة نجاح هنا
+            });
+        }
+        
+        function formatTimeAgo(timestamp) {
+            const now = new Date();
+            const time = new Date(timestamp);
+            const diff = now - time;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            
+            if (minutes < 60) return `منذ ${minutes} دقيقة`;
+            if (hours < 24) return `منذ ${hours} ساعة`;
+            return `منذ ${days} يوم`;
+        }
+        
+        function getNotificationColor(type) {
+            const colors = {
+                security: { bg: 'bg-red-100', text: 'text-red-600' },
+                message: { bg: 'bg-blue-100', text: 'text-blue-600' },
+                warning: { bg: 'bg-yellow-100', text: 'text-yellow-600' },
+                success: { bg: 'bg-green-100', text: 'text-green-600' }
+            };
+            return colors[type] || colors.info;
+        }
+        
+        function getNotificationIcon(type) {
+            const icons = {
+                security: 'shield',
+                message: 'mail',
+                warning: 'alert-triangle',
+                success: 'check-circle'
+            };
+            return icons[type] || 'bell';
+        }
+        
+        function getSiteColor(siteName) {
+            // تخصيص الألوان حسب اسم الموقع
+            const siteColors = {
+                'Amazon': { bg: 'bg-yellow-100', text: 'text-yellow-600' },
+                'YouTube': { bg: 'bg-red-100', text: 'text-red-600' },
+                'Twitter': { bg: 'bg-blue-100', text: 'text-blue-600' },
+                'Netflix': { bg: 'bg-red-100', text: 'text-red-600' },
+                'Facebook': { bg: 'bg-blue-100', text: 'text-blue-600' }
+            };
+            return siteColors[siteName] || { bg: 'bg-gray-100', text: 'text-gray-600' };
+        }
+        
+        function getSiteIcon(siteName) {
+            // تخصيص الأيقونات حسب اسم الموقع
+            const siteIcons = {
+                'Amazon': 'shopping-bag',
+                'YouTube': 'video',
+                'Twitter': 'message-square',
+                'Netflix': 'tv',
+                'Facebook': 'facebook'
+            };
+            return siteIcons[siteName] || 'globe';
+        }
+        
+        function getActivityColor(type) {
+            const colors = {
+                login: { bg: 'bg-green-100', text: 'text-green-600' },
+                message: { bg: 'bg-blue-100', text: 'text-blue-600' },
+                create: { bg: 'bg-purple-100', text: 'text-purple-600' },
+                update: { bg: 'bg-yellow-100', text: 'text-yellow-600' }
+            };
+            return colors[type] || colors.info;
+        }
+        
+        function getActivityIcon(type) {
+            const icons = {
+                login: 'log-in',
+                message: 'mail',
+                create: 'plus',
+                update: 'edit'
+            };
+            return icons[type] || 'activity';
+        }
+        
+        function setLoadingState(loading) {
+            isLoading = loading;
+            // يمكن إضافة مؤشر تحميل هنا
+        }
+        
+        function showError(message) {
+            // يمكن إضافة عرض رسائل الخطأ هنا
+            console.error(message);
+        }
+        
+        feather.replace();
+    </script>
+</body>
+</html>

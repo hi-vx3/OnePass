@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ar" dir="rtl">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>رمز التحقق لتسجيل الدخول - BrandMe</title>
+    <style type="text/css">
+        /* Reset styles for email clients */
+        .ExternalClass { width: 100%; }
+        .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div { line-height: 100%; }
+        body { margin: 0; padding: 0; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+        table { border-spacing: 0; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+        table td { border-collapse: collapse; }
+        img { -ms-interpolation-mode: bicubic; display: block; outline: none; text-decoration: none; }
+        a { text-decoration: none; color: #2563EB; }
+        .button { -webkit-text-size-adjust: none; mso-hide: all; }
+        @media only screen and (max-width: 480px) {
+            table[class="container"] { width: 100% !important; }
+            td[class="mobile-padding"] { padding: 15px !important; }
+            td[class="mobile-text-center"] { text-align: center !important; }
+            .mobile-hide { display: none !important; }
+        }
+    </style>
+</head>
+<body dir="rtl" style="margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; background-color: #F9FAFB; color: #111827; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
+    <!--[if mso]>
+    <style type="text/css">
+    body, table, td { font-family: Arial, Helvetica, sans-serif !important; }
+    </style>
+    <![endif]-->
+
+    <!-- START PREHEADER TEXT -->
+    <div style="display: none; max-height: 0; overflow: hidden; color: transparent; mso-hide: all;">
+        رمز التحقق الخاص بك لتسجيل الدخول إلى BrandMe هو: {{totp_code}} - صالح لمدة دقيقة و30 ثانية.
+    </div>
+    <!-- END PREHEADER TEXT -->
+
+    <center style="width: 100%;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#F9FAFB" style="background-color: #F9FAFB;">
+            <tr>
+                <td align="center" valign="top">
+                    <table class="container" border="0" cellpadding="0" cellspacing="0" width="600" style="max-width: 600px; width: 100%;">
+                        <!-- Header -->
+                        <tr>
+                            <td align="center" bgcolor="#EFF6FF" style="padding: 20px; background-color: #EFF6FF;">
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td align="center" style="padding: 10px;">
+                                            <div style="display: inline-block; background-color: #2563EB; border-radius: 8px; color: #ffffff; font-family: Arial, Helvetica, sans-serif; font-size: 16px; font-weight: bold; line-height: 40px; text-align: center; text-decoration: none; width: 150px; -webkit-text-size-adjust: none; mso-hide: all;">
+                                                BrandMe
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+
+                        <!-- Content -->
+                        <tr>
+                            <td bgcolor="#FFFFFF" style="padding: 30px; background-color: #FFFFFF; border-left: 1px solid #E5E7EB; border-right: 1px solid #E5E7EB;">
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td align="center" class="mobile-padding" style="padding: 0 0 20px 0;">
+                                            <h1 style="color: #1D4ED8; font-family: Arial, Helvetica, sans-serif; font-size: 24px; font-weight: bold; text-align: center; margin: 0; line-height: 32px;">
+                                                رمز التحقق لتسجيل الدخول
+                                            </h1>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="mobile-padding" style="padding: 0 0 15px 0;">
+                                            <p style="color: #374151; font-family: Arial, Helvetica, sans-serif; font-size: 16px; line-height: 24px; margin: 0;">
+                                                مرحباً {{username}}،
+                                            </p>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="mobile-padding" style="padding: 0 0 20px 0;">
+                                            <p style="color: #374151; font-family: Arial, Helvetica, sans-serif; font-size: 16px; line-height: 24px; margin: 0;">
+                                                تم طلب رمز تحقق لتسجيل الدخول إلى حسابك. استخدم الرمز أدناه لإكمال عملية تسجيل الدخول.
+                                            </p>
+                                        </td>
+                                    </tr>
+
+                                    <!-- TOTP Code -->
+                                    <tr>
+                                        <td align="center" class="mobile-padding" style="padding: 25px 0;">
+                                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                <tr>
+                                                    <td align="center">
+                                                        <table border="0" cellpadding="0" cellspacing="0" bgcolor="#F3F4F6" style="background-color: #F3F4F6; border-radius: 8px; padding: 20px;">
+                                                            <tr>
+                                                                <td align="center">
+                                                                    <div style="font-family: Arial, Helvetica, sans-serif; font-size: 32px; font-weight: bold; color: #2563EB; letter-spacing: 8px; padding: 10px;">
+                                                                        {{totp_code}}
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Validity Info -->
+                                    <tr>
+                                        <td align="center" class="mobile-padding" style="padding: 0 0 20px 0;">
+                                            <p style="color: #6B7280; font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: bold; line-height: 20px; margin: 0;">
+                                                ⏱️ هذا الرمز صالح لمدة <span style="color: #EF4444;">دقيقة و30 ثانية</span> فقط
+                                            </p>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Instructions -->
+                                    <tr>
+                                        <td class="mobile-padding" style="padding: 20px 0 0 0;">
+                                            <p style="color: #374151; font-family: Arial, Helvetica, sans-serif; font-size: 16px; line-height: 24px; margin: 0;">
+                                                أدخل هذا الرمز في صفحة تسجيل الدخول لإكمال العملية.
+                                            </p>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Security Warning -->
+                                    <tr>
+                                        <td class="mobile-padding" style="padding: 20px 0 0 0;">
+                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#FEF2F2" style="background-color: #FEF2F2; border-radius: 6px; padding: 15px;">
+                                                <tr>
+                                                    <td align="center">
+                                                        <p style="color: #DC2626; font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 20px; margin: 0; font-weight: bold;">
+                                                            ⚠️ لا تشارك هذا الرمز مع أي شخص
+                                                        </p>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+
+                        <!-- Footer -->
+                        <tr>
+                            <td bgcolor="#F9FAFB" style="padding: 20px; background-color: #F9FAFB; border-left: 1px solid #E5E7EB; border-right: 1px solid #E5E7EB; border-bottom: 1px solid #E5E7EB;">
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td align="center" class="mobile-text-center" style="padding: 0 0 15px 0;">
+                                            <p style="color: #6B7280; font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 20px; margin: 0;">
+                                                إذا لم تطلب هذا الرمز، تجاهل الرسالة.
+                                            </p>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td align="center" class="mobile-text-center" style="padding: 0 0 15px 0;">
+                                            <table border="0" cellpadding="0" cellspacing="0">
+                                                <tr>
+                                                    <td style="padding: 0 5px;">
+                                                        <a href="{{privacy_policy_link}}" target="_blank" style="color: #2563EB; font-family: Arial, Helvetica, sans-serif; font-size: 12px; text-decoration: none;">
+                                                            سياسة الخصوصية
+                                                        </a>
+                                                    </td>
+                                                    <td style="color: #D1D5DB; font-family: Arial, Helvetica, sans-serif; font-size: 12px; padding: 0 5px;">
+                                                        |
+                                                    </td>
+                                                    <td style="padding: 0 5px;">
+                                                        <a href="{{terms_link}}" target="_blank" style="color: #2563EB; font-family: Arial, Helvetica, sans-serif; font-size: 12px; text-decoration: none;">
+                                                            شروط الخدمة
+                                                        </a>
+                                                    </td>
+                                                    <td style="color: #D1D5DB; font-family: Arial, Helvetica, sans-serif; font-size: 12px; padding: 0 5px;">
+                                                        |
+                                                    </td>
+                                                    <td style="padding: 0 5px;">
+                                                        <a href="{{contact_link}}" target="_blank" style="color: #2563EB; font-family: Arial, Helvetica, sans-serif; font-size: 12px; text-decoration: none;">
+                                                            اتصل بنا
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td align="center" class="mobile-text-center" style="padding: 0;">
+                                            <p style="color: #6B7280; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 18px; margin: 0;">
+                                                BrandMe © 2025. جميع الحقوق محفوظة.
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </center>
+</body>
+</html>

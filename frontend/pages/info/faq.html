@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الأسئلة الشائعة | BrandMe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .faq-container {
+            background-color: #F9FAFB;
+        }
+
+        .faq-item {
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:hover {
+            background-color: #F3F4F6;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .accordion-toggle:checked~.accordion-content {
+            max-height: 500px;
+        }
+
+        .accordion-toggle:checked+label .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        .nav-item {
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover {
+            background-color: #E5E7EB;
+        }
+
+        .nav-item.active {
+            background-color: #2563EB;
+            color: white;
+        }
+
+        .btn-primary {
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .search-box {
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .category-button {
+            transition: all 0.2s ease;
+        }
+
+        .category-button.active {
+            background-color: #2563EB;
+            color: white;
+        }
+
+        .category-button:hover:not(.active) {
+            background-color: #E5E7EB;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen faq-container">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-feather="shield" class="text-indigo-600 w-8 h-8"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">BrandMe</span>
+                    </div>
+                    <nav class="hidden md:ml-6 md:flex md:items-center md:space-x-4 mr-6">
+                        <a href="index.html"
+                            class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">الرئيسية</a>
+                        <a href="dashboard.html"
+                            class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">لوحة
+                            التحكم</a>
+                        <a href="developers.html"
+                            class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">المطورون</a>
+                        <a href="faq.html"
+                            class="px-3 py-2 text-sm font-medium text-indigo-600 border-b-2 border-indigo-600 transition-colors">الأسئلة
+                            الشائعة</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="api-keys.html"
+                        class="px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors">مفاتيح
+                        API</a>
+                    <a href="login.html"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors">تسجيل
+                        الدخول</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-blue-50 to-indigo-50 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center fade-in">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">الأسئلة الشائعة</h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                هنا تجد الإجابات على أكثر الأسئلة شيوعاً حول BrandMe.
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <!-- Search Section -->
+        <section class="mb-12 fade-in">
+            <div class="relative">
+                <input type="text" placeholder="ابحث في الأسئلة الشائعة..."
+                    class="search-box w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                <i data-feather="search" class="absolute left-4 top-3.5 w-5 h-5 text-gray-400"></i>
+            </div>
+        </section>
+
+        <!-- Categories Section -->
+        <section class="mb-8 fade-in">
+            <div class="flex flex-wrap gap-2">
+                <button class="category-button active px-4 py-2 text-sm font-medium rounded-lg border border-gray-300"
+                    data-category="all">
+                    الكل
+                </button>
+                <button class="category-button px-4 py-2 text-sm font-medium rounded-lg border border-gray-300"
+                    data-category="general">
+                    عام
+                </button>
+                <button class="category-button px-4 py-2 text-sm font-medium rounded-lg border border-gray-300"
+                    data-category="technical">
+                    تقني
+                </button>
+                <button class="category-button px-4 py-2 text-sm font-medium rounded-lg border border-gray-300"
+                    data-category="security">
+                    أمان
+                </button>
+                <button class="category-button px-4 py-2 text-sm font-medium rounded-lg border border-gray-300"
+                    data-category="developer">
+                    مطورون
+                </button>
+            </div>
+        </section>
+
+        <!-- FAQ Accordion Section -->
+        <section class="fade-in">
+            <!-- General Questions -->
+            <div class="mb-8 category-section" data-category="general">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">أسئلة عامة</h2>
+                <div class="space-y-4">
+                    <!-- Question 1 -->
+                    <div class="faq-item bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <input type="checkbox" id="faq-1" class="accordion-toggle hidden">
+                        <label for="faq-1" class="flex items-center justify-between p-6 cursor-pointer">
+                            <div class="flex items-center">
+                                <i data-feather="help-circle" class="text-indigo-600 w-5 h-5 ml-2"></i>
+                                <span class="text-lg font-medium text-gray-900">ما هو البريد الوهمي وكيف يعمل؟</span>
+                            </div>
+                            <i data-feather="chevron-down"
+                                class="accordion-icon text-gray-500 w-5 h-5 transition-transform"></i>
+                        </label>
+                        <div class="accordion-content">
+                            <div class="px-6 pb-6">
+                                <p class="text-gray-600">
+                                    البريد الوهمي هو عنوان بريد إلكتروني مؤقت تستخدمه للتسجيل في المواقع والتطبيقات
+                                    بدلاً من بريدك الشخصي. يعمل عن طريق توجيه الرسائل الواردة إلى بريدك الأساسي مع
+                                    الحفاظ على خصوصيتك وإخفاء عنوان بريدك الحقيقي.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="faq-item bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <input type="checkbox" id="faq-2" class="accordion-toggle hidden">
+                        <label for="faq-2" class="flex items-center justify-between p-6 cursor-pointer">
+                            <div class="flex items-center">
+                                <i data-feather="help-circle" class="text-indigo-600 w-5 h-5 ml-2"></i>
+                                <span class="text-lg font-medium text-gray-900">هل خدمة BrandMe مجانية؟</span>
+                            </div>
+                            <i data-feather="chevron-down"
+                                class="accordion-icon text-gray-500 w-5 h-5 transition-transform"></i>
+                        </label>
+                        <div class="accordion-content">
+                            <div class="px-6 pb-6">
+                                <p class="text-gray-600">
+                                    نعم، الخدمة الأساسية مجانية تمامًا وتشمل إنشاء بريد وهمي واستخدامه للتسجيل في
+                                    المواقع. كما نقدم خططًا متميزة بميزات إضافية مثل عناوين بريد مخصصة وإحصائيات متقدمة.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technical Questions -->
+            <div class="mb-8 category-section" data-category="technical">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">أسئلة تقنية</h2>
+                <div class="space-y-4">
+                    <!-- Question 3 -->
+                    <div class="faq-item bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <input type="checkbox" id="faq-3" class="accordion-toggle hidden">
+                        <label for="faq-3" class="flex items-center justify-between p-6 cursor-pointer">
+                            <div class="flex items-center">
+                                <i data-feather="help-circle" class="text-indigo-600 w-5 h-5 ml-2"></i>
+                                <span class="text-lg font-medium text-gray-900">هل البريد الوهمي يخزن رسائل
+                                    المستخدم؟</span>
+                            </div>
+                            <i data-feather="chevron-down"
+                                class="accordion-icon text-gray-500 w-5 h-5 transition-transform"></i>
+                        </label>
+                        <div class="accordion-content">
+                            <div class="px-6 pb-6">
+                                <p class="text-gray-600">
+                                    لا، نحن لا نخزن محتوى رسائل البريد الإلكتروني. يعمل نظامنا كوسيط يقوم فقط بتوجيه
+                                    الرسائل إلى بريدك الأساسي. نحن نؤمن بخصوصية المستخدمين ولا نتابع أو نخزن محتوى
+                                    اتصالاتك.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question 4 -->
+                    <div class="faq-item bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <input type="checkbox" id="faq-4" class="accordion-toggle hidden">
+                        <label for="faq-4" class="flex items-center justify-between p-6 cursor-pointer">
+                            <div class="flex items-center">
+                                <i data-feather="help-circle" class="text-indigo-600 w-5 h-5 ml-2"></i>
+                                <span class="text-lg font-medium text-gray-900">كيف أقوم بإيقاف البريد الوهمي
+                                    مؤقتاً؟</span>
+                            </div>
+                            <i data-feather="chevron-down"
+                                class="accordion-icon text-gray-500 w-5 h-5 transition-transform"></i>
+                        </label>
+                        <div class="accordion-content">
+                            <div class="px-6 pb-6">
+                                <p class="text-gray-600">
+                                    يمكنك إيقاف البريد الوهمي مؤقتاً من خلال لوحة التحكم الخاصة بك. اذهب إلى إعدادات
+                                    الحساب، ثم اختر "إدارة البريد الوهمي"، ومن هناك يمكنك إيقاف الخدمة مؤقتاً أو حذف
+                                    البريد الوهمي تماماً.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Questions -->
+            <div class="mb-8 category-section" data-category="security">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">أسئلة الأمان</h2>
+                <div class="space-y-4">
+                    <!-- Question 5 -->
+                    <div class="faq-item bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <input type="checkbox" id="faq-5" class="accordion-toggle hidden">
+                        <label for="faq-5" class="flex items-center justify-between p-6 cursor-pointer">
+                            <div class="flex items-center">
+                                <i data-feather="help-circle" class="text-indigo-600 w-5 h-5 ml-2"></i>
+                                <span class="text-lg font-medium text-gray-900">ما هي طرق حماية الحساب؟</span>
+                            </div>
+                            <i data-feather="chevron-down"
+                                class="accordion-icon text-gray-500 w-5 h-5 transition-transform"></i>
+                        </label>
+                        <div class="accordion-content">
+                            <div class="px-6 pb-6">
+                                <p class="text-gray-600">
+                                    نحن نقدم عدة طبقات لحماية حسابك:
+                                </p>
+                                <ul class="list-disc list-inside mt-2 text-gray-600 space-y-1">
+                                    <li>مصادقة ثنائية (2FA) للحسابات</li>
+                                    <li>مراجعة الأجهزة النشطة</li>
+                                    <li>إشعارات تسجيل الدخول</li>
+                                    <li>تشفير كامل للبيانات</li>
+                                    <li>مراقبة مستمرة للنشاط المشبوه</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Developer Questions -->
+            <div class="mb-8 category-section" data-category="developer">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">أسئلة للمطورين</h2>
+                <div class="space-y-4">
+                    <!-- Question 6 -->
+                    <div class="faq-item bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <input type="checkbox" id="faq-6" class="accordion-toggle hidden">
+                        <label for="faq-6" class="flex items-center justify-between p-6 cursor-pointer">
+                            <div class="flex items-center">
+                                <i data-feather="help-circle" class="text-indigo-600 w-5 h-5 ml-2"></i>
+                                <span class="text-lg font-medium text-gray-900">كيف أدمج زر BrandMe Login في
+                                    موقعي؟</span>
+                            </div>
+                            <i data-feather="chevron-down"
+                                class="accordion-icon text-gray-500 w-5 h-5 transition-transform"></i>
+                        </label>
+                        <div class="accordion-content">
+                            <div class="px-6 pb-6">
+                                <p class="text-gray-600">
+                                    لدمج زر BrandMe Login في موقعك:
+                                </p>
+                                <ol class="list-decimal list-inside mt-2 text-gray-600 space-y-1">
+                                    <li>قم بإنشاء حساب مطور في BrandMe</li>
+                                    <li>احصل على مفتاح API من لوحة التحكم</li>
+                                    <li>أضف كود JavaScript إلى موقعك</li>
+                                    <li>اضبط عناصر التحكم في الواجهة</li>
+                                    <li>اختبر التكامل قبل النشر</li>
+                                </ol>
+                                <p class="text-gray-600 mt-2">
+                                    يمكنك الاطلاع على <a href="docs.html"
+                                        class="text-indigo-600 hover:text-indigo-800">توثيق المطورين</a> للحصول على
+                                    تعليمات مفصلة.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question 7 -->
+                    <div class="faq-item bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <input type="checkbox" id="faq-7" class="accordion-toggle hidden">
+                        <label for="faq-7" class="flex items-center justify-between p-6 cursor-pointer">
+                            <div class="flex items-center">
+                                <i data-feather="help-circle" class="text-indigo-600 w-5 h-5 ml-2"></i>
+                                <span class="text-lg font-medium text-gray-900">كيف أحصل على مفتاح API؟</span>
+                            </div>
+                            <i data-feather="chevron-down"
+                                class="accordion-icon text-gray-500 w-5 h-5 transition-transform"></i>
+                        </label>
+                        <div class="accordion-content">
+                            <div class="px-6 pb-6">
+                                <p class="text-gray-600">
+                                    للحصول على مفتاح API:
+                                </p>
+                                <ol class="list-decimal list-inside mt-2 text-gray-600 space-y-1">
+                                    <li>سجّل الدخول إلى حساب BrandMe الخاص بك
+                                    <li>اذهب إلى قسم "المطورون" في لوحة التحكم</li>
+                                    <li>انقر على "إنشاء مفتاح API جديد"</li>
+                                    <li>اختر النطاقات المسموحة لاستخدام المفتاح</li>
+                                    <li>انسخ المفتاح واحفظه في مكان آمن</li>
+                                </ol>
+                                <p class="text-gray-600 mt-2">
+                                    يمكنك إدارة مفاتيح API الخاصة بك وتعديلها في أي وقت من لوحة التحكم.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="text-center mt-16 fade-in">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">لم تجد إجابتك؟</h2>
+            <p class="text-gray-600 mb-8 max-w-2xl mx-auto">
+                فريق الدعم لدينا متواجد لمساعدتك في أي استفسارات أخرى.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="contact.html"
+                    class="btn-primary inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
+                    <i data-feather="mail" class="w-5 h-5 ml-2"></i>
+                    تواصل مع الدعم
+                </a>
+                <a href="docs.html"
+                    class="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
+                    <i data-feather="book-open" class="w-5 h-5 ml-2"></i>
+                    اطلع على التوثيق
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-12 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <i data-feather="shield" class="text-indigo-600 w-5 h-5"></i>
+                    <span class="mr-2 text-sm text-gray-600">© 2025 BrandMe. جميع الحقوق محفوظة.</span>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">سياسة الخصوصية</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">شروط الخدمة</a>
+                    <a href="contact.html" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">اتصل
+                        بنا</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        feather.replace();
+
+        // وظائف البحث والتصفية
+        document.addEventListener('DOMContentLoaded', function () {
+            // تأثيرات عند التحميل
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((element, index) => {
+                element.style.animationDelay = `${index * 0.1}s`;
+            });
+
+            // البحث في الأسئلة
+            const searchInput = document.querySelector('.search-box');
+            searchInput.addEventListener('input', function () {
+                const searchTerm = this.value.toLowerCase();
+                const questions = document.querySelectorAll('.faq-item');
+
+                questions.forEach(question => {
+                    const questionText = question.querySelector('label span').textContent.toLowerCase();
+                    if (questionText.includes(searchTerm)) {
+                        question.style.display = 'block';
+                        // إظهر القسم الذي ينتمي إليه السؤال
+                        question.closest('.category-section').style.display = 'block';
+                    } else {
+                        question.style.display = 'none';
+                    }
+                });
+            });
+
+            // تصفية حسب الفئة
+            const categoryButtons = document.querySelectorAll('.category-button');
+            const categorySections = document.querySelectorAll('.category-section');
+
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    // إزالة النشاط من كل الأزرار
+                    categoryButtons.forEach(btn => btn.classList.remove('active'));
+                    // إضافة النشاط للزر المختار
+                    this.classList.add('active');
+
+                    const category = this.getAttribute('data-category');
+
+                    // إظهار/إخفاء الأقسام حسب الفئة
+                    categorySections.forEach(section => {
+                        if (category === 'all' || section.getAttribute('data-category') === category) {
+                            section.style.display = 'block';
+                        } else {
+                            section.style.display = 'none';
+                        }
+                    });
+                });
+            });
+
+            // فتح الأسئلة عند النقر
+            const accordionToggles = document.querySelectorAll('.accordion-toggle');
+            accordionToggles.forEach(toggle => {
+                toggle.addEventListener('change', function () {
+                    // إغلاق الأسئلة الأخرى عند فتح سؤال جديد (اختياري)
+                    if (this.checked) {
+                        accordionToggles.forEach(otherToggle => {
+                            if (otherToggle !== this) {
+                                otherToggle.checked = false;
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

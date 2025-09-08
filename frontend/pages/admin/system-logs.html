@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سجلات النظام | BrandMe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #2563EB;
+            --color-info: #3B82F6;
+            --color-warning: #FACC15;
+            --color-critical: #EF4444;
+            --color-bg: #FFFFFF;
+            --color-card: #F3F4F6;
+            --color-text: #1F2937;
+            --color-text-light: #6B7280;
+            --color-border: #E5E7EB;
+            --font-main: 'Inter', sans-serif;
+            --font-mono: 'Roboto Mono', monospace;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --radius: 0.5rem;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+        }
+
+        /* BEM Components */
+        .header {
+            background-color: var(--color-bg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header__logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .header__logo-icon {
+            color: var(--color-primary);
+            width: 2rem;
+            height: 2rem;
+        }
+
+        .header__logo-text {
+            margin-right: 0.5rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--color-text);
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav__item {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--color-text-light);
+            transition: var(--transition);
+        }
+
+        .nav__item:hover {
+            color: var(--color-text);
+        }
+
+        .nav__item--active {
+            color: var(--color-primary);
+            border-bottom: 2px solid var(--color-primary);
+        }
+
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--color-text-light);
+        }
+
+        .card {
+            background-color: var(--color-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 0.5rem 1rem 0.5rem 2.5rem;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            transition: var(--transition);
+            font-family: var(--font-main);
+        }
+
+        .search-box:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            border-color: var(--color-primary);
+        }
+
+        .search-box__icon {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1rem;
+            height: 1rem;
+            color: var(--color-text-light);
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            transition: var(--transition);
+            font-family: var(--font-main);
+            background-color: var(--color-bg);
+        }
+
+        .filter-select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            border-color: var(--color-primary);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .btn--primary {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+        }
+
+        .btn--primary:hover {
+            background-color: #1D4ED8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--color-bg);
+        }
+
+        .table__header {
+            background-color: var(--color-card);
+        }
+
+        .table__header-cell {
+            padding: 0.75rem 1.5rem;
+            text-align: right;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--color-text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .table__row {
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .table__row:hover {
+            background-color: var(--color-card);
+        }
+
+        .table__cell {
+            padding: 1rem 1.5rem;
+            font-size: 0.875rem;
+            color: var(--color-text);
+        }
+
+        .table__cell--mono {
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 9999px;
+            transition: var(--transition);
+        }
+
+        .badge:hover {
+            transform: scale(1.05);
+        }
+
+        .badge--info {
+            background-color: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .badge--warning {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+
+        .badge--critical {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--color-border);
+            background-color: var(--color-bg);
+        }
+
+        .pagination__info {
+            font-size: 0.875rem;
+            color: var(--color-text-light);
+        }
+
+        .pagination__nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .pagination__btn {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--color-text-light);
+            background-color: var(--color-bg);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .pagination__btn:hover {
+            background-color: var(--color-card);
+        }
+
+        .pagination__btn--active {
+            background-color: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal--open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal__content {
+            background-color: var(--color-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            max-width: 42rem;
+            width: 100%;
+            margin: 1rem;
+            transform: translateY(1rem);
+            transition: transform 0.3s ease;
+        }
+
+        .modal--open .modal__content {
+            transform: translateY(0);
+        }
+
+        .modal__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .modal__title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .modal__close {
+            color: var(--color-text-light);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal__close:hover {
+            color: var(--color-text);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-item__label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--color-text);
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-item__value {
+            font-size: 0.875rem;
+            color: var(--color-text-light);
+        }
+
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-section__label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--color-text);
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-section__content {
+            background-color: var(--color-card);
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            color: var(--color-text);
+        }
+
+        .detail-section__content--mono {
+            font-family: var(--font-mono);
+            white-space: pre-line;
+        }
+
+        .footer {
+            background-color: var(--color-bg);
+            border-top: 1px solid var(--color-border);
+            padding: 3rem 0;
+            margin-top: 4rem;
+        }
+
+        .footer__content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .footer__logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .footer__logo-icon {
+            color: var(--color-primary);
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        .footer__logo-text {
+            font-size: 0.875rem;
+            color: var(--color-text-light);
+            margin-right: 0.5rem;
+        }
+
+        .footer__links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .footer__link {
+            font-size: 0.875rem;
+            color: var(--color-text-light);
+            transition: var(--transition);
+        }
+
+        .footer__link:hover {
+            color: var(--color-primary);
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(0.625rem); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Design */
+        @media (min-width: 768px) {
+            .footer__content {
+                flex-direction: row;
+            }
+            
+            .footer__logo {
+                margin-bottom: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .table__header-cell,
+            .table__cell {
+                padding: 0.5rem 0.75rem;
+            }
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none;
+        }
+
+        .grid {
+            display: grid;
+        }
+
+        .grid-cols-1 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .grid-cols-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .grid-cols-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .gap-4 {
+            gap: 1rem;
+        }
+
+        .gap-6 {
+            gap: 1.5rem;
+        }
+
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+
+        .mb-6 {
+            margin-bottom: 1.5rem;
+        }
+
+        .mb-8 {
+            margin-bottom: 2rem;
+        }
+
+        .relative {
+            position: relative;
+        }
+
+        .overflow-x-auto {
+            overflow-x: auto;
+        }
+
+        .whitespace-nowrap {
+            white-space: nowrap;
+        }
+
+        @media (min-width: 768px) {
+            .md\:grid-cols-2 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            
+            .md\:grid-cols-3 {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+            
+            .md\:grid-cols-4 {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Component -->
+    <header class="header">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <div class="header__logo">
+                        <i data-feather="shield" class="header__logo-icon"></i>
+                        <span class="header__logo-text">BrandMe</span>
+                    </div>
+                    <nav class="hidden md:ml-6 md:flex md:items-center md:space-x-4 mr-6">
+                        <a href="dashboard.html" class="nav__item">لوحة التحكم</a>
+                        <a href="users.html" class="nav__item">إدارة المستخدمين</a>
+                        <a href="developers.html" class="nav__item">إدارة المطورين</a>
+                        <a href="logs.html" class="nav__item nav__item--active">سجلات النظام</a>
+                        <a href="settings.html" class="nav__item">الإعدادات</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-600">مسؤول النظام</span>
+                    <a href="login.html" class="nav__item">تسجيل الخروج</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Title -->
+        <div class="mb-8 fade-in">
+            <h1 class="page-title">سجلات النظام</h1>
+            <p class="page-subtitle">تتبع جميع الأنشطة والأحداث داخل منصة BrandMe.</p>
+        </div>
+
+        <!-- Search & Filters Section -->
+        <section class="mb-8 fade-in">
+            <div class="card">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <!-- Search -->
+                    <div class="md:col-span-2 relative">
+                        <input type="text" placeholder="ابحث بالكلمات المفتاحية (بريد، IP، مفتاح API)..." class="search-box">
+                        <i data-feather="search" class="search-box__icon"></i>
+                    </div>
+                    
+                    <!-- Event Type Filter -->
+                    <div>
+                        <select class="filter-select" id="eventTypeFilter">
+                            <option value="">جميع الأنواع</option>
+                            <option value="login">تسجيل دخول</option>
+                            <option value="api">API Key</option>
+                            <option value="email">توجيه البريد</option>
+                            <option value="error">خطأ</option>
+                            <option value="security">أمان</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Severity Filter -->
+                    <div>
+                        <select class="filter-select" id="severityFilter">
+                            <option value="">جميع المستويات</option>
+                            <option value="info">معلومات</option>
+                            <option value="warning">تحذير</option>
+                            <option value="critical">حرج</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Date Filter -->
+                    <div class="md:col-span-2">
+                        <select class="filter-select" id="dateFilter">
+                            <option value="today">اليوم</option>
+                            <option value="7days">آخر 7 أيام</option>
+                            <option value="30days">آخر 30 يوم</option>
+                            <option value="custom">نطاق مخصص</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Export Button -->
+                    <div>
+                        <button class="btn btn--primary w-full" id="exportButton">
+                            <i data-feather="download" class="w-4 h-4 ml-2"></i>
+                            تصدير السجلات
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Logs Table Section -->
+        <section class="fade-in">
+            <div class="card p-0 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="table">
+                        <thead class="table__header">
+                            <tr>
+                                <th class="table__header-cell">التاريخ والوقت</th>
+                                <th class="table__header-cell">نوع الحدث</th>
+                                <th class="table__header-cell">الوصف</th>
+                                <th class="table__header-cell">المستخدم</th>
+                                <th class="table__header-cell">عنوان IP</th>
+                                <th class="table__header-cell">الأهمية</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody">
+                            <!-- Dynamic content will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination">
+                    <div class="pagination__info">
+                        عرض <span id="paginationStart">1</span> إلى <span id="paginationEnd">10</span> من <span id="paginationTotal">0</span> سجلات
+                    </div>
+                    <div class="pagination__nav">
+                        <button class="pagination__btn" id="prevPage">السابق</button>
+                        <button class="pagination__btn pagination__btn--active" id="currentPage">1</button>
+                        <button class="pagination__btn" id="nextPage">التالي</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="footer__content">
+                <div class="footer__logo">
+                    <i data-feather="shield" class="footer__logo-icon"></i>
+                    <span class="footer__logo-text">© 2025 BrandMe. جميع الحقوق محفوظة.</span>
+                </div>
+                <div class="footer__links">
+                    <a href="privacy.html" class="footer__link">سياسة الخصوصية</a>
+                    <a href="terms.html" class="footer__link">شروط الخدمة</a>
+                    <a href="contact.html" class="footer__link">اتصل بنا</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Log Details Modal -->
+    <div class="modal" id="logModal">
+        <div class="modal__content">
+            <div class="modal__header">
+                <h3 class="modal__title">تفاصيل السجل</h3>
+                <button class="modal__close" id="closeModal">
+                    <i data-feather="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div id="logDetailsContent">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Feather Icons
+        feather.replace();
+        
+        // API Configuration
+        const API_BASE_URL = '/api';
+        let currentPage = 1;
+        const logsPerPage = 10;
+        let totalLogs = 0;
+        let allLogs = [];
+        let filteredLogs = [];
+        
+        // DOM Elements
+        const logsTableBody = document.getElementById('logsTableBody');
+        const logModal = document.getElementById('logModal');
+        const logDetailsContent = document.getElementById('logDetailsContent');
+        const closeModalBtn = document.getElementById('closeModal');
+        const exportButton = document.getElementById('exportButton');
+        const prevPageBtn = document.getElementById('prevPage');
+        const currentPageBtn = document.getElementById('currentPage');
+        const nextPageBtn = document.getElementById('nextPage');
+        const paginationStart = document.getElementById('paginationStart');
+        const paginationEnd = document.getElementById('paginationEnd');
+        const paginationTotal = document.getElementById('paginationTotal');
+        const eventTypeFilter = document.getElementById('eventTypeFilter');
+        const severityFilter = document.getElementById('severityFilter');
+        const dateFilter = document.getElementById('dateFilter');
+        const searchBox = document.querySelector('.search-box');
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add animation delays
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((element, index) => {
+                element.style.animationDelay = `${index * 0.1}s`;
+            });
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Load logs from API
+            fetchLogs();
+        });
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Modal close button
+            closeModalBtn.addEventListener('click', closeLogModal);
+            
+            // Close modal when clicking outside
+            logModal.addEventListener('click', function(e) {
+                if (e.target === logModal) {
+                    closeLogModal();
+                }
+            });
+            
+            // Export button
+            exportButton.addEventListener('click', exportLogs);
+            
+            // Pagination buttons
+            prevPageBtn.addEventListener('click', () => changePage(currentPage - 1));
+            nextPageBtn.addEventListener('click', () => changePage(currentPage + 1));
+            
+            // Filter change events
+            eventTypeFilter.addEventListener('change', applyFilters);
+            severityFilter.addEventListener('change', applyFilters);
+            dateFilter.addEventListener('change', applyFilters);
+            searchBox.addEventListener('input', applyFilters);
+        }
+        
+        // Fetch logs from API
+        async function fetchLogs() {
+            try {
+                // Show loading state
+                logsTableBody.innerHTML = '<tr><td colspan="6" class="table__cell text-center">جاري تحميل السجلات...</td></tr>';
+                
+                const response = await fetch(`${API_BASE_URL}/logs?page=${currentPage}&limit=${logsPerPage}`);
+                if (!response.ok) {
+                    throw new Error('فشل في جلب السجلات');
+                }
+                
+                const data = await response.json();
+                allLogs = data.logs || [];
+                totalLogs = data.total || 0;
+                
+                // For demo purposes, if no logs from API, use sample data
+                if (allLogs.length === 0) {
+                    allLogs = getSampleLogs();
+                    totalLogs = allLogs.length;
+                }
+                
+                filteredLogs = [...allLogs];
+                renderLogs();
+                updatePagination();
+            } catch (error) {
+                console.error('Error fetching logs:', error);
+                logsTableBody.innerHTML = `<tr><td colspan="6" class="table__cell text-center">خطأ في تحميل السجلات: ${error.message}</td></tr>`;
+            }
+        }
+        
+        // Apply filters to logs
+        function applyFilters() {
+            const eventType = eventTypeFilter.value;
+            const severity = severityFilter.value;
+            const searchTerm = searchBox.value.toLowerCase();
+            
+            filteredLogs = allLogs.filter(log => {
+                // Event type filter
+                if (eventType && log.type !== eventType) return false;
+                
+                // Severity filter
+                if (severity && log.severity !== severity) return false;
+                
+                // Search term filter
+                if (searchTerm) {
+                    const searchableText = [
+                        log.description, 
+                        log.user, 
+                        log.ip, 
+                        log.type
+                    ].join(' ').toLowerCase();
+                    
+                    if (!searchableText.includes(searchTerm)) return false;
+                }
+                
+                return true;
+            });
+            
+            currentPage = 1;
+            renderLogs();
+            updatePagination();
+        }
+        
+        // Render logs to table
+        function renderLogs() {
+            const startIndex = (currentPage - 1) * logsPerPage;
+            const endIndex = Math.min(startIndex + logsPerPage, filteredLogs.length);
+            const logsToRender = filteredLogs.slice(startIndex, endIndex);
+            
+            if (logsToRender.length === 0) {
+                logsTableBody.innerHTML = '<tr><td colspan="6" class="table__cell text-center">لا توجد سجلات تطابق معايير البحث</td></tr>';
+                return;
+            }
+            
+            logsTableBody.innerHTML = '';
+            
+            logsToRender.forEach(log => {
+                const row = document.createElement('tr');
+                row.className = 'table__row';
+                row.onclick = () => showLogDetails(log.id);
+                
+                // Determine badge class based on severity
+                let badgeClass = '';
+                if (log.severity === 'info') badgeClass = 'badge--info';
+                else if (log.severity === 'warning') badgeClass = 'badge--warning';
+                else if (log.severity === 'critical') badgeClass = 'badge--critical';
+                
+                row.innerHTML = `
+                    <td class="table__cell whitespace-nowrap">${log.date}</td>
+                    <td class="table__cell whitespace-nowrap">${log.type}</td>
+                    <td class="table__cell">${log.description}</td>
+                    <td class="table__cell whitespace-nowrap">${log.user}</td>
+                    <td class="table__cell table__cell--mono whitespace-nowrap">${log.ip}</td>
+                    <td class="table__cell whitespace-nowrap">
+                        <span class="badge ${badgeClass}">${log.severity}</span>
+                    </td>
+                `;
+                
+                logsTableBody.appendChild(row);
+            });
+        }
+        
+        // Update pagination controls
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredLogs.length / logsPerPage);
+            const startItem = (currentPage - 1) * logsPerPage + 1;
+            const endItem = Math.min(currentPage * logsPerPage, filteredLogs.length);
+            
+            paginationStart.textContent = startItem;
+            paginationEnd.textContent = endItem;
+            paginationTotal.textContent = filteredLogs.length;
+            
+            currentPageBtn.textContent = currentPage;
+            
+            // Disable/enable pagination buttons
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+            
+            if (prevPageBtn.disabled) {
+                prevPageBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                prevPageBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+            
+            if (nextPageBtn.disabled) {
+                nextPageBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                nextPageBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+        
+        // Change page
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredLogs.length / logsPerPage);
+            
+            if (page < 1 || page > totalPages) return;
+            
+            currentPage = page;
+            renderLogs();
+            updatePagination();
+        }
+        
+        // Show log details in modal
+        async function showLogDetails(logId) {
+            try {
+                // Try to fetch from API first
+                const response = await fetch(`${API_BASE_URL}/logs/${logId}`);
+                let log;
+                
+                if (response.ok) {
+                    log = await response.json();
+                } else {
+                    // Fallback to sample data if API fails
+                    log = getSampleLogDetails(logId);
+                }
+                
+                if (!log) {
+                    alert('تعذر العثور على تفاصيل السجل');
+                    return;
+                }
+                
+                // Determine badge class based on severity
+                let badgeClass = '';
+                if (log.severity === 'info') badgeClass = 'badge--info';
+                else if (log.severity === 'warning') badgeClass = 'badge--warning';
+                else if (log.severity === 'critical') badgeClass = 'badge--critical';
+                
+                logDetailsContent.innerHTML = `
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-item__label">التاريخ والوقت</div>
+                            <div class="detail-item__value">${log.date}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-item__label">نوع الحدث</div>
+                            <div class="detail-item__value">${log.type}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-item__label">مستوى الأهمية</div>
+                            <div class="detail-item__value"><span class="badge ${badgeClass}">${log.severity}</span></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-item__label">المستخدم</div>
+                            <div class="detail-item__value">${log.user}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-item__label">عنوان IP</div>
+                            <div class="detail-item__value">${log.ip}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <div class="detail-section__label">الوصف</div>
+                        <div class="detail-section__content">${log.description}</div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <div class="detail-section__label">التفاصيل</div>
+                        <div class="detail-section__content detail-section__content--mono">${log.details}</div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <div class="detail-section__label">معلومات إضافية</div>
+                        <div class="detail-section__content detail-section__content--mono">${log.additional}</div>
+                    </div>
+                `;
+                
+                logModal.classList.add('modal--open');
+                feather.replace();
+            } catch (error) {
+                console.error('Error fetching log details:', error);
+                alert('حدث خطأ أثنا�� تحميل تفاصيل السجل');
+            }
+        }
+        
+        // Close log modal
+        function closeLogModal() {
+            logModal.classList.remove('modal--open');
+        }
+        
+        // Export logs
+        async function exportLogs() {
+            const format = confirm('هل تريد تصدير السجلات بصيغة CSV؟ اضغط "موافق" لـ CSV أو "إلغاء" لـ JSON') ? 'csv' : 'json';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/logs/export?format=${format}`);
+                
+                if (!response.ok) {
+                    throw new Error('فشل في تصدير السجلات');
+                }
+                
+                // For demo purposes, create a download
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `system-logs.${format}`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+            } catch (error) {
+                console.error('Error exporting logs:', error);
+                alert(`سيبدأ تحميل ملف السجلات بصيغة ${format.toUpperCase()} (وهمي للعرض)`);
+                
+                // Fallback for demo - create a dummy download
+                const dummyData = format === 'csv' 
+                    ? 'Date,Type,Description,User,IP,Severity\n2023-10-15 14:30:25,أمان,محاولة تسجيل دخول فاشلة,user123@brandme.me,192.168.1.100,حرج'
+                    : JSON.stringify([{ date: '2023-10-15 14:30:25', type: 'أمان', description: 'محاولة تسجيل دخول فاشلة', user: 'user123@brandme.me', ip: '192.168.1.100', severity: 'حرج' }], null, 2);
+                
+                const blob = new Blob([dummyData], { type: format === 'csv' ? 'text/csv' : 'application/json' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `system-logs-demo.${format}`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            }
+        }
+        
+        // Sample data for demonstration (to be replaced with API data)
+        function getSampleLogs() {
+            return [
+                {
+                    id: 1,
+                    date: "2023-10-15 14:30:25",
+                    type: "أمان",
+                    description: "محاولة تسجيل دخول فاشلة متعددة من عنوان IP مشبوه",
+                    user: "user123@brandme.me",
+                    ip: "192.168.1.100",
+                    severity: "critical"
+                },
+                {
+                    id: 2,
+                    date: "2023-10-15 13:45:12",
+                    type: "API Key",
+                    description: "تم إنشاء مفتاح API جديد للتطبيق: My Shopping App",
+                    user: "ahmed@example.com",
+                    ip: "10.0.0.45",
+                    severity: "warning"
+                },
+                {
+                    id: 3,
+                    date: "2023-10-15 12:20:33",
+                    type: "تسجيل دخول",
+                    description: "تم تسجيل الدخول بنجاح من متصفح Chrome على Windows",
+                    user: "sara@example.com",
+                    ip: "172.16.0.89",
+                    severity: "info"
+                },
+                {
+                    id: 4,
+                    date: "2023-10-15 11:15:47",
+                    type: "توجيه البريد",
+                    description: "تم توجيه رسالة من user456@brandme.me إلى البريد الأساسي",
+                    user: "user456@brandme.me",
+                    ip: "N/A",
+                    severity: "info"
+                },
+                {
+                    id: 5,
+                    date: "2023-10-15 10:05:19",
+                    type: "خطأ",
+                    description: "فشل في تحميل واجهة برمجة التطبيقات - timeout بعد 30 ثانية",
+                    user: "api@system",
+                    ip: "192.168.10.5",
+                    severity: "warning"
+                }
+            ];
+        }
+        
+        // Sample log details for demonstration
+        function getSampleLogDetails(logId) {
+            const logs = {
+                1: {
+                    date: "2023-10-15 14:30:25",
+                    type: "أمان",
+                    severity: "حرج",
+                    user: "user123@brandme.me",
+                    ip: "192.168.1.100",
+                    description: "محاولة تسجيل دخول فاشلة متعددة من عنوان IP مشبوه",
+                    details: "تم رصد 5 محاولات تسجيل دخول فاشلة خلال 10 دقائق من العنوان 192.168.1.100. تم حظر العنوان تلقائياً لمدة 30 دقيقة.",
+                    additional: "المستخدم: user123@brandme.me\nالمتصفح: Firefox/Windows\nالموقع: Riyadh, Saudi Arabia"
+                },
+                2: {
+                    date: "2023-10-15 13:45:12",
+                    type: "API Key",
+                    severity: "تحذير",
+                    user: "ahmed@example.com",
+                    ip: "10.0.0.45",
+                    description: "تم إنشاء مفتاح API جديد للتطبيق: My Shopping App",
+                    details: "تم إنشاء مفتاح API جديد مع الصلاحيات التالية:\n- قراءة بيانات المستخدم\n- كتابة بيانات المستخدم\n- إدارة البريد الوهمي",
+                    additional: "المفتاح: sk_live_********abcd\nصلاحية: 365 يوم\nنطاقات مسموحة: *.myshoppingapp.com"
+                },
+                3: {
+                    date: "2023-10-15 12:20:33",
+                    type: "تسجيل دخول",
+                    severity: "معلومات",
+                    user: "sara@example.com",
+                    ip: "172.16.0.89",
+                    description: "تم تسجيل الدخول بنجاح من متصفح Chrome على Windows",
+                    details: "تم تسجيل الدخول بنجاح باستخدام المصادقة الثنائية. الجلسة صالحة لمدة 24 ساعة.",
+                    additional: "المتصفح: Chrome 117/Windows 11\nالجهاز: DESKTOP-ABC123\nالمكان: Jeddah, Saudi Arabia"
+                }
+            };
+            
+            return logs[logId];
+        }
+    </script>
+</body>
+</html>

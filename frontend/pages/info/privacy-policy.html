@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سياسة الخصوصية | BrandMe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .policy-container {
+            background-color: #F9FAFB;
+        }
+        .policy-section {
+            transition: all 0.3s ease;
+        }
+        .policy-section:hover {
+            background-color: #F3F4F6;
+        }
+        .nav-item {
+            transition: all 0.2s ease;
+        }
+        .nav-item:hover {
+            background-color: #E5E7EB;
+        }
+        .nav-item.active {
+            background-color: #2563EB;
+            color: white;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .section-icon {
+            transition: all 0.3s ease;
+        }
+        .policy-section:hover .section-icon {
+            transform: scale(1.1);
+        }
+        .back-to-top {
+            transition: all 0.3s ease;
+        }
+        .back-to-top:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="min-h-screen policy-container">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-feather="shield" class="text-indigo-600 w-8 h-8"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">BrandMe</span>
+                    </div>
+                    <nav class="hidden md:ml-6 md:flex md:items-center md:space-x-4 mr-6">
+                        <a href="index.html" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">الرئيسية</a>
+                        <a href="dashboard.html" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">لوحة التحكم</a>
+                        <a href="terms.html" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">شروط الخدمة</a>
+                        <a href="privacy.html" class="px-3 py-2 text-sm font-medium text-indigo-600 border-b-2 border-indigo-600 transition-colors">سياسة الخصوصية</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="contact.html" class="px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors">اتصل بنا</a>
+                    <a href="login.html" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors">تسجيل الدخول</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-blue-50 to-indigo-50 py-16">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center fade-in">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">سياسة الخصوصية</h1>
+            <p class="text-xl text-gray-600">
+                تعرف على كيفية حماية بياناتك واستخدامها في BrandMe.
+            </p>
+            <p class="text-gray-500 mt-4 text-sm">
+                آخر تحديث: ١٥ أكتوبر ٢٠٢٣
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <!-- Quick Navigation -->
+        <section class="mb-12 fade-in">
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">تصفح السياسة بسرعة</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <a href="#introduction" class="text-center p-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i data-feather="file-text" class="text-indigo-600 w-5 h-5 mx-auto mb-2"></i>
+                        <span class="text-sm text-gray-700">مقدمة</span>
+                    </a>
+                    <a href="#data-collection" class="text-center p-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i data-feather="database" class="text-indigo-600 w-5 h-5 mx-auto mb-2"></i>
+                        <span class="text-sm text-gray-700">جمع البيانات</span>
+                    </a>
+                    <a href="#data-usage" class="text-center p-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i data-feather="bar-chart" class="text-indigo-600 w-5 h-5 mx-auto mb-2"></i>
+                        <span class="text-sm text-gray-700">استخدام البيانات</span>
+                    </a>
+                    <a href="#data-protection" class="text-center p-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i data-feather="shield" class="text-indigo-600 w-5 h-5 mx-auto mb-2"></i>
+                        <span class="text-sm text-gray-700">حماية البيانات</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Introduction Section -->
+        <section id="introduction" class="mb-12 fade-in">
+            <div class="policy-section bg-white rounded-xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center ml-4">
+                        <i data-feather="file-text" class="section-icon text-blue-600 w-6 h-6"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900">مقدمة</h2>
+                </div>
+                <div class="text-gray-700 space-y-4">
+                    <p>
+                        في BrandMe، نحن ندرك أهمية الخصوصية والأمان الرقمي. تهدف سياسة الخصوصية هذه إلى توضيح كيفية جمعنا واستخدامنا وحمايتنا لبياناتك الشخصية. نحن ملتزمون بشفافية كاملة فيما يتعلق بممارساتنا المتعلقة بالبيانات.
+                    </p>
+                    <p>
+                        باستخدامك لخدمات BrandMe، فإنك توافق على الممارسات الموضحة في هذه السياسة. نوصي بقراءة هذه السياسة بعناية لفهم كيفية تعاملنا مع معلوماتك.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Collection Section -->
+        <section id="data-collection" class="mb-12 fade-in">
+            <div class="policy-section bg-white rounded-xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center ml-4">
+                        <i data-feather="database" class="section-icon text-green-600 w-6 h-6"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900">جمع البيانات</h2>
+                </div>
+                <div class="text-gray-700 space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-900">البيانات التي نجمعها:</h3>
+                    <ul class="list-disc list-inside space-y-2 text-gray-600">
+                        <li><strong>البريد الوهمي:</strong> العناوين الوهمية التي تنشئها للاستخدام في المواقع المختلفة</li>
+                        <li><strong>البريد الأساسي:</strong> عنوان بريدك الإلكتروني الرئيسي المستخدم للتسجيل</li>
+                        <li><strong>سجلات الدخول:</strong> معلومات حول أوقات وتسجيلات الدخول إلى حسابك</li>
+                        <li><strong>استخدام الـ API:</strong> بيانات حول استخدام واجهة برمجة التطبيقات للمطورين</li>
+                        <li><strong>معلومات الجهاز:</strong> نوع المتصفح ونظام التشغيل لأغراض التوافق</li>
+                    </ul>
+                    <p class="text-gray-600">
+                        نحن نجمع فقط البيانات الضرورية لتقديم خدماتنا وتحسين تجربة المستخدم. لا نجمع بيانات زائدة عن الحاجة.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Usage Section -->
+        <section id="data-usage" class="mb-12 fade-in">
+            <div class="policy-section bg-white rounded-xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center ml-4">
+                        <i data-feather="bar-chart" class="section-icon text-purple-600 w-6 h-6"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900">استخدام البيانات</h2>
+                </div>
+                <div class="text-gray-700 space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-900">كيف نستخدم بياناتك:</h3>
+                    <ul class="list-disc list-inside space-y-2 text-gray-600">
+                        <li><strong>توفير الخدمة:</strong> لتمكينك من استخدام البريد الوهمي وزر التسجيل</li>
+                        <li><strong>حماية البريد:</strong> لحماية بريدك الشخصي من الرسائل غير المرغوب فيها</li>
+                        <li><strong>تحسين النظام:</strong> لتحسين أداء ووظائف منصتنا</li>
+                        <li><strong>الدعم الفني:</strong> لمساعدتك في حل المشكلات الفنية</li>
+                        <li><strong>التواصل:</strong> لإرسال تحديثات مهمة حول الخدمة</li>
+                    </ul>
+                    <p class="text-gray-600">
+                        نحن لا نستخدم بياناتك لأغراض التسويق أو نشاركها مع جهات تسويقية دون موافقتك الصريحة.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Protection Section -->
+        <section id="data-protection" class="mb-12 fade-in">
+            <div class="policy-section bg-white rounded-xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center ml-4">
+                        <i data-feather="shield" class="section-icon text-red-600 w-6 h-6"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900">حماية البيانات</h2>
+                </div>
+                <div class="text-gray-700 space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-900">إجراءات الحماية التي نطبقها:</h3>
+                    <ul class="list-disc list-inside space-y-2 text-gray-600">
+                        <li><strong>التشفير:</strong> جميع البيانات مشفرة أثناء النقل والتخزين</li>
+                        <li><strong>التخزين المؤقت:</strong> لا نحتفظ برسائل البريد الإلكتروني بعد توجيهها</li>
+                        <li><strong>المراجعة الأمنية:</strong> فحوصات أمنية منتظمة للبنية التحتية</li>
+                        <li><strong>الوصول المحدود:</strong> فقط الموظفون المصرح لهم يمكنهم الوصول إلى البيانات</li>
+                        <li><strong>نسخ احتياطية:</strong> نسخ احتياطية منتظمة للبيانات المهمة</li>
+                    </ul>
+                    <p class="text-gray-600">
+                        نلتزم بأعلى معايير الأمان لحماية بياناتك. ومع ذلك، لا يمكن ضمان الأمان المطلق لأي بيانات transmitted عبر الإنترنت.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Sharing Section -->
+        <section id="data-sharing" class="mb-12 fade-in">
+            <div class="policy-section bg-white rounded-xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center ml-4">
+                        <i data-feather="users" class="section-icon text-yellow-600 w-6 h-6"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900">مشاركة البيانات</h2>
+                </div>
+                <div class="text-gray-700 space-y-4">
+                    <p>
+                        نحن <strong>لا نشارك بياناتك الشخصية</strong> مع أي أطراف ثالثة بدون موافقتك الصريحة، إلا في الحالات التالية:
+                    </p>
+                    <ul class="list-disc list-inside space-y-2 text-gray-600">
+                        <li>عندما يكون ذلك مطلوبًا بموجب القانون أو الأمر القضائي</li>
+                        <li>لحماية حقوق أو ممتلكات BrandMe</li>
+                        <li>لمنع الاحتيال أو المساعدة في التحقيق الجنائي</li>
+                        <li>مع مقدمي خدمات موثوقين يساعدوننا في تشغيل منصتنا (مع اتفاقيات سرية صارمة)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- User Rights Section -->
+        <section id="user-rights" class="mb-12 fade-in">
+            <div class="policy-section bg-white rounded-xl shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center ml-4">
+                        <i data-feather="user-check" class="section-icon text-indigo-600 w-6 h-6"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900">حقوق المستخدم</h2>
+                </div>
+                <div class="text-gray-700 space-y-4">
+                    <p>
+                        كمستخدم لـ BrandMe، لديك الحق في:
+                    </p>
+                    <ul class="list-disc list-inside space-y-2 text-gray-600">
+                        <li><strong>الوصول إلى بياناتك:</strong> الاطلاع على البيانات التي نحتفظ بها عنك</li>
+                        <li><strong>تعديل البيانات:</strong> تصحيح أي معلومات غير دقيقة</li>
+                        <li><strong>حذف البيانات:</strong> طلب حذف بياناتك الشخصية</li>
+                        <li><strong>إيقاف البريد الوهمي:</strong> تعطيل أو حذف عناوين البريد الوهمي</li>
+                        <li><strong>تصدير البيانات:</strong> الحصول على نسخة من بياناتك بصيغة قابلة للقراءة</li>
+                    </ul>
+                    <p class="text-gray-600">
+                        يمكنك ممارسة هذه الحقوق من خلال لوحة التحكم الخاصة بك أو عن طريق الاتصال بفريق الدعم.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="fade-in">
+            <div class="bg-white rounded-xl shadow-md p-8 text-center">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">أسئلة أو استفسارات؟</h2>
+                <p class="text-gray-600 mb-6">
+                    إذا كان لديك أي أسئلة حول سياسة الخصوصية الخاصة بنا، لا تتردد في التواصل معنا.
+                </p>
+                <a href="contact.html" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                    <i data-feather="mail" class="w-5 h-5 ml-2"></i>
+                    اتصل بنا
+                </a>
+            </div>
+        </section>
+
+        <!-- Back to Top Button -->
+        <button id="backToTop" class="back-to-top fixed bottom-8 left-8 bg-indigo-600 text-white p-3 rounded-full shadow-md hover:bg-indigo-700 transition-colors hidden">
+            <i data-feather="arrow-up" class="w-5 h-5"></i>
+        </button>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-12 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <i data-feather="shield" class="text-indigo-600 w-5 h-5"></i>
+                    <span class="mr-2 text-sm text-gray-600">© 2025 BrandMe. جميع الحقوق محفوظة.</span>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="terms.html" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">شروط الخدمة</a>
+                    <a href="privacy.html" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">سياسة الخصوصية</a>
+                    <a href="contact.html" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">اتصل بنا</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        feather.replace();
+        
+        // تأثيرات عند التحميل
+        document.addEventListener('DOMContentLoaded', function() {
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((element, index) => {
+                element.style.animationDelay = `${index * 0.1}s`;
+            });
+            
+            // زر العودة إلى الأعلى
+            const backToTopButton = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.classList.remove('hidden');
+                } else {
+                    backToTopButton.classList.add('hidden');
+                }
+            });
+            
+            backToTopButton.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // التنقل السلس للروابط الداخلية
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

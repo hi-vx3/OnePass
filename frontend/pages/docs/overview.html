@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المطورين | BrandMe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .brand-gradient {
+            background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+        }
+        .developers-container {
+            background-color: #F3F4F6;
+        }
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .integration-step {
+            transition: all 0.3s ease;
+        }
+        .integration-step:hover {
+            transform: scale(1.02);
+        }
+        .code-block {
+            font-family: 'Fira Code', 'Monaco', 'Cascadia Code', monospace;
+            direction: ltr;
+        }
+        .nav-item {
+            transition: all 0.2s ease;
+        }
+        .nav-item:hover {
+            background-color: #E5E7EB;
+        }
+        .nav-item.active {
+            background-color: #2563EB;
+            color: white;
+        }
+        .btn-primary {
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+        }
+        .btn-secondary {
+            transition: all 0.2s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #F9FAFB;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #2563EB;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-left: 15px;
+        }
+    </style>
+</head>
+<body class="min-h-screen developers-container">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-feather="shield" class="text-indigo-600 w-8 h-8"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">BrandMe</span>
+                    </div>
+                    <nav class="hidden md:ml-6 md:flex md:items-center md:space-x-4 mr-6">
+                        <a href="index.html" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">الرئيسية</a>
+                        <a href="dashboard.html" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">لوحة التحكم</a>
+                        <a href="profile.html" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">الإعدادات</a>
+                        <a href="docs.html" class="px-3 py-2 text-sm font-medium text-indigo-600 border-b-2 border-indigo-600 transition-colors">المطورون</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="api-keys.html" class="px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors">مفاتيح API</a>
+                    <a href="login.html" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors">تسجيل الخروج</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-blue-50 to-indigo-50 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center fade-in">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">ابدأ بالدمج مع BrandMe</h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                استخدم زر BrandMe Login لتسهيل تسجيل دخول المستخدمين وحماية بريدهم.
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <!-- Developer Features -->
+        <section class="mb-16 fade-in">
+            <h2 class="text-2xl font-bold text-gray-900 text-center mb-12">مزايا الدمج مع BrandMe</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Feature 1 -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 text-center">
+                    <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="log-in" class="text-blue-600 w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">زر تسجيل موحد</h3>
+                    <p class="text-gray-600 text-sm">دمج سريع مع أي موقع باستخدام زر تسجيل الدخول الموحد</p>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 text-center">
+                    <div class="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="code" class="text-purple-600 w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">API متكامل</h3>
+                    <p class="text-gray-600 text-sm">Endpoints جاهزة للتوثيق والاستخدام في تطبيقاتك</p>
+                </div>
+                
+                <!-- Feature 3 -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 text-center">
+                    <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="mail" class="text-green-600 w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">بريد وهمي آمن</h3>
+                    <p class="text-gray-600 text-sm">حماية البريد الإلكتروني للمستخدمين مع الحفاظ على التواصل</p>
+                </div>
+                
+                <!-- Feature 4 -->
+                <div class="feature-card bg-white rounded-xl shadow-md p-6 text-center">
+                    <div class="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="bar-chart" class="text-orange-600 w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">إحصاءات ومتابعة</h3>
+                    <p class="text-gray-600 text-sm">مراقبة استخدام الـ API وتحليلات تفصيلية للأداء</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Integration Steps -->
+        <section class="mb-16 fade-in">
+            <h2 class="text-2xl font-bold text-gray-900 text-center mb-12">كيفية الدمج في 3 خطوات</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Step 1 -->
+                <div class="integration-step bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="step-number">1</div>
+                        <h3 class="text-lg font-semibold text-gray-900">احصل على مفتاح API</h3>
+                    </div>
+                    <p class="text-gray-600">سجّل الدخول إلى لوحة التحكم وأنشئ مفتاح API فريد لتطبيقك</p>
+                    <div class="mt-4 flex justify-center">
+                        <i data-feather="key" class="text-blue-500 w-12 h-12"></i>
+                    </div>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="integration-step bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="step-number">2</div>
+                        <h3 class="text-lg font-semibold text-gray-900">أضف زر BrandMe</h3>
+                    </div>
+                    <p class="text-gray-600">انسخ كود الزر البسيط وأضفه إلى موقعك أو تطبيقك</p>
+                    <div class="mt-4 flex justify-center">
+                        <i data-feather="plus-circle" class="text-green-500 w-12 h-12"></i>
+                    </div>
+                </div>
+                
+                <!-- Step 3 -->
+                <div class="integration-step bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="step-number">3</div>
+                        <h3 class="text-lg font-semibold text-gray-900">استقبل معلومات المستخدم</h3>
+                    </div>
+                    <p class="text-gray-600">استخدم API لاستقبال معلومات المستخدم من البريد الوهمي</p>
+                    <div class="mt-4 flex justify-center">
+                        <i data-feather="user" class="text-purple-500 w-12 h-12"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Code Example -->
+        <section class="mb-16 fade-in">
+            <h2 class="text-2xl font-bold text-gray-900 text-center mb-8">مثال سريع للكود</h2>
+            <div class="bg-gray-800 rounded-xl p-6 text-white">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-sm font-medium">JavaScript مثال</span>
+                    <button class="text-sm text-blue-300 hover:text-blue-100 transition-colors" id="copyCode">
+                        <i data-feather="copy" class="w-4 h-4 ml-1"></i> نسخ الكود
+                    </button>
+                </div>
+                <pre class="code-block overflow-x-auto p-4 bg-gray-900 rounded-lg text-sm">
+<code class="text-green-400">
+// مصادقة المستخدم باستخدام BrandMe API
+fetch("https://api.brandme.me/auth", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer YOUR_CLIENT_SECRET"
+  },
+  body: JSON.stringify({ code: "USER_AUTH_CODE" })
+})
+.then(res => res.json())
+.then(data => {
+  console.log("معلومات المستخدم:", data);
+  // {
+  //   "id": "user_123",
+  //   "email": "user@brandme.me",
+  //   "name": "اسم المستخدم",
+  //   "avatar": "https://..."
+  // }
+})
+.catch(error => {
+  console.error("خطأ في المصادقة:", error);
+});
+</code>
+                </pre>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="text-center fade-in">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">جاهز للبدء؟</h2>
+            <p class="text-gray-600 mb-8 max-w-2xl mx-auto">
+                انضم إلى آلاف المطورين الذين يستخدمون BrandMe لتسجيل دخول آمن وسهل لمستخدميهم.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="api-keys.html" class="btn-primary inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white brand-gradient hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
+                    <i data-feather="key" class="w-5 h-5 ml-2"></i>
+                    احصل على مفتاح API الآن
+                </a>
+                <a href="docs.html" class="btn-secondary inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
+                    <i data-feather="book-open" class="w-5 h-5 ml-2"></i>
+                    اطلع على التوثيق الكامل
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <i data-feather="shield" class="text-indigo-600 w-5 h-5"></i>
+                    <span class="mr-2 text-sm text-gray-600">© 2025 BrandMe. جميع الحقوق محفوظة.</span>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">سياسة الخصوصية</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">شروط الخدمة</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">اتصل بنا</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        feather.replace();
+        
+        // نسخ الكود إلى الحافظة
+        document.getElementById('copyCode').addEventListener('click', function() {
+            const codeContent = `// مصادقة المستخدم باستخدام BrandMe API
+fetch("https://api.brandme.me/auth", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer YOUR_CLIENT_SECRET"
+  },
+  body: JSON.stringify({ code: "USER_AUTH_CODE" })
+})
+.then(res => res.json())
+.then(data => {
+  console.log("معلومات المستخدم:", data);
+})
+.catch(error => {
+  console.error("خطأ في المصادقة:", error);
+});`;
+            
+            navigator.clipboard.writeText(codeContent).then(() => {
+                // تغيير الأيقونة مؤقتاً للإشارة إلى النسخ
+                const icon = this.querySelector('i');
+                const originalData = icon.getAttribute('data-feather');
+                
+                icon.setAttribute('data-feather', 'check');
+                feather.replace();
+                
+                // عرض رسالة نجاح
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i data-feather="check" class="w-4 h-4 ml-1"></i> تم النسخ!';
+                feather.replace();
+                
+                setTimeout(() => {
+                    icon.setAttribute('data-feather', originalData);
+                    this.innerHTML = originalText;
+                    feather.replace();
+                }, 2000);
+            });
+        });
+        
+        // تأثيرات عند التحميل
+        document.addEventListener('DOMContentLoaded', function() {
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((element, index) => {
+                element.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html>

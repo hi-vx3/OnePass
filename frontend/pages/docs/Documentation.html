@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>توثيق OnePass API - أزرار وأدوات المطورين</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        :root {
+            --brand-primary: #3b82f6;
+            --brand-secondary: #8b5cf6;
+            --brand-gradient: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
+        }
+        
+        .brand-gradient {
+            background: var(--brand-gradient);
+        }
+        
+        .brand-text-gradient {
+            background: var(--brand-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-link {
+            transition: all 0.2s ease;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .code-block {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+        
+        .section-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+        
+        .section-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* تحسينات للعرض على الجوال */
+        @media (max-width: 768px) {
+            .mobile-collapsible {
+                cursor: pointer;
+            }
+            
+            .mobile-content {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease;
+            }
+            
+            .mobile-content.expanded {
+                max-height: 1000px;
+            }
+            
+            .code-block {
+                font-size: 0.75rem;
+                padding: 0.75rem;
+            }
+        }
+        
+        /* تحسينات للتحديد والتركيز */
+        ::selection {
+            background-color: rgba(59, 130, 246, 0.2);
+        }
+        
+        .focus\:brand-ring:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans text-gray-800">
+    <!-- شريط التنقل العلوي -->
+    <header class="bg-white shadow-sm sticky top-0 z-10">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center">
+                <i data-feather="shield" class="text-indigo-600 w-6 h-6"></i>
+                <span class="mr-2 font-semibold brand-text-gradient">OnePass API</span>
+            </div>
+            
+            <div class="lg:hidden">
+                <button id="mobile-menu-button" class="text-gray-600 focus:outline-none">
+                    <i data-feather="menu" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <nav class="hidden lg:flex space-x-4 space-x-reverse">
+                <a href="#overview" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-indigo-600">نظرة عامة</a>
+                <a href="#buttons" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-indigo-600">أزرار التسجيل</a>
+                <a href="#authentication" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-indigo-600">المصادقة</a>
+                <a href="#endpoints" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-indigo-600">نقاط الوصول</a>
+            </nav>
+        </div>
+        
+        <!-- قائمة الجوال -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-white border-t">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="#overview" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-indigo-600">نظرة عامة</a>
+                <a href="#buttons" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-indigo-600">أزرار التسجيل</a>
+                <a href="#authentication" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-indigo-600">المصادقة</a>
+                <a href="#endpoints" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-indigo-600">نقاط الوصول</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- العنوان الرئيسي -->
+            <div class="text-center mb-12">
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">توثيق واجهة برمجة تطبيقات OnePass</h1>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">دليل شامل للمطورين لاستخدام واجهة API للتسجيل بالبريد الوهمي في تطبيقاتهم</p>
+                
+                <div class="mt-6 flex flex-wrap justify-center gap-3">
+                    <a href="#buttons" class="px-5 py-2.5 rounded-lg text-white brand-gradient hover:opacity-90 focus:outline-none focus:brand-ring font-medium flex items-center">
+                        <i data-feather="layers" class="ml-2 w-4 h-4"></i>
+                        أزرار جاهزة
+                    </a>
+                    <a href="#sdk" class="px-5 py-2.5 rounded-lg border border-indigo-600 text-indigo-600 hover:bg-indigo-600 hover:text-white focus:outline-none focus:brand-ring font-medium flex items-center">
+                        <i data-feather="code" class="ml-2 w-4 h-4"></i>
+                        استخدم SDK
+                    </a>
+                </div>
+            </div>
+
+            <!-- نظرة عامة -->
+            <section id="overview" class="mb-12">
+                <h2 class="text-2xl font-bold mb-6 flex items-center">
+                    <i data-feather="home" class="ml-2 text-indigo-600"></i>
+                    نظرة عامة
+                </h2>
+                
+                <div class="bg-white rounded-xl shadow-md p-6 section-card">
+                    <p class="text-gray-700 mb-6 leading-relaxed">
+                        واجهة برمجة تطبيقات OnePass تمكنك من إضافة نظام تسجيل دخول باستخدام البريد الوهمي إلى تطبيقك. 
+                        الخدمة تعمل بالكامل على VPS واحد وتوفر تجربة مستخدم سلسة وآمنة.
+                    </p>
+                    
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <div class="bg-indigo-50 p-5 rounded-lg">
+                            <h3 class="font-semibold text-indigo-800 mb-3 flex items-center">
+                                <i data-feather="star" class="ml-2 w-5 h-5"></i>
+                                المميزات الرئيسية
+                            </h3>
+                            <ul class="space-y-2 text-indigo-700">
+                                <li class="flex items-start">
+                                    <i data-feather="check-circle" class="ml-2 w-4 h-4 mt-0.5 text-indigo-600"></i>
+                                    تسجيل دخول بدون كلمة مرور
+                                </li>
+                                <li class="flex items-start">
+                                    <i data-feather="check-circle" class="ml-2 w-4 h-4 mt-0.5 text-indigo-600"></i>
+                                    بريد وهمي ثابت لكل مستخدم
+                                </li>
+                                <li class="flex items-start">
+                                    <i data-feather="check-circle" class="ml-2 w-4 h-4 mt-0.5 text-indigo-600"></i>
+                                    واجهة REST API كاملة
+                                </li>
+                                <li class="flex items-start">
+                                    <i data-feather="check-circle" class="ml-2 w-4 h-4 mt-0.5 text-indigo-600"></i>
+                                    أمان عالي باستخدام JWT
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-green-50 p-5 rounded-lg">
+                            <h3 class="font-semibold text-green-800 mb-3 flex items-center">
+                                <i data-feather="zap" class="ml-2 w-5 h-5"></i>
+                                البدء السريع
+                            </h3>
+                            <ul class="space-y-2 text-green-700">
+                                <li class="flex items-start">
+                                    <i data-feather="key" class="ml-2 w-4 h-4 mt-0.5 text-green-600"></i>
+                                    احصل على مفتاح API
+                                </li>
+                                <li class="flex items-start">
+                                    <i data-feather="code" class="ml-2 w-4 h-4 mt-0.5 text-green-600"></i>
+                                    أضف SDK إلى مشروعك
+                                </li>
+                                <li class="flex items-start">
+                                    <i data-feather="settings" class="ml-2 w-4 h-4 mt-0.5 text-green-600"></i>
+                                    اضبط الإعدادات
+                                </li>
+                                <li class="flex items-start">
+                                    <i data-feather="user-plus" class="ml-2 w-4 h-4 mt-0.5 text-green-600"></i>
+                                    ابدأ بتسجيل المستخدمين
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- أزرار التسجيل -->
+            <section id="buttons" class="mb-12">
+                <h2 class="text-2xl font-bold mb-6 flex items-center">
+                    <i data-feather="layers" class="ml-2 text-indigo-600"></i>
+                    أزرار التسجيل
+                </h2>
+                
+                <div class="mobile-collapsible bg-white rounded-xl shadow-md p-6 section-card">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">الزر الأساسي</h3>
+                    <p class="text-gray-600 mb-5">زر مستطيل قياسي مع الشعار والنص.</p>
+                    
+                    <div class="flex flex-wrap gap-4 items-center mb-6">
+                        <button class="flex items-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white brand-gradient hover:opacity-90 focus:outline-none focus:brand-ring">
+                            <i data-feather="shield" class="ml-2 w-4 h-4"></i>
+                            تسجيل الدخول مع OnePass
+                        </button>
+                        
+                        <button class="flex items-center px-4 py-2.5 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:brand-ring">
+                            <i data-feather="shield" class="ml-2 w-4 h-4 text-indigo-600"></i>
+                            تسجيل الدخول مع OnePass
+                        </button>
+                    </div>
+                    
+                    <div class="mobile-content">
+                        <h4 class="text-sm font-medium text-gray-500 mb-2">كود HTML:</h4>
+                        <pre class="code-block"><code>&lt;button class="flex items-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white brand-gradient hover:opacity-90 focus:outline-none focus:brand-ring"&gt;
+  &lt;i data-feather="shield" class="ml-2 w-4 h-4"&gt;&lt;/i&gt;
+  تسجيل الدخول مع OnePass
+&lt;/button&gt;</code></pre>
+                    </div>
+                </div>
+                
+                <div class="mt-6 mobile-collapsible bg-white rounded-xl shadow-md p-6 section-card">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">زر الأيقونة فقط</h3>
+                    <p class="text-gray-600 mb-5">زر مدمج للأيقونة فقط للمساحات المحدودة.</p>
+                    
+                    <div class="flex flex-wrap gap-4 items-center mb-6">
+                        <button class="p-2.5 rounded-full text-white brand-gradient hover:opacity-90 focus:outline-none focus:brand-ring">
+                            <i data-feather="shield" class="w-5 h-5"></i>
+                        </button>
+                        
+                        <button class="p-2.5 rounded-full border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:brand-ring">
+                            <i data-feather="shield" class="w-5 h-5 text-indigo-600"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="mobile-content">
+                        <h4 class="text-sm font-medium text-gray-500 mb-2">كود HTML:</h4>
+                        <pre class="code-block"><code>&lt;button class="p-2.5 rounded-full text-white brand-gradient hover:opacity-90 focus:outline-none focus:brand-ring"&gt;
+  &lt;i data-feather="shield" class="w-5 h-5"&gt;&lt;/i&gt;
+&lt;/button&gt;</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- المصادقة -->
+            <section id="authentication" class="mb-12">
+                <h2 class="text-2xl font-bold mb-6 flex items-center">
+                    <i data-feather="key" class="ml-2 text-indigo-600"></i>
+                    نظام المصادقة
+                </h2>
+                
+                <div class="mobile-collapsible bg-white rounded-xl shadow-md p-6 section-card">
+                    <p class="text-gray-700 mb-6 leading-relaxed">
+                        تستخدم OnePass نظام مصادقة مزدوج باستخدام JWT tokens لتوفير أقصى درجات الأمان وسهولة الاستخدام.
+                    </p>
+                    
+                    <div class="space-y-4 mb-6">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-semibold mb-2 text-gray-800">Access Token</h3>
+                            <p class="text-sm text-gray-600 mb-2">صلاحية 15 دقيقة، يُرسل في رأس الطلب:</p>
+                            <div class="code-block">
+                                Authorization: Bearer YOUR_ACCESS_TOKEN
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-semibold mb-2 text-gray-800">Refresh Token</h3>
+                            <p class="text-sm text-gray-600 mb-2">صلاحية 7 أيام، يُخزن في HttpOnly cookie:</p>
+                            <div class="code-block">
+                                Cookie: bm_rt=YOUR_REFRESH_TOKEN
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mobile-content">
+                        <div class="bg-amber-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-amber-800 mb-2">ملاحظات أمنية مهمة</h3>
+                            <ul class="space-y-2 text-amber-700 text-sm">
+                                <li class="flex items-start">
+                                    <i data-feather="alert-circle" class="ml-2 w-4 h-4 mt-0.5 text-amber-600"></i>
+                                    احفظ مفتاح API الخاص بك في بيئة آمنة
+                                </li>
+                                <li class="flex items-start">
+                                    <i data-feather="alert-circle" class="ml-2 w-4 h-4 mt-0.5 text-amber-600"></i>
+                                    استخدم HTTPS دائمًا في الإنتاج
+                                </li>
+                                <li class="flex items-start">
+                                    <i data-feather="alert-circle" class="ml-2 w-4 h-4 mt-0.5 text-amber-600"></i>
+                                    تحقق من صلاحية التوكن قبل كل طلب
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- نقاط الوصول -->
+            <section id="endpoints" class="mb-12">
+                <h2 class="text-2xl font-bold mb-6 flex items-center">
+                    <i data-feather="code" class="ml-2 text-indigo-600"></i>
+                    نقاط الوصول الرئيسية
+                </h2>
+                
+                <div class="mobile-collapsible bg-white rounded-xl shadow-md p-6 section-card mb-6">
+                    <div class="flex flex-wrap items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold text-gray-800">1. تسجيل المستخدم</h3>
+                        <span class="text-sm font-medium text-green-600 bg-green-100 px-2.5 py-0.5 rounded-full">POST</span>
+                                            <h3 class="text-xl font-semibold mb-4 text-gray-800">تسجيل مستخدم جديد</h3>
+                    <div class="flex items-center mb-4">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">POST /api/register</span>
+                        <span class="mr-3 text-sm text-gray-500">إنشاء حساب جديد وإرسال رابط التحقق</span>
+                    </div>
+                    
+                    <div class="mobile-content">
+                        <div class="code-block mb-4">
+// Request
+{
+  "email": "user@example.com"
+}
+
+// Response
+{
+  "status": "ok",
+  "data": {
+    "message": "verification_sent"
+  }
+}
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold mb-2 text-gray-700">معلمات الطلب</h4>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm text-right">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="p-2">المعلمة</th>
+                                            <th class="p-2">النوع</th>
+                                            <th class="p-2">الوصف</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="border-b">
+                                            <td class="p-2">email</td>
+                                            <td class="p-2">String</td>
+                                            <td class="p-2">البريد الإلكتروني الحقيقي للمستخدم</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 mobile-collapsible bg-white rounded-xl shadow-md p-6 section-card">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">تسجيل الدخول</h3>
+                    <div class="flex items-center mb-4">
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">POST /api/login</span>
+                        <span class="mr-3 text-sm text-gray-500">إرسال رابط تسجيل دخول مؤقت</span>
+                    </div>
+                    
+                    <div class="mobile-content">
+                        <div class="code-block">
+// Request
+{
+  "email": "user@example.com"
+}
+
+// Response
+{
+  "status": "ok",
+  "data": {
+    "message": "login_link_sent"
+  }
+}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SDK للجافاسكريبت -->
+            <section id="sdk" class="mb-12">
+                <h2 class="text-2xl font-bold mb-6 flex items-center">
+                    <i data-feather="package" class="ml-2 text-indigo-600"></i>
+                    SDK للجافاسكريبت
+                </h2>
+                
+                <div class="mobile-collapsible bg-white rounded-xl shadow-md p-6 section-card">
+                    <p class="text-gray-700 mb-6 leading-relaxed">
+                        يمكنك استخدام SDK الجاهز لتكامل سهل مع واجهة البرمجة في دقائق معدودة.
+                    </p>
+                    
+                    <div class="mobile-content">
+                        <div class="code-block mb-6">
+// التضمين في HTML
+&lt;script src="https://OnePass.me/sdk/OnePass.js"&gt;&lt;/script&gt;
+
+// التهيئة
+OnePass.init({
+  clientId: 'YOUR_CLIENT_ID',
+  redirectUri: 'https://yourdomain.com/callback'
+});
+
+// التعامل مع الأحداث
+OnePass.on('success', function(data) {
+  console.log('تم التسجيل بنجاح:', data);
+  // معالجة البيانات المستلمة
+});
+
+// فتح نافذة التسجيل
+document.getElementById('login-btn').addEventListener('click', function() {
+  OnePass.login();
+});
+                        </div>
+                        
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-blue-800 mb-2">طرق SDK المتاحة</h4>
+                            <div class="grid md:grid-cols-2 gap-4 text-blue-700">
+                                <div class="flex items-start">
+                                    <i data-feather="arrow-right" class="ml-2 w-4 h-4 mt-0.5 text-blue-600"></i>
+                                    <span><code>OnePass.init(config)</code> - تهيئة SDK</span>
+                                </div>
+                                <div class="flex items-start">
+                                    <i data-feather="arrow-right" class="ml-2 w-4 h-4 mt-0.5 text-blue-600"></i>
+                                    <span><code>OnePass.login()</code> - فتح نافذة التسجيل</span>
+                                </div>
+                                <div class="flex items-start">
+                                    <i data-feather="arrow-right" class="ml-2 w-4 h-4 mt-0.5 text-blue-600"></i>
+                                    <span><code>OnePass.on(event, callback)</code> - التعامل مع الأحداث</span>
+                                </div>
+                                <div class="flex items-start">
+                                    <i data-feather="arrow-right" class="ml-2 w-4 h-4 mt-0.5 text-blue-600"></i>
+                                    <span><code>OnePass.getUser()</code> - الحصول على بيانات المستخدم</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- أمثلة عملية -->
+            <section id="examples" class="mb-12">
+                <h2 class="text-2xl font-bold mb-6 flex items-center">
+                    <i data-feather="book-open" class="ml-2 text-indigo-600"></i>
+                    أمثلة عملية
+                </h2>
+                
+                <div class="mobile-collapsible bg-white rounded-xl shadow-md p-6 section-card mb-6">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">مثال بتسجيل الدخول في React</h3>
+                    
+                    <div class="mobile-content">
+                        <div class="code-block">
+import React, { useEffect } from 'react';
+
+const LoginButton = () => {
+  useEffect(() => {
+    // تحميل SDK
+    const script = document.createElement('script');
+    script.src = 'https://OnePass.me/sdk/OnePass.js';
+    script.onload = () => {
+      window.OnePass.init({
+        clientId: process.env.REACT_APP_OnePass_CLIENT_ID,
+        redirectUri: `${window.location.origin}/callback`
+      });
+      
+      window.OnePass.on('success', (data) => {
+        // حفظ بيانات المستخدم
+        localStorage.setItem('user', JSON.stringify(data));
+        window.location.href = '/dashboard';
+      });
+    };
+    document.head.appendChild(script);
+  }, []);
+
+  const handleLogin = () => {
+    window.OnePass.login();
+  };
+
+  return (
+    <button 
+      onClick={handleLogin}
+      className="flex items-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white brand-gradient hover:opacity-90 focus:outline-none focus:brand-ring"
+    >
+      <i data-feather="shield" class="ml-2 w-4 h-4"></i>
+      تسجيل الدخول مع OnePass
+    </button>
+  );
+};
+
+export default LoginButton;
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mobile-collapsible bg-white rounded-xl shadow-md p-6 section-card">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">مثال بطلب API مباشر</h3>
+                    
+                    <div class="mobile-content">
+                        <div class="code-block">
+// تسجيل مستخدم جديد باستخدام fetch
+async function registerUser(email) {
+  try {
+    const response = await fetch('https://api.OnePass.me/api/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email })
+    });
+    
+    const data = await response.json();
+    
+    if (data.status === 'ok') {
+      console.log('تم إرسال رابط التحقق');
+    } else {
+      console.error('خطأ في التسجيل:', data.error);
+    }
+  } catch (error) {
+    console.error('خطأ في الاتصال:', error);
+  }
+}
+
+// استخدام الدالة
+registerUser('user@example.com');
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- خاتمة -->
+            <section class="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-6 md:p-8 mb-12">
+                <div class="text-center max-w-2xl mx-auto">
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-4">ابدأ باستخدام OnePass اليوم!</h2>
+                    <p class="text-gray-700 mb-6">
+                        انضم إلى الآلاف من المطورين الذين يستخدمون OnePass لتسجيل الدخول الآمن والبريد الوهمي في تطبيقاتهم.
+                    </p>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <a href="#" class="px-5 py-2.5 rounded-lg text-white brand-gradient hover:opacity-90 focus:outline-none focus:brand-ring font-medium flex items-center">
+                            <i data-feather="key" class="ml-2 w-4 h-4"></i>
+                            احصل على مفتاح API
+                        </a>
+                        <a href="#" class="px-5 py-2.5 rounded-lg border border-indigo-600 text-indigo-600 hover:bg-indigo-600 hover:text-white focus:outline-none focus:brand-ring font-medium flex items-center">
+                            <i data-feather="book-open" class="ml-2 w-4 h-4"></i>
+                            استعرض التوثيق الكامل
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- تذييل الصفحة -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center">
+                        <i data-feather="shield" class="text-indigo-400 w-6 h-6"></i>
+                        <span class="mr-2 font-semibold">OnePass API</span>
+                    </div>
+                    <p class="text-gray-400 text-sm mt-2">واجهة برمجة التطبيقات للتسجيل بالبريد الوهمي</p>
+                </div>
+                
+                <div class="flex space-x-4 space-x-reverse">
+                    <a href="#" class="text-gray-400 hover:text-white">
+                        <i data-feather="github" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white">
+                        <i data-feather="twitter" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white">
+                        <i data-feather="mail" class="w-5 h-5"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-6 pt-6 text-center text-sm text-gray-400">
+                <p>© 2023 OnePass API. جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        feather.replace();
+        
+        // تفعيل القائمة المتنقلة
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+        
+        // تفعيل الأقسام القابلة للطي على الجوال
+        document.querySelectorAll('.mobile-collapsible').forEach(item => {
+            item.addEventListener('click', function() {
+                if (window.innerWidth < 768) {
+                    const content = this.querySelector('.mobile-content');
+                    content.classList.toggle('expanded');
+                }
+            });
+        });
+        
+        // إضافة تأثيرات سلسة للروابط
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "TOTP Authentication API",
+    "description": "واجهة برمجة تطبيقات لإدارة المصادقة باستخدام رمز TOTP (رمز المرور المؤقت)",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+      "description": "الخادم الرئيسي"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "RequestTOTPInput": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "البريد الإلكتروني للمستخدم"
+          }
+        },
+        "required": ["email"]
+      },
+      "VerifyTOTPInput": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "البريد الإلكتروني للمستخدم"
+          },
+          "code": {
+            "type": "string",
+            "pattern": "^\\d{6}$",
+            "description": "رمز التحقق المكون من 6 أرقام"
+          }
+        },
+        "required": ["email", "code"]
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "رسالة الخطأ"
+          }
+        },
+        "required": ["message"]
+      }
+    }
+  },
+  "paths": {
+    "/api/auth/request-totp": {
+      "post": {
+        "summary": "طلب إرسال رمز TOTP",
+        "description": "إرسال رمز تحقق مؤقت (TOTP) إلى البريد الإلكتروني المحدد",
+        "operationId": "requestTOTP",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestTOTPInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "تم إرسال رمز التحقق بنجاح",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "رسالة تأكيد الإرسال"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "طلب غير صحيح (مثل بريد إلكتروني غير صالح)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "خطأ في الخادم",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/verify-totp": {
+      "post": {
+        "summary": "التحقق من رمز TOTP",
+        "description": "التحقق من صحة رمز TOTP المرسل إلى البريد الإلكتروني",
+        "operationId": "verifyTOTP",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyTOTPInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "تم التحقق من الرمز بنجاح",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "رسالة تأكيد التحقق"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "رمز غير صحيح أو منتهي الصلاحية",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "خطأ في الخادم",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

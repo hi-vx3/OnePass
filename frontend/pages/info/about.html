@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>من نحن | BrandMe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .brand-gradient {
+            background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+        }
+        .about-container {
+            background-color: #F9FAFB;
+        }
+        .value-card {
+            transition: all 0.3s ease;
+        }
+        .value-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .team-card {
+            transition: all 0.3s ease;
+        }
+        .team-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px -5px rgba(0, 0, 0, 0.1);
+        }
+        .nav-item {
+            transition: all 0.2s ease;
+        }
+        .nav-item:hover {
+            background-color: #E5E7EB;
+        }
+        .nav-item.active {
+            background-color: #2563EB;
+            color: white;
+        }
+        .btn-primary {
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hero-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233b82f6' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="min-h-screen about-container">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-feather="shield" class="text-indigo-600 w-8 h-8"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">BrandMe</span>
+                    </div>
+                    <nav class="hidden md:ml-6 md:flex md:items-center md:space-x-4 mr-6">
+                        <a href="index.html" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">الرئيسية</a>
+                        <a href="dashboard.html" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">لوحة التحكم</a>
+                        <a href="developers.html" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">المطورون</a>
+                        <a href="about.html" class="px-3 py-2 text-sm font-medium text-indigo-600 border-b-2 border-indigo-600 transition-colors">من نحن</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="contact.html" class="px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors">اتصل بنا</a>
+                    <a href="login.html" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors">تسجيل الدخول</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-pattern bg-gradient-to-r from-blue-50 to-indigo-50 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center fade-in">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">من نحن</h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                اكتشف رؤية BrandMe، مهمتنا، والقيم التي نؤمن بها.
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <!-- Vision & Mission Section -->
+        <section class="mb-16 fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <!-- Vision -->
+                <div class="bg-white rounded-xl shadow-md p-8">
+                    <div class="flex justify-center mb-6">
+                        <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
+                            <i data-feather="eye" class="text-blue-600 w-8 h-8"></i>
+                        </div>
+                    </div>
+                    <h2 class="text-2xl font-bold text-center text-gray-900 mb-4">رؤيتنا</h2>
+                    <p class="text-gray-600 text-center">
+                        "تسهيل تسجيل الدخول وحماية البريد الإلكتروني للمستخدمين في كل مكان."
+                    </p>
+                    <p class="text-gray-500 text-sm text-center mt-4">
+                        نحن نطمح إلى إنشاء عالم رقمي حيث يتمتع المستخدمون بأقصى درجات الخصوصية والأمان مع الحفاظ على تجربة مستخدم سلسة وسهلة.
+                    </p>
+                </div>
+
+                <!-- Mission -->
+                <div class="bg-white rounded-xl shadow-md p-8">
+                    <div class="flex justify-center mb-6">
+                        <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
+                            <i data-feather="target" class="text-green-600 w-8 h-8"></i>
+                        </div>
+                    </div>
+                    <h2 class="text-2xl font-bold text-center text-gray-900 mb-4">مهمتنا</h2>
+                    <p class="text-gray-600 text-center">
+                        "تقديم زر تسجيل دخول موحد وبريد وهمي يحمي الخصوصية."
+                    </p>
+                    <p class="text-gray-500 text-sm text-center mt-4">
+                        نعمل على تطوير حلول مبتكرة تجعل تجربة تسجيل الدخول أسهل وأكثر أماناً، مع حماية بيانات المستخدمين وخصوصيتهم.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Core Values Section -->
+        <section class="mb-16 fade-in">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">قيمنا الأساسية</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Privacy -->
+                <div class="value-card bg-white rounded-xl shadow-md p-6 text-center">
+                    <div class="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="eye-off" class="text-purple-600 w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">الخصوصية</h3>
+                    <p class="text-gray-600 text-sm">
+                        نحمي بيانات المستخدمين ونضمن خصوصيتهم في كل خطوة، لأن خصوصيتك حق وليس امتيازاً.
+                    </p>
+                </div>
+                
+                <!-- Security -->
+                <div class="value-card bg-white rounded-xl shadow-md p-6 text-center">
+                    <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="shield" class="text-red-600 w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">الأمان</h3>
+                    <p class="text-gray-600 text-sm">
+                        نطبق أعلى معايير الأمان لحماية حسابات المستخدمين وبياناتهم من أي تهديدات محتملة.
+                    </p>
+                </div>
+                
+                <!-- Ease of Use -->
+                <div class="value-card bg-white rounded-xl shadow-md p-6 text-center">
+                    <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="zap" class="text-green-600 w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">سهولة الاستخدام</h3>
+                    <p class="text-gray-600 text-sm">
+                        نصمم منتجاتنا لتكون بديهية وسهلة الاستخدام، لأن التجربة البسيطة هي الأكثر فعالية.
+                    </p>
+                </div>
+                
+                <!-- Innovation -->
+                <div class="value-card bg-white rounded-xl shadow-md p-6 text-center">
+                    <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="trending-up" class="text-blue-600 w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">الابتكار</h3>
+                    <p class="text-gray-600 text-sm">
+                        نستمر في الابتكار والتطوير لتقديم حلول أفضل تلبي احتياجات المستخدمين المتغيرة.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Team Section -->
+        <section class="mb-16 fade-in">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">فريقنا</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Team Member 1 -->
+                <div class="team-card bg-white rounded-xl shadow-md p-6 text-center">
+                    <div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="user" class="text-gray-600 w-10 h-10"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-1">أحمد الشمري</h3>
+                    <p class="text-gray-500 text-sm mb-3">المؤسس والرئيس التنفيذي</p>
+                    <p class="text-gray-600 text-sm">
+                        قائد رؤية مع خبرة تزيد عن 10 سنوات في مجال الأمن السيبراني وحماية البيانات.
+                    </p>
+                </div>
+                
+                <!-- Team Member 2 -->
+                <div class="team-card bg-white rounded-xl shadow-md p-6 text-center">
+                    <div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="user" class="text-gray-600 w-10 h-10"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-1">سارة العتيبي</h3>
+                    <p class="text-gray-500 text-sm mb-3">مديرة التطوير</p>
+                    <p class="text-gray-600 text-sm">
+                        مختصة في تطوير واجهات برمجة التطبيقات وتجربة المستخدم مع شغف للابتكار التقني.
+                    </p>
+                </div>
+                
+                <!-- Team Member 3 -->
+                <div class="team-card bg-white rounded-xl shadow-md p-6 text-center">
+                    <div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="user" class="text-gray-600 w-10 h-10"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-1">محمد السعدون</h3>
+                    <p class="text-gray-500 text-sm mb-3">مهندس أمن المعلومات</p>
+                    <p class="text-gray-600 text-sm">
+                        خبير في تأمين البنية التحتية وحماية البيانات من التهديدات الإلكترونية.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="text-center fade-in">
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">انضم إلى رحلتنا</h2>
+                <p class="text-gray-600 mb-8 max-w-2xl mx-auto">
+                    سواء كنت مستخدمًا أو مطورًا، نحن هنا لجعل تجربتك الرقمية أكثر أمانًا وسلاسة.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="register.html" class="btn-primary inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white brand-gradient hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
+                        <i data-feather="user-plus" class="w-5 h-5 ml-2"></i>
+                        ابدأ الآن
+                    </a>
+                    <a href="developers.html" class="btn-secondary inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
+                        <i data-feather="code" class="w-5 h-5 ml-2"></i>
+                        اكتشف API
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <i data-feather="shield" class="text-indigo-600 w-5 h-5"></i>
+                    <span class="mr-2 text-sm text-gray-600">© 2025 BrandMe. جميع الحقوق محفوظة.</span>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">سياسة الخصوصية</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">شروط الخدمة</a>
+                    <a href="contact.html" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">اتصل بنا</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        feather.replace();
+        
+        // تأثيرات عند التحميل
+        document.addEventListener('DOMContentLoaded', function() {
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((element, index) => {
+                element.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تم التفعيل بنجاح | BrandMe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3B82F6',
+                            600: '#2563EB',
+                            700: '#1D4ED8',
+                        },
+                        success: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22C55E',
+                            600: '#16A34A',
+                        }
+                    },
+                    backgroundImage: {
+                        'brand-gradient': 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)',
+                        'secondary-gradient': 'linear-gradient(135deg, #4B5563 0%, #6B7280 100%)',
+                        'success-gradient': 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)',
+                        'pattern-bg': "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100\" height=\"100\" viewBox=\"0 0 100 100\"><rect width=\"100\" height=\"100\" fill=\"%23f8fafc\"/><path d=\"M0 0L100 100\" stroke=\"%23e2e8f0\" stroke-width=\"1\"/><path d=\"M100 0L0 100\" stroke=\"%23e2e8f0\" stroke-width=\"1\"/></svg>')"
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --color-background: #F9FAFB;
+            --color-card: #FFFFFF;
+            --color-text-primary: #111827;
+            --color-button-primary: #2563EB;
+            --color-button-text: #FFFFFF;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .post-verification-container {
+            background: linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)), 
+                        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f8fafc"/><path d="M0 0L100 100" stroke="%23e2e8f0" stroke-width="1"/><path d="M100 0L0 100" stroke="%23e2e8f0" stroke-width="1"/></svg>');
+            background-size: 300px;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease forwards;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .checkmark-circle {
+            animation: scaleIn 0.5s ease forwards;
+        }
+        
+        @keyframes scaleIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header Component -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                        <span class="mr-2 text-xl font-bold text-gray-900">BrandMe</span>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <a href="{{dashboard_link}}" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors">
+                        الانتقال إلى لوحة التحكم
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 post-verification-container">
+        <div class="max-w-4xl w-full flex flex-col lg:flex-row items-center lg:items-start gap-10">
+            <!-- Success Content Component -->
+            <div class="w-full lg:w-1/2">
+                <div class="bg-white p-8 rounded-xl shadow-lg fade-in">
+                    <div class="flex justify-center mb-6">
+                        <div class="checkmark-circle w-20 h-20 rounded-full bg-success-100 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <h1 class="text-3xl font-bold text-center text-gray-900 mb-4 text-primary-700">
+                        تم تفعيل بريدك بنجاح!
+                    </h1>
+                    
+                    <p class="text-center text-gray-600 mb-2">
+                        مرحباً <span class="font-semibold text-primary-600">{{username}}</span>، بريدك الوهمي أصبح جاهز للاستخدام.
+                    </p>
+                    
+                    <p class="text-center text-gray-600 mb-8">
+                        الآن يمكنك تسجيل الدخول بسرعة إلى أي موقع باستخدام BrandMe.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 mt-8">
+                        <a href="{{dashboard_link}}" class="flex-1 flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-primary-600 to-primary-500 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all">
+                            اذهب إلى لوحة التحكم
+                        </a>
+                        
+                        <a href="#features" class="flex-1 flex justify-center py-3 px-4 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all">
+                            تعرف على المزايا
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Features Section Component -->
+            <div class="w-full lg:w-1/2" id="features">
+                <div class="space-y-6 slide-in">
+                    <!-- Feature Card 1 -->
+                    <div class="feature-card bg-white p-6 rounded-xl shadow-md">
+                        <div class="flex items-start mb-4">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="mr-3">
+                                <h3 class="text-lg font-semibold text-gray-900">وصول سريع للمواقع</h3>
+                                <p class="text-gray-600 mt-1">سجل دخولك إلى أي موقع بضغطة واحدة باستخدام بريدك الوهمي</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Feature Card 2 -->
+                    <div class="feature-card bg-white p-6 rounded-xl shadow-md">
+                        <div class="flex items-start mb-4">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="mr-3">
+                                <h3 class="text-lg font-semibold text-gray-900">حماية الهوية الرقمية</h3>
+                                <p class="text-gray-600 mt-1">احمِ خصوصيتك مع عناوين بريد مؤقتة تحمي هويتك الحقيقية</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Feature Card 3 -->
+                    <div class="feature-card bg-white p-6 rounded-xl shadow-md">
+                        <div class="flex items-start mb-4">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="mr-3">
+                                <h3 class="text-lg font-semibold text-gray-900">إدارة البريد الوهمي بسهولة</h3>
+                                <p class="text-gray-600 mt-1">أنشئ وأدر عناوين بريد وهمية متعددة لاستخدامات مختلفة</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Component -->
+    <footer class="bg-white border-t border-gray-200 mt-16 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    <span class="text-sm text-gray-600">© 2025 BrandMe. جميع الحقوق محفوظة.</span>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-sm text-gray-500 hover:text-primary-600 transition-colors">سياسة الخصوصية</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-primary-600 transition-colors">شروط الخدمة</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-primary-600 transition-colors">اتصل بنا</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

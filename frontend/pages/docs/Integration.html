@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أمثلة الدمج | BrandMe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .code-font {
+            font-family: 'Roboto Mono', monospace;
+        }
+        .brand-gradient {
+            background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+        }
+        .examples-container {
+            background-color: #F9FAFB;
+        }
+        .code-block {
+            transition: all 0.3s ease;
+        }
+        .code-block:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .example-card {
+            transition: all 0.3s ease;
+        }
+        .example-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .nav-item {
+            transition: all 0.2s ease;
+        }
+        .nav-item:hover {
+            background-color: #E5E7EB;
+        }
+        .nav-item.active {
+            background-color: #2563EB;
+            color: white;
+        }
+        .btn-primary {
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+        }
+        .btn-secondary {
+            transition: all 0.2s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #F9FAFB;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .copy-btn {
+            transition: all 0.2s ease;
+        }
+        .copy-btn:hover {
+            background-color: #2563EB;
+            color: white;
+        }
+        .tab-button {
+            transition: all 0.2s ease;
+        }
+        .tab-button.active {
+            background-color: #2563EB;
+            color: white;
+        }
+        .tab-button:hover:not(.active) {
+            background-color: #E5E7EB;
+        }
+        .step-box {
+            transition: all 0.3s ease;
+        }
+        .step-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen examples-container">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-feather="shield" class="text-indigo-600 w-8 h-8"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">BrandMe</span>
+                    </div>
+                    <nav class="hidden md:ml-6 md:flex md:items-center md:space-x-4 mr-6">
+                        <a href="index.html" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">الرئيسية</a>
+                        <a href="dashboard.html" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">لوحة التحكم</a>
+                        <a href="developers.html" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">المطورون</a>
+                        <a href="docs.html" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">التوثيق</a>
+                        <a href="examples.html" class="px-3 py-2 text-sm font-medium text-indigo-600 border-b-2 border-indigo-600 transition-colors">أمثلة الدمج</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="api-keys.html" class="px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors">مفاتيح API</a>
+                    <a href="login.html" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors">تسجيل الخروج</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-blue-50 to-indigo-50 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center fade-in">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">أمثلة دمج BrandMe Login</h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                تعرف على كيفية إضافة زر تسجيل الدخول وحماية البريد الوهمي لمستخدميك.
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <!-- Environment Selector -->
+        <section class="mb-12 fade-in">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">اختر لغة أو إطار العمل</h2>
+            <div class="flex flex-wrap justify-center gap-2 mb-8">
+                <button class="tab-button px-4 py-2 text-sm font-medium rounded-md border border-gray-300 active" data-language="javascript">
+                    JavaScript
+                </button>
+                <button class="tab-button px-4 py-2 text-sm font-medium rounded-md border border-gray-300" data-language="nodejs">
+                    Node.js
+                </button>
+                <button class="tab-button px-4 py-2 text-sm font-medium rounded-md border border-gray-300" data-language="php">
+                    PHP
+                </button>
+                <button class="tab-button px-4 py-2 text-sm font-medium rounded-md border border-gray-300" data-language="python">
+                    Python
+                </button>
+                <button class="tab-button px-4 py-2 text-sm font-medium rounded-md border border-gray-300" data-language="react">
+                    React
+                </button>
+            </div>
+
+            <!-- JavaScript Example (Default) -->
+            <div class="example-content" id="javascript-content">
+                <div class="example-card bg-white rounded-xl shadow-md p-6 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold text-gray-900">مثال JavaScript - مصادقة المستخدم</h3>
+                        <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">POST</span>
+                    </div>
+                    <div class="bg-gray-100 p-3 rounded-lg mb-4">
+                        <code class="code-font text-blue-600">https://api.brandme.me/auth</code>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        هذا الكود يقوم بمصادقة المستخدم باستخدام BrandMe API واسترجاع معلوماته.
+                    </p>
+                    <div class="code-block bg-gray-800 rounded-lg p-4 text-white relative">
+                        <button class="copy-btn absolute left-4 top-4 text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded" onclick="copyCode('js-example')">
+                            <i data-feather="copy" class="w-3 h-3 ml-1"></i> نسخ الكود
+                        </button>
+                        <pre class="code-font overflow-x-auto text-sm" id="js-example">
+<code class="text-green-400">
+// مصادقة المستخدم باستخدام BrandMe API
+fetch("https://api.brandme.me/auth", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer YOUR_CLIENT_SECRET"
+  },
+  body: JSON.stringify({ 
+    code: "USER_AUTH_CODE",
+    client_id: "YOUR_CLIENT_ID"
+  })
+})
+.then(response => {
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return response.json();
+})
+.then(data => {
+  console.log("معلومات المستخدم:", data);
+  // {
+  //   "user_id": "user_123",
+  //   "email": "user@brandme.me",
+  //   "name": "اسم المستخدم",
+  //   "avatar": "https://example.com/avatar.png"
+  // }
+})
+.catch(error => {
+  console.error("حدث خطأ في المصادقة:", error);
+});
+</code>
+                        </pre>
+                    </div>
+                </div>
+
+                <div class="example-card bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold text-gray-900">مثال JavaScript - إضافة زر التسجيل</h3>
+                        <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">Frontend</span>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        هذا الكود يوضح كيفية إضافة زر تسجيل الدخول إلى واجهة المستخدم.
+                    </p>
+                    <div class="code-block bg-gray-800 rounded-lg p-4 text-white relative">
+                        <button class="copy-btn absolute left-4 top-4 text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded" onclick="copyCode('js-button-example')">
+                            <i data-feather="copy" class="w-3 h-3 ml-1"></i> نسخ الكود
+                        </button>
+                        <pre class="code-font overflow-x-auto text-sm" id="js-button-example">
+<code class="text-green-400">
+// إضافة زر تسجيل الدخول إلى الصفحة
+function addBrandMeLoginButton() {
+  const button = document.createElement('button');
+  button.innerHTML = `
+    &lt;div style="display: flex; align-items: center; justify-content: center;"&gt;
+      &lt;img src="brandme-logo.svg" alt="BrandMe" style="width: 20px; margin-left: 8px;"&gt;
+      تسجيل الدخول مع BrandMe
+    &lt;/div&gt;
+  `;
+  button.style = `
+    background-color: #2563EB;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    margin: 16px 0;
+  `;
+  button.onclick = () => {
+    // توجيه المستخدم إلى صفحة مصادقة BrandMe
+    window.location.href = 'https://brandme.me/auth?client_id=YOUR_CLIENT_ID';
+  };
+  document.body.appendChild(button);
+}
+
+// استدعاء الدالة عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', addBrandMeLoginButton);
+</code>
+                        </pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other language examples (hidden by default) -->
+            <div class="example-content hidden" id="nodejs-content">
+                <!-- Node.js example would go here -->
+            </div>
+            <div class="example-content hidden" id="php-content">
+                <!-- PHP example would go here -->
+            </div>
+            <div class="example-content hidden" id="python-content">
+                <!-- Python example would go here -->
+            </div>
+            <div class="example-content hidden" id="react-content">
+                <!-- React example would go here -->
+            </div>
+        </section>
+
+        <!-- Step-by-Step Integration -->
+        <section class="mb-12 fade-in">
+            <h2 class="text-2xl font-bold text-gray-900 mb-8 text-center">خطوات الدمج المبسطة</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="step-box bg-white rounded-xl shadow-md p-6 text-center">
+                    <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="key" class="text-blue-600 w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">الخطوة 1</h3>
+                    <p class="text-gray-600 text-sm">احصل على مفتاح API من لوحة تحكم BrandMe</p>
+                </div>
+                
+                <div class="step-box bg-white rounded-xl shadow-md p-6 text-center">
+                    <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="plus" class="text-green-600 w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">الخطوة 2</h3>
+                    <p class="text-gray-600 text-sm">أضف زر Login إلى موقعك أو تطبيقك</p>
+                </div>
+                
+                <div class="step-box bg-white rounded-xl shadow-md p-6 text-center">
+                    <div class="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="link" class="text-purple-600 w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">الخطوة 3</h3>
+                    <p class="text-gray-600 text-sm">اربط الزر بـ BrandMe API</p>
+                </div>
+                
+                <div class="step-box bg-white rounded-xl shadow-md p-6 text-center">
+                    <div class="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="user" class="text-orange-600 w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">الخطوة 4</h3>
+                    <p class="text-gray-600 text-sm">استقبل البريد الوهمي للمستخدم</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="text-center fade-in">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">جاهز للدمج؟</h2>
+            <p class="text-gray-600 mb-8 max-w-2xl mx-auto">
+                انضم إلى آلاف المطورين الذين يستخدمون BrandMe لتسجيل دخول آمن وسهل لمستخدميهم.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="api-keys.html" class="btn-primary inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white brand-gradient hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
+                    <i data-feather="key" class="w-5 h-5 ml-2"></i>
+                    احصل على مفتاح API الآن
+                </a>
+                <a href="docs.html" class="btn-secondary inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
+                    <i data-feather="book-open" class="w-5 h-5 ml-2"></i>
+                    اطلع على التوثيق الكامل
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <i data-feather="shield" class="text-indigo-600 w-5 h-5"></i>
+                    <span class="mr-2 text-sm text-gray-600">© 2025 BrandMe. جميع الحقوق محفوظة.</span>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">سياسة الخصوصية</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">شروط الخدمة</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">اتصل بنا</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        feather.replace();
+        
+        // Tab switching functionality
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const exampleContents = document.querySelectorAll('.example-content');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                button.classList.add('active');
+                
+                // Hide all content
+                exampleContents.forEach(content => content.classList.add('hidden'));
+                
+                // Show selected content
+                const language = button.getAttribute('data-language');
+                const selectedContent = document.getElementById(`${language}-content`);
+                if (selectedContent) {
+                    selectedContent.classList.remove('hidden');
+                }
+            });
+        });
+        
+        // وظيفة نسخ الأكواد
+        function copyCode(elementId) {
+            const codeElement = document.getElementById(elementId);
+            const codeText = codeElement.textContent || codeElement.innerText;
+            
+            navigator.clipboard.writeText(codeText).then(() => {
+                // عرض رسالة نجاح
+                const buttons = document.querySelectorAll('.copy-btn');
+                buttons.forEach(btn => {
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<i data-feather="check" class="w-3 h-3 ml-1"></i> تم النسخ!';
+                    feather.replace();
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        feather.replace();
+                    }, 2000);
+                });
+            });
+        }
+        
+        // تأثيرات عند التحميل
+        document.addEventListener('DOMContentLoaded', function() {
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((element, index) => {
+                element.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة المستخدمين | BrandMe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #2563EB;
+            --color-active: #22C55E;
+            --color-pending: #FACC15;
+            --color-inactive: #EF4444;
+            --color-bg: #FFFFFF;
+            --color-card: #F3F4F6;
+            --color-text: #1F2937;
+            --color-text-light: #6B7280;
+            --color-border: #E5E7EB;
+            --color-success: #10B981;
+            --color-warning: #F59E0B;
+            --color-danger: #EF4444;
+            --font-main: 'Inter', sans-serif;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --radius: 0.5rem;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+        }
+
+        /* BEM Components */
+        .header {
+            background-color: var(--color-bg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header__logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .header__logo-icon {
+            color: var(--color-primary);
+            width: 2rem;
+            height: 2rem;
+        }
+
+        .header__logo-text {
+            margin-right: 0.5rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--color-text);
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav__item {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--color-text-light);
+            transition: var(--transition);
+        }
+
+        .nav__item:hover {
+            color: var(--color-text);
+        }
+
+        .nav__item--active {
+            color: var(--color-primary);
+            border-bottom: 2px solid var(--color-primary);
+        }
+
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--color-text-light);
+        }
+
+        .card {
+            background-color: var(--color-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 0.5rem 1rem 0.5rem 2.5rem;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            transition: var(--transition);
+            font-family: var(--font-main);
+        }
+
+        .search-box:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            border-color: var(--color-primary);
+        }
+
+        .search-box__icon {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1rem;
+            height: 1rem;
+            color: var(--color-text-light);
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            transition: var(--transition);
+            font-family: var(--font-main);
+            background-color: var(--color-bg);
+        }
+
+        .filter-select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            border-color: var(--color-primary);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .btn--primary {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+        }
+
+        .btn--primary:hover {
+            background-color: #1D4ED8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn--success {
+            background-color: var(--color-success);
+            color: white;
+            border: none;
+        }
+
+        .btn--success:hover {
+            background-color: #059669;
+        }
+
+        .btn--warning {
+            background-color: var(--color-warning);
+            color: white;
+            border: none;
+        }
+
+        .btn--warning:hover {
+            background-color: #D97706;
+        }
+
+        .btn--danger {
+            background-color: var(--color-danger);
+            color: white;
+            border: none;
+        }
+
+        .btn--danger:hover {
+            background-color: #DC2626;
+        }
+
+        .btn--outline {
+            background-color: transparent;
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+        }
+
+        .btn--outline:hover {
+            background-color: var(--color-card);
+        }
+
+        .bulk-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background-color: var(--color-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 1.5rem;
+        }
+
+        .bulk-actions__select {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .bulk-actions__checkbox {
+            width: 1rem;
+            height: 1rem;
+            border-radius: 0.25rem;
+            border: 1px solid var(--color-border);
+            accent-color: var(--color-primary);
+        }
+
+        .bulk-actions__label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--color-text);
+        }
+
+        .bulk-actions__buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--color-bg);
+        }
+
+        .table__header {
+            background-color: var(--color-card);
+        }
+
+        .table__header-cell {
+            padding: 0.75rem 1rem;
+            text-align: right;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--color-text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .table__row {
+            transition: var(--transition);
+        }
+
+        .table__row:hover {
+            background-color: var(--color-card);
+        }
+
+        .table__cell {
+            padding: 1rem;
+            font-size: 0.875rem;
+            color: var(--color-text);
+        }
+
+        .table__cell--checkbox {
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .checkbox {
+            width: 1rem;
+            height: 1rem;
+            border-radius: 0.25rem;
+            border: 1px solid var(--color-border);
+            accent-color: var(--color-primary);
+            transition: var(--transition);
+        }
+
+        .checkbox:hover {
+            background-color: var(--color-card);
+        }
+
+        .user-avatar {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 9999px;
+            background-color: var(--color-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 0.75rem;
+        }
+
+        .user-avatar__icon {
+            width: 1rem;
+            height: 1rem;
+            color: var(--color-text-light);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info__name {
+            font-weight: 500;
+            color: var(--color-text);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 9999px;
+            transition: var(--transition);
+        }
+
+        .badge:hover {
+            transform: scale(1.05);
+        }
+
+        .badge--active {
+            background-color: #DCFCE7;
+            color: #166534;
+        }
+
+        .badge--pending {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+
+        .badge--inactive {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            padding: 0.375rem;
+            border-radius: var(--radius);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            background-color: var(--color-card);
+        }
+
+        .action-btn--edit {
+            color: var(--color-primary);
+        }
+
+        .action-btn--activate {
+            color: var(--color-success);
+        }
+
+        .action-btn--deactivate {
+            color: var(--color-warning);
+        }
+
+        .action-btn--delete {
+            color: var(--color-danger);
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--color-border);
+            background-color: var(--color-bg);
+        }
+
+        .pagination__info {
+            font-size: 0.875rem;
+            color: var(--color-text-light);
+        }
+
+        .pagination__nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .pagination__btn {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--color-text-light);
+            background-color: var(--color-bg);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .pagination__btn:hover {
+            background-color: var(--color-card);
+        }
+
+        .pagination__btn--active {
+            background-color: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .footer {
+            background-color: var(--color-bg);
+            border-top: 1px solid var(--color-border);
+            padding: 3rem 0;
+            margin-top: 4rem;
+        }
+
+        .footer__content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .footer__logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .footer__logo-icon {
+            color: var(--color-primary);
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        .footer__logo-text {
+            font-size: 0.875rem;
+            color: var(--color-text-light);
+            margin-right: 0.5rem;
+        }
+
+        .footer__links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .footer__link {
+            font-size: 0.875rem;
+            color: var(--color-text-light);
+            transition: var(--transition);
+        }
+
+        .footer__link:hover {
+            color: var(--color-primary);
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(0.625rem); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Design */
+        @media (min-width: 768px) {
+            .footer__content {
+                flex-direction: row;
+            }
+            
+            .footer__logo {
+                margin-bottom: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .bulk-actions {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            
+            .bulk-actions__buttons {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .table__header-cell,
+            .table__cell {
+                padding: 0.5rem;
+            }
+            
+            .action-buttons {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none;
+        }
+
+        .grid {
+            display: grid;
+        }
+
+        .grid-cols-1 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .grid-cols-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .grid-cols-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .gap-4 {
+            gap: 1rem;
+        }
+
+        .relative {
+            position: relative;
+        }
+
+        .overflow-x-auto {
+            overflow-x: auto;
+        }
+
+        .whitespace-nowrap {
+            white-space: nowrap;
+        }
+
+        @media (min-width: 768px) {
+            .md\:grid-cols-2 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            
+            .md\:grid-cols-3 {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+            
+            .md\:grid-cols-4 {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Component -->
+    <header class="header">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <div class="header__logo">
+                        <i data-feather="shield" class="header__logo-icon"></i>
+                        <span class="header__logo-text">BrandMe</span>
+                    </div>
+                    <nav class="hidden md:ml-6 md:flex md:items-center md:space-x-4 mr-6">
+                        <a href="dashboard.html" class="nav__item">لوحة التحكم</a>
+                        <a href="profile.html" class="nav__item">الإعدادات</a>
+                        <a href="users.html" class="nav__item nav__item--active">إدارة المستخدمين</a>
+                        <a href="developers.html" class="nav__item">إدارة المطورين</a>
+                        <a href="logs.html" class="nav__item">سجلات النظام</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-600">مسؤول النظام</span>
+                    <a href="login.html" class="nav__item">تسجيل الخروج</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Title -->
+        <div class="mb-8 fade-in">
+            <h1 class="page-title">إدارة المستخدمين</h1>
+            <p class="page-subtitle">عرض كل المستخدمين المسجلين، تعديل حساباتهم، والتحكم بحالتهم.</p>
+        </div>
+
+        <!-- Search & Filters Section -->
+        <section class="mb-6 fade-in">
+            <div class="card">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- Search -->
+                    <div class="md:col-span-2 relative">
+                        <input type="text" placeholder="ابحث بالاسم أو البريد..." class="search-box" id="searchInput">
+                        <i data-feather="search" class="search-box__icon"></i>
+                    </div>
+                    
+                    <!-- Status Filter -->
+                    <div>
+                        <select class="filter-select" id="statusFilter">
+                            <option value="">جميع الحالات</option>
+                            <option value="active">نشط</option>
+                            <option value="inactive">غير نشط</option>
+                            <option value="pending">في انتظار التفعيل</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Sort -->
+                    <div>
+                        <select class="filter-select" id="sortFilter">
+                            <option value="newest">الأحدث أولاً</option>
+                            <option value="oldest">الأقدم أولاً</option>
+                            <option value="name">حسب الاسم</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bulk Actions Section -->
+        <section class="mb-6 fade-in">
+            <div class="bulk-actions" id="bulkActions">
+                <div class="bulk-actions__select">
+                    <input type="checkbox" id="selectAll" class="bulk-actions__checkbox">
+                    <label for="selectAll" class="bulk-actions__label">تحديد الكل</label>
+                </div>
+                
+                <div class="bulk-actions__buttons">
+                    <button class="btn btn--success" id="activateSelected">
+                        <i data-feather="check-circle" class="w-4 h-4 ml-1"></i>
+                        تفعيل المحدد
+                    </button>
+                    <button class="btn btn--warning" id="deactivateSelected">
+                        <i data-feather="x-circle" class="w-4 h-4 ml-1"></i>
+                        تعطيل المحدد
+                    </button>
+                    <button class="btn btn--danger" id="deleteSelected">
+                        <i data-feather="trash-2" class="w-4 h-4 ml-1"></i>
+                        حذف المحدد
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Users Table Section -->
+        <section class="fade-in">
+            <div class="card p-0 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="table">
+                        <thead class="table__header">
+                            <tr>
+                                <th class="table__header-cell table__cell--checkbox">
+                                    <input type="checkbox" class="checkbox" id="selectAllHeader">
+                                </th>
+                                <th class="table__header-cell">اسم المستخدم</th>
+                                <th class="table__header-cell">البريد الأساسي</th>
+                                <th class="table__header-cell">البريد الوهمي</th>
+                                <th class="table__header-cell">الحالة</th>
+                                <th class="table__header-cell">تاريخ التسجيل</th>
+                                <th class="table__header-cell">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- Dynamic content will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination">
+                    <div class="pagination__info">
+                        عرض <span id="paginationStart">1</span> إلى <span id="paginationEnd">10</span> من <span id="paginationTotal">0</span> نتائج
+                    </div>
+                    <div class="pagination__nav">
+                        <button class="pagination__btn" id="prevPage">السابق</button>
+                        <button class="pagination__btn pagination__btn--active" id="currentPage">1</button>
+                        <button class="pagination__btn" id="nextPage">التالي</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="footer__content">
+                <div class="footer__logo">
+                    <i data-feather="shield" class="footer__logo-icon"></i>
+                    <span class="footer__logo-text">© 2025 BrandMe. جميع الحقوق محفوظة.</span>
+                </div>
+                <div class="footer__links">
+                    <a href="privacy.html" class="footer__link">سياسة الخصوصية</a>
+                    <a href="terms.html" class="footer__link">شروط الخدمة</a>
+                    <a href="contact.html" class="footer__link">اتصل بنا</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Feather Icons
+        feather.replace();
+        
+        // API Configuration
+        const API_BASE_URL = '/api';
+        let currentPage = 1;
+        const usersPerPage = 10;
+        let totalUsers = 0;
+        let allUsers = [];
+        let filteredUsers = [];
+        let selectedUsers = new Set();
+        
+        // DOM Elements
+        const usersTableBody = document.getElementById('usersTableBody');
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        const sortFilter = document.getElementById('sortFilter');
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const selectAllHeaderCheckbox = document.getElementById('selectAllHeader');
+        const activateSelectedBtn = document.getElementById('activateSelected');
+        const deactivateSelectedBtn = document.getElementById('deactivateSelected');
+        const deleteSelectedBtn = document.getElementById('deleteSelected');
+        const bulkActionsSection = document.getElementById('bulkActions');
+        const prevPageBtn = document.getElementById('prevPage');
+        const currentPageBtn = document.getElementById('currentPage');
+        const nextPageBtn = document.getElementById('nextPage');
+        const paginationStart = document.getElementById('paginationStart');
+        const paginationEnd = document.getElementById('paginationEnd');
+        const paginationTotal = document.getElementById('paginationTotal');
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add animation delays
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((element, index) => {
+                element.style.animationDelay = `${index * 0.1}s`;
+            });
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Load users from API
+            fetchUsers();
+        });
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Search and filter events
+            searchInput.addEventListener('input', applyFilters);
+            statusFilter.addEventListener('change', applyFilters);
+            sortFilter.addEventListener('change', applyFilters);
+            
+            // Select all checkboxes
+            selectAllCheckbox.addEventListener('change', toggleSelectAll);
+            selectAllHeaderCheckbox.addEventListener('change', toggleSelectAll);
+            
+            // Bulk action buttons
+            activateSelectedBtn.addEventListener('click', () => bulkAction('activate'));
+            deactivateSelectedBtn.addEventListener('click', () => bulkAction('deactivate'));
+            deleteSelectedBtn.addEventListener('click', () => bulkAction('delete'));
+            
+            // Pagination buttons
+            prevPageBtn.addEventListener('click', () => changePage(currentPage - 1));
+            nextPageBtn.addEventListener('click', () => changePage(currentPage + 1));
+        }
+        
+        // Fetch users from API
+        async function fetchUsers() {
+            try {
+                // Show loading state
+                usersTableBody.innerHTML = '<tr><td colspan="7" class="table__cell text-center">جاري تحميل المستخدمين...</td></tr>';
+                
+                const response = await fetch(`${API_BASE_URL}/users?page=${currentPage}&limit=${usersPerPage}`);
+                if (!response.ok) {
+                    throw new Error('فشل في جلب المستخدمين');
+                }
+                
+                const data = await response.json();
+                allUsers = data.users || [];
+                totalUsers = data.total || 0;
+                
+                // For demo purposes, if no users from API, use sample data
+                if (allUsers.length === 0) {
+                    allUsers = getSampleUsers();
+                    totalUsers = allUsers.length;
+                }
+                
+                filteredUsers = [...allUsers];
+                renderUsers();
+                updatePagination();
+                updateBulkActionsVisibility();
+            } catch (error) {
+                console.error('Error fetching users:', error);
+                usersTableBody.innerHTML = `<tr><td colspan="7" class="table__cell text-center">خطأ في تحميل المستخدمين: ${error.message}</td></tr>`;
+            }
+        }
+        
+        // Apply filters to users
+        function applyFilters() {
+            const status = statusFilter.value;
+            const searchTerm = searchInput.value.toLowerCase();
+            const sortBy = sortFilter.value;
+            
+            filteredUsers = allUsers.filter(user => {
+                // Status filter
+                if (status && user.status !== status) return false;
+                
+                // Search term filter
+                if (searchTerm) {
+                    const searchableText = [
+                        user.name, 
+                        user.primaryEmail, 
+                        user.aliasEmail
+                    ].join(' ').toLowerCase();
+                    
+                    if (!searchableText.includes(searchTerm)) return false;
+                }
+                
+                return true;
+            });
+            
+            // Sort users
+            switch(sortBy) {
+                case 'newest':
+                    filteredUsers.sort((a, b) => new Date(b.registrationDate) - new Date(a.registrationDate));
+                    break;
+                case 'oldest':
+                    filteredUsers.sort((a, b) => new Date(a.registrationDate) - new Date(b.registrationDate));
+                    break;
+                case 'name':
+                    filteredUsers.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+                    break;
+            }
+            
+            currentPage = 1;
+            selectedUsers.clear();
+            updateSelectAllState();
+            renderUsers();
+            updatePagination();
+            updateBulkActionsVisibility();
+        }
+        
+        // Render users to table
+        function renderUsers() {
+            const startIndex = (currentPage - 1) * usersPerPage;
+            const endIndex = Math.min(startIndex + usersPerPage, filteredUsers.length);
+            const usersToRender = filteredUsers.slice(startIndex, endIndex);
+            
+            if (usersToRender.length === 0) {
+                usersTableBody.innerHTML = '<tr><td colspan="7" class="table__cell text-center">لا توجد نتائج تطابق معايير البحث</td></tr>';
+                return;
+            }
+            
+            usersTableBody.innerHTML = '';
+            
+            usersToRender.forEach(user => {
+                const row = document.createElement('tr');
+                row.className = 'table__row';
+                row.dataset.userId = user.id;
+                
+                // Determine badge class based on status
+                let badgeClass = '';
+                let statusText = '';
+                if (user.status === 'active') {
+                    badgeClass = 'badge--active';
+                    statusText = 'نشط';
+                } else if (user.status === 'pending') {
+                    badgeClass = 'badge--pending';
+                    statusText = 'في انتظار التفعيل';
+                } else if (user.status === 'inactive') {
+                    badgeClass = 'badge--inactive';
+                    statusText = 'غير نشط';
+                }
+                
+                const isSelected = selectedUsers.has(user.id);
+                
+                row.innerHTML = `
+                    <td class="table__cell table__cell--checkbox">
+                        <input type="checkbox" class="checkbox user-checkbox" data-user-id="${user.id}" ${isSelected ? 'checked' : ''}>
+                    </td>
+                    <td class="table__cell whitespace-nowrap">
+                        <div class="user-info">
+                            <div class="user-avatar">
+                                <i data-feather="user" class="user-avatar__icon"></i>
+                            </div>
+                            <div class="user-info__name">${user.name}</div>
+                        </div>
+                    </td>
+                    <td class="table__cell whitespace-nowrap">${user.primaryEmail}</td>
+                    <td class="table__cell whitespace-nowrap">${user.aliasEmail}</td>
+                    <td class="table__cell whitespace-nowrap">
+                        <span class="badge ${badgeClass}">${statusText}</span>
+                    </td>
+                    <td class="table__cell whitespace-nowrap">${user.registrationDate}</td>
+                    <td class="table__cell whitespace-nowrap">
+                        <div class="action-buttons">
+                            <button class="action-btn action-btn--edit" data-action="edit" data-user-id="${user.id}">
+                                <i data-feather="edit" class="w-4 h-4"></i>
+                            </button>
+                            ${user.status !== 'active' ? `
+                            <button class="action-btn action-btn--activate" data-action="activate" data-user-id="${user.id}">
+                                <i data-feather="check-circle" class="w-4 h-4"></i>
+                            </button>
+                            ` : `
+                            <button class="action-btn action-btn--deactivate" data-action="deactivate" data-user-id="${user.id}">
+                                <i data-feather="pause" class="w-4 h-4"></i>
+                            </button>
+                            `}
+                            <button class="action-btn action-btn--delete" data-action="delete" data-user-id="${user.id}">
+                                <i data-feather="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                usersTableBody.appendChild(row);
+            });
+            
+            // Add event listeners to action buttons
+            document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', handleUserSelection);
+            });
+            
+            document.querySelectorAll('[data-action]').forEach(button => {
+                button.addEventListener('click', handleUserAction);
+            });
+            
+            feather.replace();
+        }
+        
+        // Handle user selection
+        function handleUserSelection(e) {
+            const userId = e.target.dataset.userId;
+            if (e.target.checked) {
+                selectedUsers.add(userId);
+            } else {
+                selectedUsers.delete(userId);
+            }
+            updateSelectAllState();
+            updateBulkActionsVisibility();
+        }
+        
+        // Handle user action
+        function handleUserAction(e) {
+            const action = e.currentTarget.dataset.action;
+            const userId = e.currentTarget.dataset.userId;
+            const user = filteredUsers.find(u => u.id == userId);
+            
+            if (!user) return;
+            
+            switch(action) {
+                case 'edit':
+                    editUser(userId);
+                    break;
+                case 'activate':
+                    activateUser(userId);
+                    break;
+                case 'deactivate':
+                    deactivateUser(userId);
+                    break;
+                case 'delete':
+                    deleteUser(userId);
+                    break;
+            }
+        }
+        
+        // Toggle select all
+        function toggleSelectAll(e) {
+            const isChecked = e.target.checked;
+            document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+                checkbox.checked = isChecked;
+                const userId = checkbox.dataset.userId;
+                if (isChecked) {
+                    selectedUsers.add(userId);
+                } else {
+                    selectedUsers.delete(userId);
+                }
+            });
+            updateBulkActionsVisibility();
+        }
+        
+        // Update select all checkbox state
+        function updateSelectAllState() {
+            const totalCheckboxes = document.querySelectorAll('.user-checkbox').length;
+            const checkedCheckboxes = document.querySelectorAll('.user-checkbox:checked').length;
+            
+            selectAllCheckbox.checked = checkedCheckboxes > 0 && checkedCheckboxes === totalCheckboxes;
+            selectAllCheckbox.indeterminate = checkedCheckboxes > 0 && checkedCheckboxes < totalCheckboxes;
+            
+            selectAllHeaderCheckbox.checked = selectAllCheckbox.checked;
+            selectAllHeaderCheckbox.indeterminate = selectAllCheckbox.indeterminate;
+        }
+        
+        // Update bulk actions visibility
+        function updateBulkActionsVisibility() {
+            if (selectedUsers.size > 0) {
+                bulkActionsSection.style.display = 'flex';
+            } else {
+                bulkActionsSection.style.display = 'none';
+            }
+        }
+        
+        // Update pagination controls
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+            const startItem = (currentPage - 1) * usersPerPage + 1;
+            const endItem = Math.min(currentPage * usersPerPage, filteredUsers.length);
+            
+            paginationStart.textContent = startItem;
+            paginationEnd.textContent = endItem;
+            paginationTotal.textContent = filteredUsers.length;
+            
+            currentPageBtn.textContent = currentPage;
+            
+            // Disable/enable pagination buttons
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+            
+            if (prevPageBtn.disabled) {
+                prevPageBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                prevPageBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+            
+            if (nextPageBtn.disabled) {
+                nextPageBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                nextPageBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+        
+        // Change page
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+            
+            if (page < 1 || page > totalPages) return;
+            
+            currentPage = page;
+            renderUsers();
+            updatePagination();
+        }
+        
+        // Bulk action
+        function bulkAction(action) {
+            if (selectedUsers.size === 0) return;
+            
+            const userNames = Array.from(selectedUsers).map(id => {
+                const user = filteredUsers.find(u => u.id == id);
+                return user ? user.name : '';
+            }).filter(name => name !== '');
+            
+            let confirmMessage = '';
+            let apiEndpoint = '';
+            let successMessage = '';
+            
+            switch(action) {
+                case 'activate':
+                    confirmMessage = `هل أنت متأكد من رغبتك في تفعيل ${selectedUsers.size} مستخدم؟`;
+                    apiEndpoint = 'activate';
+                    successMessage = 'تم تفعيل المستخدمين المحددين بنجاح';
+                    break;
+                case 'deactivate':
+                    confirmMessage = `هل أنت متأكد من رغبتك في تعطيل ${selectedUsers.size} مستخدم؟`;
+                    apiEndpoint = 'deactivate';
+                    successMessage = 'تم تعطيل المستخدمين المحددين بنجاح';
+                    break;
+                case 'delete':
+                    confirmMessage = `هل أنت متأكد من رغبتك في حذف ${selectedUsers.size} مستخدم؟ لا يمكن التراجع عن هذا الإجراء.`;
+                    apiEndpoint = '';
+                    successMessage = 'تم حذف المستخدمين المحددين بنجاح';
+                    break;
+            }
+            
+            if (!confirm(confirmMessage)) return;
+            
+            // Call API for each selected user
+            const promises = Array.from(selectedUsers).map(userId => {
+                let url = '';
+                let method = '';
+                
+                switch(action) {
+                    case 'activate':
+                        url = `${API_BASE_URL}/users/${userId}/activate`;
+                        method = 'PATCH';
+                        break;
+                    case 'deactivate':
+                        url = `${API_BASE_URL}/users/${userId}/deactivate`;
+                        method = 'PATCH';
+                        break;
+                    case 'delete':
+                        url = `${API_BASE_URL}/users/${userId}`;
+                        method = 'DELETE';
+                        break;
+                }
+                
+                return fetch(url, { method })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`فشل في ${action} المستخدم ${userId}`);
+                        }
+                        return response.json();
+                    });
+            });
+            
+            Promise.all(promises)
+                .then(() => {
+                    alert(successMessage);
+                    // Refresh users list
+                    selectedUsers.clear();
+                    fetchUsers();
+                })
+                .catch(error => {
+                    console.error(`Error performing bulk ${action}:`, error);
+                    alert(`حدث خطأ أثناء ${action} المستخدمين`);
+                });
+        }
+        
+        // Individual user actions
+        async function editUser(userId) {
+            alert(`سيتم فتح نموذج تعديل للمستخدم ${userId}`);
+            // Implementation for edit modal would go here
+        }
+        
+        async function activateUser(userId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/${userId}/activate`, {
+                    method: 'PATCH'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('فشل في تفعيل المستخدم');
+                }
+                
+                alert('تم تفعيل المستخدم بنجاح');
+                fetchUsers(); // Refresh the list
+            } catch (error) {
+                console.error('Error activating user:', error);
+                alert('حدث خطأ أثناء تفعيل المستخدم');
+            }
+        }
+        
+        async function deactivateUser(userId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/${userId}/deactivate`, {
+                    method: 'PATCH'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('فشل في تعطيل المستخدم');
+                }
+                
+                alert('تم تعطيل المستخدم بنجاح');
+                fetchUsers(); // Refresh the list
+            } catch (error) {
+                console.error('Error deactivating user:', error);
+                alert('حدث خطأ أثناء تعطيل المستخدم');
+            }
+        }
+        
+        async function deleteUser(userId) {
+            if (!confirm('هل أنت متأكد من رغبتك في حذف هذا المستخدم؟ لا يمكن التراجع عن هذا الإجراء.')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('فشل في حذف المستخدم');
+                }
+                
+                alert('تم حذف المستخدم بنجاح');
+                fetchUsers(); // Refresh the list
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                alert('حدث خطأ أثناء حذف المستخدم');
+            }
+        }
+        
+        // Sample data for demonstration (to be replaced with API data)
+        function getSampleUsers() {
+            return [
+                {
+                    id: 1,
+                    name: "أحمد محمد",
+                    primaryEmail: "ahmed@example.com",
+                    aliasEmail: "user123@brandme.me",
+                    status: "active",
+                    registrationDate: "١٥ أكتوبر ٢٠٢٣"
+                },
+                {
+                    id: 2,
+                    name: "سارة عبدالله",
+                    primaryEmail: "sara@example.com",
+                    aliasEmail: "user456@brandme.me",
+                    status: "pending",
+                    registrationDate: "١٤ أكتوبر ٢٠٢٣"
+                },
+                {
+                    id: 3,
+                    name: "محمد السعدي",
+                    primaryEmail: "mohammed@example.com",
+                    aliasEmail: "user789@brandme.me",
+                    status: "inactive",
+                    registrationDate: "١٠ أكتوبر ٢٠٢٣"
+                },
+                {
+                    id: 4,
+                    name: "فاطمة أحمد",
+                    primaryEmail: "fatima@example.com",
+                    aliasEmail: "user101@brandme.me",
+                    status: "active",
+                    registrationDate: "٠٨ أكتوبر ٢٠٢٣"
+                },
+                {
+                    id: 5,
+                    name: "علي حسن",
+                    primaryEmail: "ali@example.com",
+                    aliasEmail: "user202@brandme.me",
+                    status: "pending",
+                    registrationDate: "٠٥ أكتوبر ٢٠٢٣"
+                }
+            ];
+        }
+    </script>
+</body>
+</html>

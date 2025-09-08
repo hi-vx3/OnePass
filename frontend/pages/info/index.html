@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrandMe - تسجيل دخول أسرع، أبسط، وأكثر أماناً</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-light: #3B82F6;
+            --secondary: #7C3AED;
+            --dark: #1E293B;
+            --gray: #64748B;
+            --light: #F8FAFC;
+            --white: #FFFFFF;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--dark);
+            line-height: 1.6;
+            background-color: var(--white);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 5rem 0;
+            background: linear-gradient(to bottom, var(--white) 60%, #F1F5F9 100%);
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .hero-text h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+        }
+
+        .hero-text h1 span {
+            color: var(--primary);
+        }
+
+        .hero-text p {
+            font-size: 1.25rem;
+            color: var(--gray);
+            margin-bottom: 2rem;
+        }
+
+        .hero-illustration {
+            position: relative;
+        }
+
+        .illustration-container {
+            background-color: var(--primary-light);
+            border-radius: 12px;
+            padding: 2rem;
+            color: var(--white);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Features Section */
+        .section {
+            padding: 5rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-title p {
+            font-size: 1.25rem;
+            color: var(--gray);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-light);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: var(--white);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: var(--gray);
+        }
+
+        /* How It Works Section */
+        .how-it-works {
+            background-color: #F8FAFC;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            counter-reset: step-counter;
+        }
+
+        .step {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            position: relative;
+            text-align: center;
+        }
+
+        .step::before {
+            counter-increment: step-counter;
+            content: counter(step-counter);
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .step-icon {
+            width: 60px;
+            height: 60px;
+            margin: 1.5rem auto;
+            background-color: var(--primary-light);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+        }
+
+        .step h3 {
+            margin-bottom: 1rem;
+        }
+
+        .step p {
+            color: var(--gray);
+        }
+
+        /* For Developers Section */
+        .dev-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .code-snippet {
+            background-color: #1e1e1e;
+            /* VSCode Dark+ background */
+            border: 1px solid #3c3c3c;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            color: #d4d4d4;
+            /* Default text color */
+            max-width: 600px;
+            overflow: hidden;
+        }
+
+        .code-snippet pre {
+            margin: 0;
+        }
+
+        .code-comment {
+            color: #64748B;
+        }
+
+        .code-tag {
+            color: #7DD3FC;
+        }
+
+        .code-attr {
+            color: #F87171;
+        }
+
+        .code-value {
+            color: #BBF7D0;
+        }
+
+        /* Trust & Security Section */
+        .trust-section {
+            background-color: #F8FAFC;
+            text-align: center;
+        }
+
+        .security-icons {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin: 3rem 0;
+        }
+
+        .security-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .security-icon div {
+            width: 80px;
+            height: 80px;
+            background-color: var(--primary-light);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        .faq-question {
+            width: 100%;
+            padding: 1.5rem 0;
+            text-align: right;
+            background: none;
+            border: none;
+            font-size: 1.125rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .faq-answer {
+            padding: 0 0 1.5rem;
+            color: var(--gray);
+            display: none;
+        }
+
+        .faq-answer.active {
+            display: block;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: var(--white);
+            padding: 4rem 0 2rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 2rem;
+        }
+
+        .footer-logo {
+            grid-column: span 2;
+        }
+
+        .footer-links h4 {
+            margin-bottom: 1.5rem;
+            font-size: 1.125rem;
+        }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-links a {
+            color: #CBD5E1;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--white);
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-icons a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #334155;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            transition: background-color 0.3s;
+        }
+
+        .social-icons a:hover {
+            background-color: var(--primary);
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #334155;
+            color: #94A3B8;
+        }
+
+        .code-snippet-header {
+            background-color: #2d2d2d;
+            /* VSCode tab bar color */
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #3c3c3c;
+        }
+
+        .filename {
+            font-size: 14px;
+            color: #d4d4d4;
+        }
+
+        .code-snippet-body {
+            display: flex;
+            overflow-x: auto;
+        }
+
+        .line-numbers {
+            background-color: #252526;
+            /* VSCode gutter color */
+            padding: 10px 5px;
+            text-align: right;
+            user-select: none;
+            border-right: 1px solid #3c3c3c;
+        }
+
+        .line-numbers span {
+            display: block;
+            color: #858585;
+            /* VSCode line number color */
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .code-snippet pre {
+            margin: 0;
+            padding: 10px;
+            line-height: 1.5;
+            font-size: 13px;
+        }
+
+        .code-snippet code {
+            color: #d4d4d4;
+        }
+
+        .code-tag {
+            color: #569cd6;
+            /* VSCode blue for tags */
+        }
+
+        .code-attr {
+            color: #9cdcfe;
+            /* VSCode light green for attributes */
+        }
+
+        .code-value {
+            color: #ce9178;
+            /* VSCode orange for values */
+        }
+
+        .code-comment {
+            color: #6a9955;
+            /* VSCode green for comments */
+        }
+
+        [data-lucide="code"] {
+            width: 18px;
+            height: 18px;
+            stroke: #d4d4d4;
+            /* Match text color */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+
+            .features-grid,
+            .steps {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .footer-content {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .footer-logo {
+                grid-column: span 3;
+                margin-bottom: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            .hero-content,
+            .dev-section {
+                grid-template-columns: 1fr;
+            }
+
+            .features-grid,
+            .steps {
+                grid-template-columns: 1fr;
+            }
+
+            .security-icons {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-logo {
+                grid-column: span 1;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i data-lucide="shield" width="32" height="32"></i>
+                <span>BrandMe</span>
+            </div>
+
+            <nav class="nav-links">
+                <a href="#">الرئيسية</a>
+                <a href="#">المميزات</a>
+                <a href="#">المطورون</a>
+                <a href="#">التوثيق</a>
+                <a href="#">لوحة التحكم</a>
+                <a href="#">اتصل بنا</a>
+            </nav>
+
+            <a href="#" class="btn btn-primary">ابدأ الآن</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container hero-content">
+            <div class="hero-text">
+                <h1>تسجيل دخول <span>أسرع، أبسط، وأكثر أماناً</span></h1>
+                <p>BrandMe Login هو زر موحّد لتسجيل الدخول عبر بريد وهمي داخلي، يحمي خصوصيتك ويختصر الوقت.</p>
+                <a href="#" class="btn btn-primary">جرّبه الآن</a>
+            </div>
+
+            <div class="hero-illustration">
+                <div class="illustration-container">
+                    <i data-lucide="shield" width="64" height="64"></i>
+                    <h3>تسجيل آمن</h3>
+                    <p>ادخل بحماية كاملة مع BrandMe</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section">
+        <div class="container">
+            <div class="section-title">
+                <h2>مميزات BrandMe</h2>
+                <p>حل تسجيل الدخول الحديث الذي سيغير طريقة دخولك إلى الإنترنت</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-lucide="key" width="28" height="28"></i>
+                    </div>
+                    <h3>بدون كلمات مرور</h3>
+                    <p>تخلص من متاعب تذكر كلمات المرور وإعادة تعيينها</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-lucide="mail" width="28" height="28"></i>
+                    </div>
+                    <h3>بريد وهمي آمن</h3>
+                    <p>احمِ هويتك الحقيقية باستخدام عناوين بريد مؤقتة</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-lucide="zap" width="28" height="28"></i>
+                    </div>
+                    <h3>تكامل سريع</h3>
+                    <p>ادخل إلى أي موقع يدعم BrandMe بنقرة واحدة</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="section how-it-works">
+        <div class="container">
+            <div class="section-title">
+                <h2>كيف يعمل BrandMe؟</h2>
+                <p>3 خطوات بسيطة لتجربة تسجيل دخول أفضل</p>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-icon">
+                        <i data-lucide="user-plus" width="28" height="28"></i>
+                    </div>
+                    <h3>أنشئ حسابك</h3>
+                    <p>سجل بريدك الإلكتروني في BrandMe مرة واحدة</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-icon">
+                        <i data-lucide="mouse-pointer" width="28" height="28"></i>
+                    </div>
+                    <h3>اضغط على الزر</h3>
+                    <p>اضغط زر BrandMe في أي موقع يدعم الخدمة</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-icon">
+                        <i data-lucide="check-circle" width="28" height="28"></i>
+                    </div>
+                    <h3>ادخل فوراً</h3>
+                    <p>ادخل إلى حسابك بدون كلمة مرور أو تعقيد</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- For Developers Section -->
+    <section class="section">
+        <div class="container">
+            <div class="section-title">
+                <h2>للمطورين</h2>
+                <p>أدوات سهلة لدمج BrandMe في تطبيقاتك ومواقعك</p>
+            </div>
+
+            <div class="dev-section">
+                <div>
+                    <h3>دمج سهل مع واجهة برمجة تطبيقات متكاملة</h3>
+                    <p>يمكنك دمج نظام BrandMe في تطبيقاتك بسهولة مع واجهة برمجة التطبيقات الشاملة والمكتبات الجاهزة.</p>
+                    <a href="#" class="btn btn-primary">اذهب إلى التوثيق</a>
+                </div>
+
+                <div class="code-snippet" role="region"
+                    aria-label="VSCode-style code snippet for BrandMe widget integration">
+                    <div class="code-snippet-header">
+                        <i data-lucide="code" aria-label="Code icon"></i>
+                        <span class="filename">brandme_widget.html</span>
+                    </div>
+                    <div class="code-snippet-body">
+                        <div class="line-numbers">
+                            <span>1</span>
+                            <span>2</span>
+                            <span>3</span>
+                        </div>
+                        <pre><code><span class="code-comment">&lt;!-- Add BrandMe button to your website --&gt;</span>
+<span class="code-tag">&lt;script</span> <span class="code-attr">src</span>=<span class="code-value">"https://login.brandme.com/widget.js"</span><span class="code-tag">&gt;&lt;/script&gt;</span>
+<span class="code-tag">&lt;div</span> <span class="code-attr">class</span>=<span class="code-value">"brandme-login"</span> <span class="code-attr">data-client-id</span>=<span class="code-value">"YOUR_CLIENT_ID"</span><span class="code-tag">&gt;&lt;/div&gt;</span></code></pre>
+                    </div>
+                </div>
+
+                <style>
+
+                </style>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust & Security Section -->
+    <section class="section trust-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>الثقة والأمان</h2>
+                <p>نظام مبني على معايير تشفير حديثة، بدون تخزين كلمات مرور</p>
+            </div>
+
+            <div class="security-icons">
+                <div class="security-icon">
+                    <div>
+                        <i data-lucide="lock" width="32" height="32"></i>
+                    </div>
+                    <span>تشفير متقدم</span>
+                </div>
+
+                <div class="security-icon">
+                    <div>
+                        <i data-lucide="shield" width="32" height="32"></i>
+                    </div>
+                    <span>حماية البيانات</span>
+                </div>
+
+                <div class="security-icon">
+                    <div>
+                        <i data-lucide="eye-off" width="32" height="32"></i>
+                    </div>
+                    <span>خصوصية كاملة</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="section">
+        <div class="container">
+            <div class="section-title">
+                <h2>الأسئلة الشائعة</h2>
+                <p>إجابات على الأسئلة الأكثر شيوعاً حول BrandMe</p>
+            </div>
+
+            <div class="faq-section">
+                <div class="faq-item">
+                    <button class="faq-question">
+                        هل البريد الوهمي يخزن رسائلي؟
+                        <i data-lucide="chevron-down" width="20" height="20"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>لا، BrandMe لا يخزن محتوى رسائلك. نستخدم عناوين بريد مؤقتة للتوجيه فقط، ولا نخزن محتوى
+                            الرسائل.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        كيف يختلف BrandMe عن Google Login؟
+                        <i data-lucide="chevron-down" width="20" height="20"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>بينما يعتمد Google Login على مشاركة بياناتك مع Google، فإن BrandMe يحافظ على خصوصيتك الكاملة
+                            ولا يتتبع نشاطك أو يشارك بياناتك مع طرف ثالث.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        هل الخدمة مجانية؟
+                        <i data-lucide="chevron-down" width="20" height="20"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>نعم، الخدمة الأساسية مجانية تماماً للمستخدمين الأفراد. لدينا خطط مدفوعة للمطورين والشركات
+                            الذين يحتاجون إلى ميزات متقدمة.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        كيف يمكنني كمالك موقع إضافة BrandMe إلى موقعي؟
+                        <i data-lucide="chevron-down" width="20" height="20"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>يمكنك إضافة BrandMe إلى موقعك بسهولة عن طريق بضعة أسطر من التعليمات البرمجية. تفضل بزيارة قسم
+                            المطورين للتفاصيل.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <div class="logo">
+                        <i data-lucide="shield" width="32" height="32"></i>
+                        <span>BrandMe</span>
+                    </div>
+                    <p>نظام تسجيل الدخول الحديث الذي يحترم خصوصيتك ويوفر وقتك.</p>
+
+                    <div class="social-icons">
+                        <a href="#"><i data-lucide="twitter" width="20" height="20"></i></a>
+                        <a href="#"><i data-lucide="github" width="20" height="20"></i></a>
+                        <a href="#"><i data-lucide="linkedin" width="20" height="20"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-links">
+                    <h4>الشركة</h4>
+                    <ul>
+                        <li><a href="#">عن الشركة</a></li>
+                        <li><a href="#">الوظائف</a></li>
+                        <li><a href="#">الأخبار</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links">
+                    <h4>المصادر</h4>
+                    <ul>
+                        <li><a href="#">التوثيق</a></li>
+                        <li><a href="#">API</a></li>
+                        <li><a href="#">المكتبات</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links">
+                    <h4>الدعم</h4>
+                    <ul>
+                        <li><a href="#">المساعدة</a></li>
+                        <li><a href="#">اتصل بنا</a></li>
+                        <li><a href="#">الحالة</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links">
+                    <h4>القانوني</h4>
+                    <ul>
+                        <li><a href="#">الخصوصية</a></li>
+                        <li><a href="#">الشروط</a></li>
+                        <li><a href="#">الأمان</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="copyright">
+                <p>© 2023 BrandMe. جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // تهيئة أيقونات Lucide
+        lucide.createIcons();
+
+        // وظائف الأسئلة الشائعة
+        document.querySelectorAll('.faq-question').forEach(button => {
+            button.addEventListener('click', () => {
+                const answer = button.nextElementSibling;
+                const icon = button.querySelector('i');
+
+                // إغلاق جميع الإجابات الأخرى
+                document.querySelectorAll('.faq-answer').forEach(item => {
+                    if (item !== answer) {
+                        item.classList.remove('active');
+                    }
+                });
+
+                document.querySelectorAll('.faq-question i').forEach(i => {
+                    if (i !== icon) {
+                        i.style.transform = 'rotate(0deg)';
+                    }
+                });
+
+                // تبديل الإجابة الحالية
+                answer.classList.toggle('active');
+
+                // تدوير الأيقونة
+                if (answer.classList.contains('active')) {
+                    icon.style.transform = 'rotate(180deg)';
+                } else {
+                    icon.style.transform = 'rotate(0deg)';
+                }
+            });
+        });
+
+        // تأثيرات التمرير
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = 1;
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // مراقبة العناصر لإضافة تأثيرات التمرير
+        document.querySelectorAll('.feature-card, .step, .security-icon').forEach(item => {
+            item.style.opacity = 0;
+            item.style.transform = 'translateY(20px)';
+            item.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(item);
+        });
+    </script>
+</body>
+
+</html>

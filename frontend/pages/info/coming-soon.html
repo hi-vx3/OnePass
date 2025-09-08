@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قريباً | BrandMe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        :root {
+            --color-background: #F9FAFB;
+            --color-card: #FFFFFF;
+            --color-primary: #2563EB;
+            --color-secondary: #9CA3AF;
+            --color-success: #22C55E;
+            --color-error: #EF4444;
+            --color-text: #111827;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text);
+        }
+        
+        .coming-soon-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .btn-primary {
+            transition: all 0.3s ease;
+            background-color: var(--color-primary);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+        }
+        
+        .fade-in {
+            animation: fadeIn 1s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .loading-spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--color-primary);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success-message {
+            animation: slideDown 0.5s ease forwards;
+            background-color: rgba(34, 197, 94, 0.1);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+        
+        .error-message {
+            animation: slideDown 0.5s ease forwards;
+            background-color: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-feather="shield" class="text-indigo-600 w-8 h-8"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">BrandMe</span>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <a href="index.html" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors">
+                        العودة للرئيسية
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-3xl w-full space-y-8 text-center">
+            <!-- Icon -->
+            <div class="fade-in">
+                <div class="w-24 h-24 rounded-full coming-soon-gradient flex items-center justify-center mx-auto pulse">
+                    <i data-feather="clock" class="text-white w-12 h-12"></i>
+                </div>
+            </div>
+            
+            <!-- Title -->
+            <div class="fade-in" style="animation-delay: 0.2s;">
+                <h1 class="text-4xl font-bold text-gray-900 sm:text-5xl">
+                    قريباً
+                </h1>
+            </div>
+            
+            <!-- Description -->
+            <div class="fade-in" style="animation-delay: 0.4s;">
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    هذه الميزة قيد التطوير حالياً، نحن نعمل بجد لإطلاقها في أقرب وقت ممكن.
+                </p>
+            </div>
+            
+            <!-- Notify Form -->
+            <div class="fade-in max-w-md mx-auto w-full" style="animation-delay: 0.6s;">
+                <div class="bg-white rounded-2xl shadow-xl p-8 card-hover">
+                    <!-- Success Message (Hidden by default) -->
+                    <div id="successMessage" class="hidden success-message border rounded-lg p-4 mb-6">
+                        <div class="flex items-center">
+                            <i data-feather="check-circle" class="text-green-600 w-5 h-5 ml-2"></i>
+                            <span class="text-green-800 font-medium">تم تسجيل بريدك الإلكتروني بنجاح!</span>
+                        </div>
+                        <p class="text-green-700 text-sm mt-1">سنخطرك فور إطلاق الميزة.</p>
+                    </div>
+
+                    <!-- Error Message (Hidden by default) -->
+                    <div id="errorMessage" class="hidden error-message border rounded-lg p-4 mb-6">
+                        <div class="flex items-center">
+                            <i data-feather="alert-circle" class="text-red-600 w-5 h-5 ml-2"></i>
+                            <span id="errorText" class="text-red-800 font-medium">حدث خطأ أثناء التسجيل</span>
+                        </div>
+                        <p id="errorDetails" class="text-red-700 text-sm mt-1">يرجى المحاولة مرة أخرى لاحقاً.</p>
+                    </div>
+                    
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">ابقَ على اطلاع</h2>
+                    <p class="text-gray-600 mb-6">سنخطرك عندما نطلق هذه الميزة</p>
+                    
+                    <form id="notifyForm" class="space-y-4">
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2 text-right">
+                                البريد الإلكتروني
+                            </label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                required 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                                placeholder="بريدك الإلكتروني"
+                            >
+                        </div>
+                        
+                        <button 
+                            type="submit" 
+                            id="submitButton"
+                            class="btn-primary w-full px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex items-center justify-center"
+                        >
+                            <span id="submitText">أخبرني عند التوفر</span>
+                            <div id="submitSpinner" class="loading-spinner hidden mr-2"></div>
+                        </button>
+                    </form>
+                    
+                    <p class="text-xs text-gray-500 mt-4">
+                        نحن نحترم خصوصيتك. لن نشارك بريدك مع أي طرف ثالث.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Progress Section -->
+            <div class="fade-in pt-8" style="animation-delay: 0.8s;">
+                <div class="flex items-center justify-center space-x-4">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                            <i data-feather="check" class="text-indigo-600 w-4 h-4"></i>
+                        </div>
+                        <span class="mr-2 text-sm text-gray-600">التخطيط</span>
+                    </div>
+                    
+                    <div class="h-1 w-12 bg-indigo-200 rounded-full"></div>
+                    
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                            <i data-feather="check" class="text-indigo-600 w-4 h-4"></i>
+                        </div>
+                        <span class="mr-2 text-sm text-gray-600">التصميم</span>
+                    </div>
+                    
+                    <div class="h-1 w-12 bg-indigo-200 rounded-full"></div>
+                    
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center">
+                            <i data-feather="code" class="text-white w-4 h-4"></i>
+                        </div>
+                        <span class="mr-2 text-sm font-medium text-indigo-600">التطوير</span>
+                    </div>
+                    
+                    <div class="h-1 w-12 bg-gray-200 rounded-full"></div>
+                    
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                            <i data-feather="box" class="text-gray-400 w-4 h-4"></i>
+                        </div>
+                        <span class="mr-2 text-sm text-gray-400">الإطلاق</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <i data-feather="shield" class="text-indigo-600 w-5 h-5"></i>
+                    <span class="mr-2 text-sm text-gray-600">© 2025 BrandMe. جميع الحقوق محفوظة.</span>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">سياسة الخصوصية</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">شروط الخدمة</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">اتصل بنا</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        feather.replace();
+        
+        // حالة التحميل
+        let isLoading = false;
+        
+        // DOM Elements
+        const notifyForm = document.getElementById('notifyForm');
+        const submitButton = document.getElementById('submitButton');
+        const submitText = document.getElementById('submitText');
+        const submitSpinner = document.getElementById('submitSpinner');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        const errorDetails = document.getElementById('errorDetails');
+        
+        // إدارة نموذج التسجيل
+        notifyForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (isLoading) return;
+            
+            const email = document.getElementById('email').value;
+            
+            // التحقق من صحة البريد الإلكتروني
+            if (!validateEmail(email)) {
+                showError('يرجى إدخال بريد إلكتروني صحيح');
+                return;
+            }
+            
+            setLoadingState(true);
+            hideMessages();
+            
+            try {
+                // إرسال البيانات إلى API
+                const response = await axios.post('/api/notify-me', {
+                    email: email
+                });
+                
+                // عرض رسالة النجاح
+                showSuccess('تم تسجيل بريدك الإلكتروني بنجاح! سنخطرك فور إطلاق الميزة.');
+                
+                // إعادة تعيين النموذج
+                notifyForm.reset();
+                
+            } catch (error) {
+                console.error('Error submitting notification request:', error);
+                
+                // عرض رسالة الخطأ المناسبة
+                if (error.response && error.response.data && error.response.data.message) {
+                    showError(error.response.data.message);
+                } else if (error.message) {
+                    showError(error.message);
+                } else {
+                    showError('حدث خطأ أثناء إرسال الطلب، يرجى المحاولة مرة أخرى.');
+                }
+            } finally {
+                setLoadingState(false);
+            }
+        });
+        
+        // تعيين حالة التحميل
+        function setLoadingState(loading) {
+            isLoading = loading;
+            
+            if (loading) {
+                submitText.textContent = 'جاري الإرسال...';
+                submitSpinner.classList.remove('hidden');
+                submitButton.disabled = true;
+            } else {
+                submitText.textContent = 'أخبرني عند التوفر';
+                submitSpinner.classList.add('hidden');
+                submitButton.disabled = false;
+            }
+        }
+        
+        // عرض رسالة النجاح
+        function showSuccess(message) {
+            successMessage.querySelector('span').textContent = message;
+            successMessage.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+            
+            // إخفاء الرسالة بعد 5 ثوان
+            setTimeout(() => {
+                successMessage.classList.add('hidden');
+            }, 5000);
+        }
+        
+        // عرض رسالة الخطأ
+        function showError(message, details = '') {
+            errorText.textContent = message;
+            errorDetails.textContent = details || 'يرجى المحاولة مرة أخرى لاحقاً.';
+            errorMessage.classList.remove('hidden');
+            successMessage.classList.add('hidden');
+            
+            // إخفاء الرسالة بعد 5 ثوان
+            setTimeout(() => {
+                errorMessage.classList.add('hidden');
+            }, 5000);
+        }
+        
+        // إخفاء جميع الرسائل
+        function hideMessages() {
+            successMessage.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+        }
+        
+        // التحقق من صحة البريد الإلكتروني
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+        
+        // تأثيرات عند التحميل
+        document.addEventListener('DOMContentLoaded', function() {
+            // إضافة تأثيرات ظهور متتالية
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((element, index) => {
+                element.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+        
+        feather.replace();
+    </script>
+</body>
+</html>

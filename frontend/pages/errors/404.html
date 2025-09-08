@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - الصفحة غير موجودة | BrandMe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-background: #F9FAFB;
+            --color-card: #FFFFFF;
+            --color-primary: #2563EB;
+            --color-secondary: #9CA3AF;
+            --color-error: #EF4444;
+            --color-text: #111827;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text);
+        }
+        
+        .error-gradient {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .btn-primary {
+            transition: all 0.3s ease;
+            background-color: var(--color-primary);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+        }
+        
+        .fade-in {
+            animation: fadeIn 1s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse {
+            animation: pulse 3s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-feather="shield" class="text-indigo-600 w-8 h-8"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">BrandMe</span>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <a href="index.html" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors">
+                        العودة للرئيسية
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-2xl w-full space-y-8 text-center">
+            <!-- Icon -->
+            <div class="fade-in">
+                <div class="w-24 h-24 rounded-full error-gradient flex items-center justify-center mx-auto pulse">
+                    <i data-feather="alert-triangle" class="text-white w-12 h-12"></i>
+                </div>
+            </div>
+            
+            <!-- Error Code -->
+            <div class="fade-in" style="animation-delay: 0.2s;">
+                <h1 class="text-9xl font-bold text-gray-900 opacity-10">404</h1>
+            </div>
+            
+            <!-- Title -->
+            <div class="fade-in" style="animation-delay: 0.4s;">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">الصفحة غير موجودة</h2>
+            </div>
+            
+            <!-- Description -->
+            <div class="fade-in" style="animation-delay: 0.6s;">
+                <p class="text-xl text-gray-600 mb-8 max-w-md mx-auto">
+                    عذراً، لم نتمكن من العثور على الصفحة التي تبحث عنها.
+                </p>
+            </div>
+            
+            <!-- Actions -->
+            <div class="fade-in" style="animation-delay: 0.8s;">
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center">
+                    <a href="index.html" class="btn-primary px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 inline-flex items-center justify-center">
+                        <i data-feather="home" class="w-5 h-5 ml-2"></i>
+                        العودة للرئيسية
+                    </a>
+                    <button onclick="history.back()" class="px-6 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 inline-flex items-center justify-center">
+                        <i data-feather="arrow-right" class="w-5 h-5 ml-2"></i>
+                        الرجوع للخلف
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Additional Help -->
+            <div class="fade-in mt-12" style="animation-delay: 1s;">
+                <div class="bg-white rounded-2xl shadow-md p-6 card-hover max-w-md mx-auto">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">هل تحتاج مساعدة؟</h3>
+                    <p class="text-gray-600 mb-4">تصفح هذه الصفحات المفيدة:</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <a href="faq.html" class="flex items-center text-indigo-600 hover:text-indigo-800 transition-colors">
+                            <i data-feather="help-circle" class="w-4 h-4 ml-2"></i>
+                            الأسئلة الشائعة
+                        </a>
+                        <a href="contact.html" class="flex items-center text-indigo-600 hover:text-indigo-800 transition-colors">
+                            <i data-feather="mail" class="w-4 h-4 ml-2"></i>
+                            اتصل بنا
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <i data-feather="shield" class="text-indigo-600 w-5 h-5"></i>
+                    <span class="mr-2 text-sm text-gray-600">© 2025 BrandMe. جميع الحقوق محفوظة.</span>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">سياسة الخصوصية</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">شروط الخدمة</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">اتصل بنا</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        feather.replace();
+        
+        // تأثيرات عند التحميل
+        document.addEventListener('DOMContentLoaded', function() {
+            // إضافة تأثيرات ظهور متتالية
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((element, index) => {
+                element.style.animationDelay = `${index * 0.1}s`;
+            });
+            
+            feather.replace();
+        });
+    </script>
+</body>
+</html>

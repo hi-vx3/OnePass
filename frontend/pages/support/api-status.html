@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حالة الخدمات | BrandMe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #2563EB;
+            --color-operational: #22C55E;
+            --color-degraded: #FACC15;
+            --color-down: #EF4444;
+            --color-bg: #FFFFFF;
+            --color-card: #F3F4F6;
+            --color-text: #1F2937;
+            --color-text-light: #6B7280;
+            --color-border: #E5E7EB;
+            --font-main: 'Inter', sans-serif;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --radius: 0.5rem;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+        }
+
+        /* BEM Components */
+        .header {
+            background-color: var(--color-bg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header__logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .header__logo-icon {
+            color: var(--color-primary);
+            width: 2rem;
+            height: 2rem;
+        }
+
+        .header__logo-text {
+            margin-right: 0.5rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--color-text);
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav__item {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--color-text-light);
+            transition: var(--transition);
+        }
+
+        .nav__item:hover {
+            color: var(--color-text);
+        }
+
+        .nav__item--active {
+            color: var(--color-primary);
+            border-bottom: 2px solid var(--color-primary);
+        }
+
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--color-text-light);
+        }
+
+        .card {
+            background-color: var(--color-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card--center {
+            text-align: center;
+        }
+
+        .status-overview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-overview__icon {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .status-overview__icon--operational {
+            background-color: #DCFCE7;
+            color: var(--color-operational);
+        }
+
+        .status-overview__icon--degraded {
+            background-color: #FEF3C7;
+            color: var(--color-degraded);
+        }
+
+        .status-overview__icon--down {
+            background-color: #FEE2E2;
+            color: var(--color-down);
+        }
+
+        .status-overview__title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-overview__timestamp {
+            color: var(--color-text-light);
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .btn--primary {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+        }
+
+        .btn--primary:hover {
+            background-color: #1D4ED8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .status-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .status-card {
+            background-color: var(--color-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .status-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-card__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .status-card__title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .status-indicator {
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 9999px;
+        }
+
+        .status-indicator--operational {
+            background-color: var(--color-operational);
+        }
+
+        .status-indicator--degraded {
+            background-color: var(--color-degraded);
+        }
+
+        .status-indicator--down {
+            background-color: var(--color-down);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+
+        .status-badge--operational {
+            background-color: #DCFCE7;
+            color: #166534;
+        }
+
+        .status-badge--degraded {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+
+        .status-badge--down {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .status-card__timestamp {
+            font-size: 0.875rem;
+            color: var(--color-text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .status-card__description {
+            font-size: 0.875rem;
+            color: var(--color-text-light);
+        }
+
+        .incident-history {
+            background-color: var(--color-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .incident-history__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .incident-history__title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--color-text);
+        }
+
+        .incident-history__filter {
+            display: flex;
+            align-items: center;
+            color: var(--color-primary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .incident-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .incident-table__header {
+            background-color: var(--color-card);
+        }
+
+        .incident-table__header-cell {
+            padding: 0.75rem 1rem;
+            text-align: right;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--color-text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .incident-table__row {
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .incident-table__row:hover {
+            background-color: var(--color-card);
+        }
+
+        .incident-table__cell {
+            padding: 1rem;
+            font-size: 0.875rem;
+            color: var(--color-text);
+        }
+
+        .incident-status {
+            display: inline-flex;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .incident-status--resolved {
+            background-color: #DCFCE7;
+            color: #166534;
+        }
+
+        .incident-status--investigating {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+
+        .incident-status--outage {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .updates-section {
+            background-color: var(--color-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+        }
+
+        .updates-section__header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .updates-section__icon {
+            color: var(--color-primary);
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-left: 0.5rem;
+        }
+
+        .updates-section__title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .updates-section__description {
+            color: var(--color-text-light);
+            margin-bottom: 1rem;
+        }
+
+        .updates-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        @media (min-width: 640px) {
+            .updates-buttons {
+                flex-direction: row;
+            }
+        }
+
+        .btn--secondary {
+            background-color: var(--color-card);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn--secondary:hover {
+            background-color: #E5E7EB;
+        }
+
+        .footer {
+            background-color: var(--color-bg);
+            border-top: 1px solid var(--color-border);
+            padding: 3rem 0;
+            margin-top: 3rem;
+        }
+
+        .footer__content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .footer__logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .footer__logo-icon {
+            color: var(--color-primary);
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        .footer__logo-text {
+            font-size: 0.875rem;
+            color: var(--color-text-light);
+            margin-right: 0.5rem;
+        }
+
+        .footer__links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .footer__link {
+            font-size: 0.875rem;
+            color: var(--color-text-light);
+            transition: var(--transition);
+        }
+
+        .footer__link:hover {
+            color: var(--color-primary);
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal--open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal__content {
+            background-color: var(--color-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            max-width: 42rem;
+            width: 100%;
+            margin: 1rem;
+            transform: translateY(1rem);
+            transition: transform 0.3s ease;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal--open .modal__content {
+            transform: translateY(0);
+        }
+
+        .modal__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .modal__title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .modal__close {
+            color: var(--color-text-light);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal__close:hover {
+            color: var(--color-text);
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(0.625rem); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none;
+        }
+
+        .grid {
+            display: grid;
+        }
+
+        .gap-4 {
+            gap: 1rem;
+        }
+
+        .gap-6 {
+            gap: 1.5rem;
+        }
+
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+
+        .mb-6 {
+            margin-bottom: 1.5rem;
+        }
+
+        .mb-8 {
+            margin-bottom: 2rem;
+        }
+
+        .relative {
+            position: relative;
+        }
+
+        .overflow-x-auto {
+            overflow-x: auto;
+        }
+
+        .whitespace-nowrap {
+            white-space: nowrap;
+        }
+
+        @media (min-width: 768px) {
+            .md\:flex-row {
+                flex-direction: row;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Component -->
+    <header class="header">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <div class="header__logo">
+                        <i data-feather="shield" class="header__logo-icon"></i>
+                        <span class="header__logo-text">BrandMe</span>
+                    </div>
+                    <nav class="hidden md:ml-6 md:flex md:items-center md:space-x-4 mr-6">
+                        <a href="index.html" class="nav__item">الرئيسية</a>
+                        <a href="dashboard.html" class="nav__item">لوحة التحكم</a>
+                        <a href="developers.html" class="nav__item">المطورون</a>
+                        <a href="status.html" class="nav__item nav__item--active">حالة الخدمات</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="api-keys.html" class="nav__item">مفاتيح API</a>
+                    <a href="login.html" class="nav__item">تسجيل الخروج</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Title -->
+        <div class="mb-8 fade-in">
+            <h1 class="page-title">حالة خدمات BrandMe</h1>
+            <p class="page-subtitle">تابع حالة API وخدمات البريد الوهمي وزر تسجيل الدخول.</p>
+        </div>
+
+        <!-- Overall Status -->
+        <section class="mb-8 fade-in">
+            <div class="card card--center">
+                <div class="status-overview">
+                    <div class="status-overview__icon status-overview__icon--operational">
+                        <i data-feather="check" class="w-8 h-8"></i>
+                    </div>
+                    <h2 class="status-overview__title">جميع الخدمات تعمل بشكل طبيعي</h2>
+                    <p class="status-overview__timestamp">تم آخر تحديث في: <span id="last-updated">١٥ أكتوبر ٢٠٢٣، ١٠:٣٠ صباحاً</span></p>
+                    <button class="btn btn--primary" id="refreshButton">
+                        <i data-feather="refresh-cw" class="w-4 h-4 ml-2"></i>
+                        تحديث الحالة
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Status -->
+        <section class="mb-8 fade-in">
+            <h2 class="page-title mb-6">حالة الخدمات الفردية</h2>
+            <div class="status-grid gap-6" id="servicesGrid">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+        </section>
+
+        <!-- Incident History -->
+        <section class="mb-8 fade-in">
+            <div class="incident-history">
+                <div class="incident-history__header">
+                    <h2 class="incident-history__title">سجل الأحداث والانقطاعات</h2>
+                    <div class="incident-history__filter" id="incidentFilter">
+                        <i data-feather="filter" class="w-4 h-4 ml-1"></i>
+                        تصفية النتائج
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="incident-table">
+                        <thead class="incident-table__header">
+                            <tr>
+                                <th class="incident-table__header-cell">الحالة</th>
+                                <th class="incident-table__header-cell">الخدمة</th>
+                                <th class="incident-table__header-cell">الوصف</th>
+                                <th class="incident-table__header-cell">الوقت</th>
+                                <th class="incident-table__header-cell">المدة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="incidentsTableBody">
+                            <!-- Dynamic content will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Updates Section -->
+        <section class="mb-8 fade-in">
+            <div class="updates-section">
+                <div class="updates-section__header">
+                    <i data-feather="rss" class="updates-section__icon"></i>
+                    <h3 class="updates-section__title">اشترك في التحديثات</h3>
+                </div>
+                <p class="updates-section__description">احصل على إشعارات فورية عند حدوث أي مشاكل في الخدمات.</p>
+                <div class="updates-buttons">
+                    <button class="btn btn--primary">
+                        <i data-feather="mail" class="w-4 h-4 ml-2"></i>
+                        الاشتراك عبر البريد
+                    </button>
+                    <button class="btn btn--secondary">
+                        <i data-feather="twitter" class="w-4 h-4 ml-2"></i>
+                        متابعة على Twitter
+                    </button>
+                    <button class="btn btn--secondary">
+                        <i data-feather="rss" class="w-4 h-4 ml-2"></i>
+                        RSS Feed
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="footer__content">
+                <div class="footer__logo">
+                    <i data-feather="shield" class="footer__logo-icon"></i>
+                    <span class="footer__logo-text">© 2025 BrandMe. جميع الحقوق محفوظة.</span>
+                </div>
+                <div class="footer__links">
+                    <a href="#" class="footer__link">سياسة الخصوصية</a>
+                    <a href="#" class="footer__link">شروط الخدمة</a>
+                    <a href="#" class="footer__link">اتصل بنا</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Incident Details Modal -->
+    <div class="modal" id="incidentModal">
+        <div class="modal__content">
+            <div class="modal__header">
+                <h3 class="modal__title">تفاصيل الحادث</h3>
+                <button class="modal__close" id="closeModal">
+                    <i data-feather="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div id="incidentDetailsContent">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Feather Icons
+        feather.replace();
+        
+        // API Configuration
+        const API_BASE_URL = '/api';
+        let servicesStatus = {};
+        let incidents = [];
+        
+        // DOM Elements
+        const refreshButton = document.getElementById('refreshButton');
+        const lastUpdatedElement = document.getElementById('last-updated');
+        const servicesGrid = document.getElementById('servicesGrid');
+        const incidentsTableBody = document.getElementById('incidentsTableBody');
+        const incidentFilter = document.getElementById('incidentFilter');
+        const incidentModal = document.getElementById('incidentModal');
+        const closeModalButton = document.getElementById('closeModal');
+        const incidentDetailsContent = document.getElementById('incidentDetailsContent');
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add animation delays
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((element, index) => {
+                element.style.animationDelay = `${index * 0.1}s`;
+            });
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Load status from API
+            fetchStatus();
+        });
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Refresh button
+            refreshButton.addEventListener('click', refreshStatus);
+            
+            // Incident filter
+            incidentFilter.addEventListener('click', toggleIncidentFilter);
+            
+            // Modal close button
+            closeModalButton.addEventListener('click', closeIncidentModal);
+            
+            // Close modal when clicking outside
+            incidentModal.addEventListener('click', function(e) {
+                if (e.target === incidentModal) {
+                    closeIncidentModal();
+                }
+            });
+        }
+        
+        // Fetch status from API
+        async function fetchStatus() {
+            try {
+                // Show loading state
+                servicesGrid.innerHTML = '<div class="col-span-3 text-center py-8">جاري تحميل حالة الخدمات...</div>';
+                incidentsTableBody.innerHTML = '<tr><td colspan="5" class="incident-table__cell text-center py-8">جاري تحميل سجل الأحداث...</td></tr>';
+                
+                const response = await fetch(`${API_BASE_URL}/status`);
+                if (!response.ok) {
+                    throw new Error('فشل في جلب حالة الخدمات');
+                }
+                
+                const data = await response.json();
+                servicesStatus = data.services || {};
+                incidents = data.incidents || [];
+                
+                // For demo purposes, if no data from API, use sample data
+                if (Object.keys(servicesStatus).length === 0) {
+                    servicesStatus = getSampleServices();
+                }
+                
+                if (incidents.length === 0) {
+                    incidents = getSampleIncidents();
+                }
+                
+                renderServices();
+                renderIncidents();
+                updateLastUpdated();
+            } catch (error) {
+                console.error('Error fetching status:', error);
+                servicesGrid.innerHTML = '<div class="col-span-3 text-center py-8 text-red-600">خطأ في تحميل حالة الخدمات: ' + error.message + '</div>';
+                incidentsTableBody.innerHTML = '<tr><td colspan="5" class="incident-table__cell text-center py-8 text-red-600">خطأ في تحميل سجل الأحداث</td></tr>';
+            }
+        }
+        
+        // Refresh status
+        async function refreshStatus() {
+            const originalHtml = refreshButton.innerHTML;
+            
+            // Show loading state
+            refreshButton.innerHTML = '<i data-feather="refresh-cw" class="w-4 h-4 ml-2 animate-spin"></i> جاري التحديث...';
+            feather.replace();
+            
+            try {
+                await fetchStatus();
+                
+                // Show success message
+                alert('تم تحديث حالة الخدمات بنجاح');
+            } catch (error) {
+                console.error('Error refreshing status:', error);
+                alert('حدث خطأ أثناء تحديث حالة الخدمات');
+            } finally {
+                // Restore original button content
+                refreshButton.innerHTML = originalHtml;
+                feather.replace();
+            }
+        }
+        
+        // Render services
+        function renderServices() {
+            servicesGrid.innerHTML = '';
+            
+            for (const [serviceName, serviceData] of Object.entries(servicesStatus)) {
+                const status = serviceData.status || 'operational';
+                const lastUpdated = serviceData.lastUpdated || 'منذ بضع دقائق';
+                const description = serviceData.description || 'الخدمة تعمل بشكل طبيعي';
+                
+                let statusBadgeClass = '';
+                let statusBadgeText = '';
+                let statusIndicatorClass = '';
+                
+                switch(status) {
+                    case 'operational':
+                        statusBadgeClass = 'status-badge--operational';
+                        statusBadgeText = 'تعمل بشكل طبيعي';
+                        statusIndicatorClass = 'status-indicator--operational';
+                        break;
+                    case 'degraded':
+                        statusBadgeClass = 'status-badge--degraded';
+                        statusBadgeText = 'أداء متدهور';
+                        statusIndicatorClass = 'status-indicator--degraded';
+                        break;
+                    case 'down':
+                        statusBadgeClass = 'status-badge--down';
+                        statusBadgeText = 'غير متاحة';
+                        statusIndicatorClass = 'status-indicator--down';
+                        break;
+                }
+                
+                const serviceCard = document.createElement('div');
+                serviceCard.className = 'status-card';
+                serviceCard.innerHTML = `
+                    <div class="status-card__header">
+                        <h3 class="status-card__title">${serviceName}</h3>
+                        <span class="status-indicator ${statusIndicatorClass}"></span>
+                    </div>
+                    <div class="status-badge ${statusBadgeClass}">
+                        <i data-feather="${status === 'operational' ? 'check' : status === 'degraded' ? 'alert-triangle' : 'x'}" class="w-4 h-4 ml-1"></i>
+                        ${statusBadgeText}
+                    </div>
+                    <p class="status-card__timestamp">آخر تحديث: ${lastUpdated}</p>
+                    <p class="status-card__description">${description}</p>
+                `;
+                
+                servicesGrid.appendChild(serviceCard);
+            }
+            
+            feather.replace();
+        }
+        
+        // Render incidents
+        function renderIncidents() {
+            incidentsTableBody.innerHTML = '';
+            
+            if (incidents.length === 0) {
+                incidentsTableBody.innerHTML = '<tr><td colspan="5" class="incident-table__cell text-center py-8">لا توجد أحداث مسجلة</td></tr>';
+                return;
+            }
+            
+            incidents.forEach(incident => {
+                const row = document.createElement('tr');
+                row.className = 'incident-table__row';
+                row.dataset.incidentId = incident.id;
+                
+                let statusClass = '';
+                let statusText = '';
+                
+                switch(incident.status) {
+                    case 'resolved':
+                        statusClass = 'incident-status--resolved';
+                        statusText = 'تم الحل';
+                        break;
+                    case 'investigating':
+                        statusClass = 'incident-status--investigating';
+                        statusText = 'قيد التحقيق';
+                        break;
+                    case 'outage':
+                        statusClass = 'incident-status--outage';
+                        statusText = 'انقطاع';
+                        break;
+                }
+                
+                row.innerHTML = `
+                    <td class="incident-table__cell whitespace-nowrap">
+                        <span class="incident-status ${statusClass}">${statusText}</span>
+                    </td>
+                    <td class="incident-table__cell whitespace-nowrap">${incident.service}</td>
+                    <td class="incident-table__cell">${incident.description}</td>
+                    <td class="incident-table__cell whitespace-nowrap">${incident.time}</td>
+                    <td class="incident-table__cell whitespace-nowrap">${incident.duration}</td>
+                `;
+                
+                row.addEventListener('click', () => showIncidentDetails(incident.id));
+                incidentsTableBody.appendChild(row);
+            });
+        }
+        
+        // Update last updated timestamp
+        function updateLastUpdated() {
+            const now = new Date();
+            const formattedDate = now.toLocaleString('ar-SA', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric'
+            });
+            
+            lastUpdatedElement.textContent = formattedDate;
+        }
+        
+        // Toggle incident filter
+        function toggleIncidentFilter() {
+            alert('خيارات التصفية ستظهر هنا في التصميم النهائي');
+        }
+        
+        // Show incident details
+        function showIncidentDetails(incidentId) {
+            const incident = incidents.find(i => i.id === incidentId);
+            
+            if (!incident) return;
+            
+            let statusClass = '';
+            let statusText = '';
+            
+            switch(incident.status) {
+                case 'resolved':
+                    statusClass = 'incident-status--resolved';
+                    statusText = 'تم الحل';
+                    break;
+                case 'investigating':
+                    statusClass = 'incident-status--investigating';
+                    statusText = 'قيد التحقيق';
+                    break;
+                case 'outage':
+                    statusClass = 'incident-status--outage';
+                    statusText = 'انقطاع';
+                    break;
+            }
+            
+            incidentDetailsContent.innerHTML = `
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-lg font-semibold">${incident.title || incident.description}</span>
+                        <span class="incident-status ${statusClass}">${statusText}</span>
+                    </div>
+                    <p class="text-gray-600">الخدمة: ${incident.service}</p>
+                    <p class="text-gray-600">الوقت: ${incident.time}</p>
+                    <p class="text-gray-600">المدة: ${incident.duration}</p>
+                </div>
+                
+                <div class="mb-6">
+                    <h4 class="font-medium mb-2">وصف المشكلة</h4>
+                    <p class="text-gray-600">${incident.details || incident.description}</p>
+                </div>
+                
+                ${incident.updates && incident.updates.length > 0 ? `
+                <div>
+                    <h4 class="font-medium mb-2">التحديثات</h4>
+                    <ul class="space-y-2">
+                        ${incident.updates.map(update => `
+                            <li class="flex items-start">
+                                <i data-feather="clock" class="w-4 h-4 text-gray-400 ml-2 mt-1"></i>
+                                <span class="text-gray-600">${update}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+            `;
+            
+            incidentModal.classList.add('modal--open');
+            feather.replace();
+        }
+        
+        // Close incident modal
+        function closeIncidentModal() {
+            incidentModal.classList.remove('modal--open');
+        }
+        
+        // Sample data for demonstration (to be replaced with API data)
+        function getSampleServices() {
+            return {
+                "API Authentication": {
+                    status: "operational",
+                    lastUpdated: "منذ 5 دقائق",
+                    description: "جميع طلبات المصادقة تعمل بشكل طبيعي وسريع الاستجابة."
+                },
+                "Virtual Email": {
+                    status: "operational",
+                    lastUpdated: "منذ 10 دقائق",
+                    description: "خدمة البريد الوهمي تعمل بكفاءة عالية بدون أي تأخير."
+                },
+                "BrandMe Login Button": {
+                    status: "operational",
+                    lastUpdated: "منذ 15 دقيقة",
+                    description: "زر تسجيل الدخول يعمل بشكل سلس وسريع في جميع المنصات."
+                }
+            };
+        }
+        
+        function getSampleIncidents() {
+            return [
+                {
+                    id: 1,
+                    service: "API Authentication",
+                    status: "resolved",
+                    description: "تباطؤ في استجابة طلبات المصادقة",
+                    time: "١٢ أكتوبر ٢٠٢٣، ٢:٠٠ ظهراً",
+                    duration: "٣٠ دقيقة",
+                    title: "تباطؤ في استجابة طلبات المصادقة",
+                    details: "واجهت خدمة مصادقة API تباطؤاً في الاستجابة بسبب زيادة غير متوقعة في الحمل. تم زيادة السعة التلقائية لحل المشكلة.",
+                    updates: [
+                        "٢:٠٠ ظهراً - بدء التباطؤ في الخدمة",
+                        "٢:١٠ ظهراً - فريق التقنية على علم بالمشكلة",
+                        "٢:٢٥ ظهراً - تم زيادة سعة الخدمة تلقائياً",
+                        "٢:٣٠ ظهراً - عودة الخدمة إلى وضعها الطبيعي"
+                    ]
+                },
+                {
+                    id: 2,
+                    service: "Virtual Email",
+                    status: "resolved",
+                    description: "تأخير في تسليم الرسائل",
+                    time: "٨ أكتوبر ٢٠٢٣، ٩:١٥ صباحاً",
+                    duration: "٤٥ دقيقة",
+                    title: "تأخير في تسليم الرسائل",
+                    details: "حدث تأخير في تسليم رسائل البريد الوهمي بسبب مشكلة في أحد مخدمات البريد الثانوية. تم تحويل الحمل إلى مخدمات أخرى.",
+                    updates: [
+                        "٩:١٥ صباحاً - بدء التأخير في تسليم الرسائل",
+                        "٩:٢٠ صباحاً - اكتشاف المشكلة في المخدم الثانوي",
+                        "٩:٣٠ صباحاً - بدء تحويل الحمل إلى مخدمات أخرى",
+                        "١٠:٠٠ صباحاً - عودة الخدمة إلى وضعها الطبيعي"
+                    ]
+                },
+                {
+                    id: 3,
+                    service: "BrandMe Login Button",
+                    status: "resolved",
+                    description: "مشاكل في التوجيه لبعض المتصفحات",
+                    time: "٥ أكتوبر ٢٠٢٣، ٤:٣٠ مساءً",
+                    duration: "١ ساعة",
+                    title: "مشاكل في التوجيه لبعض المتصفحات",
+                    details: "واجه زر تسجيل الدخول مشاكل في التوجيه للمستخدمين الذين يستخدمون متصفحات محددة. تم إصلاح مشكلة التوجيه.",
+                    updates: [
+                        "٤:٣٠ مساءً - بدء مشاكل التوجيه",
+                        "٤:٤٥ مساءً - تحديد المتصفحات المتأثرة",
+                        "٥:١٥ مساءً - تطبيق الإصلاح",
+                        "٥:٣٠ مساءً - عودة الخدمة إلى وضعها الطبيعي"
+                    ]
+                }
+            ];
+        }
+    </script>
+</body>
+</html>

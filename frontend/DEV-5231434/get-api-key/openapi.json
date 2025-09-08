@@ -1,0 +1,251 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Keys Management API",
+    "description": "واجهة برمجة تطبيقات لإدارة مفاتيح API الخاصة بالمستخدم",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+      "description": "الخادم الرئيسي"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "ApiKey": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "معرف المفتاح الفريد"
+          },
+          "name": {
+            "type": "string",
+            "description": "اسم المفتاح"
+          },
+          "key": {
+            "type": "string",
+            "description": "مفتاح العميل (Client ID)"
+          },
+          "secret": {
+            "type": "string",
+            "description": "السر الخاص بالمفتاح"
+          },
+          "created": {
+            "type": "string",
+            "format": "date",
+            "description": "تاريخ إنشاء المفتاح"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "disabled"],
+            "description": "حالة المفتاح"
+          }
+        },
+        "required": ["id", "name", "key", "secret", "created", "status"]
+      },
+      "ApiKeyInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "اسم المفتاح"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "عنوان URL للموقع"
+          },
+          "redirectUri": {
+            "type": "string",
+            "format": "uri",
+            "description": "عنوان URL لإعادة التوجيه"
+          }
+        },
+        "required": ["name", "url", "redirectUri"]
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "رسالة الخطأ"
+          }
+        },
+        "required": ["message"]
+      }
+    }
+  },
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/user/api-keys": {
+      "get": {
+        "summary": "جلب قائمة مفاتيح API",
+        "description": "يجلب قائمة بجميع مفاتيح API الخاصة بالمستخدم",
+        "operationId": "getApiKeys",
+        "responses": {
+          "200": {
+            "description": "تم جلب المفاتيح بنجاح",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "keys": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ApiKey"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "غير مصرح",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "خطأ في الخادم",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "إنشاء مفتاح API جديد",
+        "description": "إنشاء مفتاح API جديد بناءً على بيانات النموذج",
+        "operationId": "createApiKey",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiKeyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "تم إنشاء المفتاح بنجاح",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKey"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "طلب غير صحيح",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "غير مصرح",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "خطأ في الخادم",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/api-keys/{id}": {
+      "delete": {
+        "summary": "حذف مفتاح API",
+        "description": "حذف مفتاح API بناءً على المعرف",
+        "operationId": "deleteApiKey",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "معرف مفتاح API"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "تم حذف المفتاح بنجاح"
+          },
+          "401": {
+            "description": "غير مصرح",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "المفتاح غير موجود",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "خطأ في الخادم",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

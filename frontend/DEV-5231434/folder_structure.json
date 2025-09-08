@@ -1,0 +1,223 @@
+{
+    "name": "frontend",
+    "type": "directory",
+    "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend",
+    "contents": [
+        {
+            "name": "1.py",
+            "type": "file",
+            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\1.py"
+        },
+        {
+            "name": "components",
+            "type": "directory",
+            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\components",
+            "contents": []
+        },
+        {
+            "name": "pages",
+            "type": "directory",
+            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages",
+            "contents": [
+                {
+                    "name": "account",
+                    "type": "directory",
+                    "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\account",
+                    "contents": [
+                        {
+                            "name": "dashboard.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\account\\dashboard.html"
+                        },
+                        {
+                            "name": "management",
+                            "type": "directory",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\account\\management",
+                            "contents": [
+                                {
+                                    "name": "get-api-key.html",
+                                    "type": "file",
+                                    "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\account\\management\\get-api-key.html"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "profile-settings.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\account\\profile-settings.html"
+                        }
+                    ]
+                },
+                {
+                    "name": "admin",
+                    "type": "directory",
+                    "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\admin",
+                    "contents": [
+                        {
+                            "name": "developers-management.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\admin\\developers-management.html"
+                        },
+                        {
+                            "name": "system-logs.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\admin\\system-logs.html"
+                        },
+                        {
+                            "name": "users-management.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\admin\\users-management.html"
+                        }
+                    ]
+                },
+                {
+                    "name": "auth",
+                    "type": "directory",
+                    "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\auth",
+                    "contents": [
+                        {
+                            "name": "email-totp.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\auth\\email-totp.html"
+                        },
+                        {
+                            "name": "email-verification-success.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\auth\\email-verification-success.html"
+                        },
+                        {
+                            "name": "email-verification.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\auth\\email-verification.html"
+                        },
+                        {
+                            "name": "email-verified-success.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\auth\\email-verified-success.html"
+                        },
+                        {
+                            "name": "login.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\auth\\login.html"
+                        },
+                        {
+                            "name": "register.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\auth\\register.html"
+                        }
+                    ]
+                },
+                {
+                    "name": "docs",
+                    "type": "directory",
+                    "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\docs",
+                    "contents": [
+                        {
+                            "name": "docs.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\docs\\docs.html"
+                        },
+                        {
+                            "name": "Documentation.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\docs\\Documentation.html"
+                        },
+                        {
+                            "name": "Integration.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\docs\\Integration.html"
+                        },
+                        {
+                            "name": "overview.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\docs\\overview.html"
+                        }
+                    ]
+                },
+                {
+                    "name": "errors",
+                    "type": "directory",
+                    "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\errors",
+                    "contents": [
+                        {
+                            "name": "404.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\errors\\404.html"
+                        },
+                        {
+                            "name": "505.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\errors\\505.html"
+                        }
+                    ]
+                },
+                {
+                    "name": "info",
+                    "type": "directory",
+                    "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\info",
+                    "contents": [
+                        {
+                            "name": "about.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\info\\about.html"
+                        },
+                        {
+                            "name": "coming-soon.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\info\\coming-soon.html"
+                        },
+                        {
+                            "name": "faq.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\info\\faq.html"
+                        },
+                        {
+                            "name": "index.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\info\\index.html"
+                        },
+                        {
+                            "name": "privacy-policy.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\info\\privacy-policy.html"
+                        },
+                        {
+                            "name": "terms-of-service.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\info\\terms-of-service.html"
+                        }
+                    ]
+                },
+                {
+                    "name": "support",
+                    "type": "directory",
+                    "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\support",
+                    "contents": [
+                        {
+                            "name": "api-status.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\support\\api-status.html"
+                        },
+                        {
+                            "name": "contact-support.html",
+                            "type": "file",
+                            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\pages\\support\\contact-support.html"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "scripts",
+            "type": "directory",
+            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\scripts",
+            "contents": []
+        },
+        {
+            "name": "styles",
+            "type": "directory",
+            "path": "C:\\Users\\sami\\Documents\\dev\\apis\\b1\\frontend\\styles",
+            "contents": []
+        }
+    ]
+}
