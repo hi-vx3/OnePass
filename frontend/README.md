@@ -1,7 +1,7 @@
-# BrandMe Backend - Technical Guidelines
+# OnePass Backend - Technical Guidelines
 
 ## 1. Overview
-BrandMe هو مشروع API متقدم مع نظام تسجيل دخول متقدم، بريد وهمي داخلي، وواجهة مطورين.  
+OnePass هو مشروع API متقدم مع نظام تسجيل دخول متقدم، بريد وهمي داخلي، وواجهة مطورين.  
 الهدف: أمان صارم، أداء عالي، توسعة سهلة، بدون استخدام Docker أو Kubernetes.  
 
 ---
@@ -116,17 +116,17 @@ backend/
 
 ## 8. Deployment (Systemd-based)
 - Each service runs independently under systemd.  
-- Example: `/etc/systemd/system/brandme-api.service`  
+- Example: `/etc/systemd/system/OnePass-api.service`  
 ```ini
 [Unit]
-Description=BrandMe API
+Description=OnePass API
 After=network.target
 
 [Service]
-User=brandme
-Group=brandme
-WorkingDirectory=/opt/brandme
-EnvironmentFile=/etc/brandme.env
+User=OnePass
+Group=OnePass
+WorkingDirectory=/opt/OnePass
+EnvironmentFile=/etc/OnePass.env
 ExecStart=/usr/bin/node ./dist/app.js
 Restart=on-failure
 LimitNOFILE=65536
@@ -135,14 +135,14 @@ LimitNOFILE=65536
 WantedBy=multi-user.target
 ````
 
-* Reload & restart service after deploy: `systemctl daemon-reload && systemctl restart brandme-api.service`
+* Reload & restart service after deploy: `systemctl daemon-reload && systemctl restart OnePass-api.service`
 
 ---
 
 ## 9. Development Workflow
 
 1. Clone repo → install dependencies.
-2. Configure env vars via `/etc/brandme.env` (600 permission).
+2. Configure env vars via `/etc/OnePass.env` (600 permission).
 3. Run Prisma migrations: `prisma migrate dev`.
 4. Run local server: `ts-node-dev src/app.ts`.
 5. Write unit tests & integration tests.
@@ -159,4 +159,4 @@ WantedBy=multi-user.target
 
 ---
 
-> هذا الملف يوضح كل شيء لمطوّر باك إند لتطبيق BrandMe وفق معايير صارمة، أمان كامل، ونسق برمجي منضبط.
+> هذا الملف يوضح كل شيء لمطوّر باك إند لتطبيق OnePass وفق معايير صارمة، أمان كامل، ونسق برمجي منضبط.

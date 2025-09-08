@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سجلات النظام | BrandMe</title>
+    <title>سجلات النظام | OnePass</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -530,7 +530,7 @@
                 <div class="flex items-center">
                     <div class="header__logo">
                         <i data-feather="shield" class="header__logo-icon"></i>
-                        <span class="header__logo-text">BrandMe</span>
+                        <span class="header__logo-text">OnePass</span>
                     </div>
                     <nav class="hidden md:ml-6 md:flex md:items-center md:space-x-4 mr-6">
                         <a href="dashboard.html" class="nav__item">لوحة التحكم</a>
@@ -553,7 +553,7 @@
         <!-- Page Title -->
         <div class="mb-8 fade-in">
             <h1 class="page-title">سجلات النظام</h1>
-            <p class="page-subtitle">تتبع جميع الأنشطة والأحداث داخل منصة BrandMe.</p>
+            <p class="page-subtitle">تتبع جميع الأنشطة والأحداث داخل منصة OnePass.</p>
         </div>
 
         <!-- Search & Filters Section -->
@@ -653,7 +653,7 @@
             <div class="footer__content">
                 <div class="footer__logo">
                     <i data-feather="shield" class="footer__logo-icon"></i>
-                    <span class="footer__logo-text">© 2025 BrandMe. جميع الحقوق محفوظة.</span>
+                    <span class="footer__logo-text">© 2025 OnePass. جميع الحقوق محفوظة.</span>
                 </div>
                 <div class="footer__links">
                     <a href="privacy.html" class="footer__link">سياسة الخصوصية</a>
@@ -997,8 +997,8 @@
                 
                 // Fallback for demo - create a dummy download
                 const dummyData = format === 'csv' 
-                    ? 'Date,Type,Description,User,IP,Severity\n2023-10-15 14:30:25,أمان,محاولة تسجيل دخول فاشلة,user123@brandme.me,192.168.1.100,حرج'
-                    : JSON.stringify([{ date: '2023-10-15 14:30:25', type: 'أمان', description: 'محاولة تسجيل دخول فاشلة', user: 'user123@brandme.me', ip: '192.168.1.100', severity: 'حرج' }], null, 2);
+                    ? 'Date,Type,Description,User,IP,Severity\n2023-10-15 14:30:25,أمان,محاولة تسجيل دخول فاشلة,user123@OnePass.me,192.168.1.100,حرج'
+                    : JSON.stringify([{ date: '2023-10-15 14:30:25', type: 'أمان', description: 'محاولة تسجيل دخول فاشلة', user: 'user123@OnePass.me', ip: '192.168.1.100', severity: 'حرج' }], null, 2);
                 
                 const blob = new Blob([dummyData], { type: format === 'csv' ? 'text/csv' : 'application/json' });
                 const url = window.URL.createObjectURL(blob);
@@ -1020,7 +1020,7 @@
                     date: "2023-10-15 14:30:25",
                     type: "أمان",
                     description: "محاولة تسجيل دخول فاشلة متعددة من عنوان IP مشبوه",
-                    user: "user123@brandme.me",
+                    user: "user123@OnePass.me",
                     ip: "192.168.1.100",
                     severity: "critical"
                 },
@@ -1046,8 +1046,8 @@
                     id: 4,
                     date: "2023-10-15 11:15:47",
                     type: "توجيه البريد",
-                    description: "تم توجيه رسالة من user456@brandme.me إلى البريد الأساسي",
-                    user: "user456@brandme.me",
+                    description: "تم توجيه رسالة من user456@OnePass.me إلى البريد الأساسي",
+                    user: "user456@OnePass.me",
                     ip: "N/A",
                     severity: "info"
                 },
@@ -1070,11 +1070,11 @@
                     date: "2023-10-15 14:30:25",
                     type: "أمان",
                     severity: "حرج",
-                    user: "user123@brandme.me",
+                    user: "user123@OnePass.me",
                     ip: "192.168.1.100",
                     description: "محاولة تسجيل دخول فاشلة متعددة من عنوان IP مشبوه",
                     details: "تم رصد 5 محاولات تسجيل دخول فاشلة خلال 10 دقائق من العنوان 192.168.1.100. تم حظر العنوان تلقائياً لمدة 30 دقيقة.",
-                    additional: "المستخدم: user123@brandme.me\nالمتصفح: Firefox/Windows\nالموقع: Riyadh, Saudi Arabia"
+                    additional: "المستخدم: user123@OnePass.me\nالمتصفح: Firefox/Windows\nالموقع: Riyadh, Saudi Arabia"
                 },
                 2: {
                     date: "2023-10-15 13:45:12",

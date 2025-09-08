@@ -48,7 +48,7 @@ async function sendEmail(to, verificationToken = null, totpCode = null) {
         .replace('{{privacy_policy_link}}', 'http://localhost:3000/privacy')
         .replace('{{terms_link}}', 'http://localhost:3000/terms')
         .replace('{{contact_link}}', 'http://localhost:3000/contact');
-      subject = 'تم تفعيل حسابك بنجاح - BrandMe';
+      subject = 'تم تفعيل حسابك بنجاح - OnePass';
     } else if (totpCode) {
       // Load TOTP template
       const templatePath = path.join(__dirname, '../templates/email-totp.html');
@@ -59,14 +59,14 @@ async function sendEmail(to, verificationToken = null, totpCode = null) {
         .replace('{{privacy_policy_link}}', 'http://localhost:3000/privacy')
         .replace('{{terms_link}}', 'http://localhost:3000/terms')
         .replace('{{contact_link}}', 'http://localhost:3000/contact');
-      subject = 'رمز التحقق لتسجيل الدخول - BrandMe';
+      subject = 'رمز التحقق لتسجيل الدخول - OnePass';
       log.info(`TOTP email content after replacement: ${html.includes(totpCode) ? 'TOTP code included' : 'TOTP code NOT included'}`);
     } else {
       throw new Error('Either verificationToken or totpCode must be provided');
     }
 
     const info = await transporter.sendMail({
-      from: '"BrandMe" <creola.wiegand26@ethereal.email>',
+      from: '"OnePass" <creola.wiegand26@ethereal.email>',
       to,
       subject,
       html,

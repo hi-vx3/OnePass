@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أمثلة الدمج | BrandMe</title>
+    <title>أمثلة الدمج | OnePass</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -97,7 +97,7 @@
                 <div class="flex items-center">
                     <div class="flex-shrink-0 flex items-center">
                         <i data-feather="shield" class="text-indigo-600 w-8 h-8"></i>
-                        <span class="ml-2 text-xl font-bold text-gray-900">BrandMe</span>
+                        <span class="ml-2 text-xl font-bold text-gray-900">OnePass</span>
                     </div>
                     <nav class="hidden md:ml-6 md:flex md:items-center md:space-x-4 mr-6">
                         <a href="index.html" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">الرئيسية</a>
@@ -118,7 +118,7 @@
     <!-- Hero Section -->
     <section class="bg-gradient-to-r from-blue-50 to-indigo-50 py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center fade-in">
-            <h1 class="text-4xl font-bold text-gray-900 mb-4">أمثلة دمج BrandMe Login</h1>
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">أمثلة دمج OnePass Login</h1>
             <p class="text-xl text-gray-600 max-w-3xl mx-auto">
                 تعرف على كيفية إضافة زر تسجيل الدخول وحماية البريد الوهمي لمستخدميك.
             </p>
@@ -156,10 +156,10 @@
                         <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">POST</span>
                     </div>
                     <div class="bg-gray-100 p-3 rounded-lg mb-4">
-                        <code class="code-font text-blue-600">https://api.brandme.me/auth</code>
+                        <code class="code-font text-blue-600">https://api.OnePass.me/auth</code>
                     </div>
                     <p class="text-gray-600 mb-4">
-                        هذا الكود يقوم بمصادقة المستخدم باستخدام BrandMe API واسترجاع معلوماته.
+                        هذا الكود يقوم بمصادقة المستخدم باستخدام OnePass API واسترجاع معلوماته.
                     </p>
                     <div class="code-block bg-gray-800 rounded-lg p-4 text-white relative">
                         <button class="copy-btn absolute left-4 top-4 text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded" onclick="copyCode('js-example')">
@@ -167,8 +167,8 @@
                         </button>
                         <pre class="code-font overflow-x-auto text-sm" id="js-example">
 <code class="text-green-400">
-// مصادقة المستخدم باستخدام BrandMe API
-fetch("https://api.brandme.me/auth", {
+// مصادقة المستخدم باستخدام OnePass API
+fetch("https://api.OnePass.me/auth", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -189,7 +189,7 @@ fetch("https://api.brandme.me/auth", {
   console.log("معلومات المستخدم:", data);
   // {
   //   "user_id": "user_123",
-  //   "email": "user@brandme.me",
+  //   "email": "user@OnePass.me",
   //   "name": "اسم المستخدم",
   //   "avatar": "https://example.com/avatar.png"
   // }
@@ -217,12 +217,12 @@ fetch("https://api.brandme.me/auth", {
                         <pre class="code-font overflow-x-auto text-sm" id="js-button-example">
 <code class="text-green-400">
 // إضافة زر تسجيل الدخول إلى الصفحة
-function addBrandMeLoginButton() {
+function addOnePassLoginButton() {
   const button = document.createElement('button');
   button.innerHTML = `
     &lt;div style="display: flex; align-items: center; justify-content: center;"&gt;
-      &lt;img src="brandme-logo.svg" alt="BrandMe" style="width: 20px; margin-left: 8px;"&gt;
-      تسجيل الدخول مع BrandMe
+      &lt;img src="OnePass-logo.svg" alt="OnePass" style="width: 20px; margin-left: 8px;"&gt;
+      تسجيل الدخول مع OnePass
     &lt;/div&gt;
   `;
   button.style = `
@@ -236,14 +236,14 @@ function addBrandMeLoginButton() {
     margin: 16px 0;
   `;
   button.onclick = () => {
-    // توجيه المستخدم إلى صفحة مصادقة BrandMe
-    window.location.href = 'https://brandme.me/auth?client_id=YOUR_CLIENT_ID';
+    // توجيه المستخدم إلى صفحة مصادقة OnePass
+    window.location.href = 'https://OnePass.me/auth?client_id=YOUR_CLIENT_ID';
   };
   document.body.appendChild(button);
 }
 
 // استدعاء الدالة عند تحميل الصفحة
-document.addEventListener('DOMContentLoaded', addBrandMeLoginButton);
+document.addEventListener('DOMContentLoaded', addOnePassLoginButton);
 </code>
                         </pre>
                     </div>
@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', addBrandMeLoginButton);
                         <i data-feather="key" class="text-blue-600 w-8 h-8"></i>
                     </div>
                     <h3 class="text-lg font-semibold text-gray-900 mb-2">الخطوة 1</h3>
-                    <p class="text-gray-600 text-sm">احصل على مفتاح API من لوحة تحكم BrandMe</p>
+                    <p class="text-gray-600 text-sm">احصل على مفتاح API من لوحة تحكم OnePass</p>
                 </div>
                 
                 <div class="step-box bg-white rounded-xl shadow-md p-6 text-center">
@@ -290,7 +290,7 @@ document.addEventListener('DOMContentLoaded', addBrandMeLoginButton);
                         <i data-feather="link" class="text-purple-600 w-8 h-8"></i>
                     </div>
                     <h3 class="text-lg font-semibold text-gray-900 mb-2">الخطوة 3</h3>
-                    <p class="text-gray-600 text-sm">اربط الزر بـ BrandMe API</p>
+                    <p class="text-gray-600 text-sm">اربط الزر بـ OnePass API</p>
                 </div>
                 
                 <div class="step-box bg-white rounded-xl shadow-md p-6 text-center">
@@ -307,7 +307,7 @@ document.addEventListener('DOMContentLoaded', addBrandMeLoginButton);
         <section class="text-center fade-in">
             <h2 class="text-2xl font-bold text-gray-900 mb-6">جاهز للدمج؟</h2>
             <p class="text-gray-600 mb-8 max-w-2xl mx-auto">
-                انضم إلى آلاف المطورين الذين يستخدمون BrandMe لتسجيل دخول آمن وسهل لمستخدميهم.
+                انضم إلى آلاف المطورين الذين يستخدمون OnePass لتسجيل دخول آمن وسهل لمستخدميهم.
             </p>
             <div class="flex flex-col sm:flex-row justify-center gap-4">
                 <a href="api-keys.html" class="btn-primary inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white brand-gradient hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
@@ -328,7 +328,7 @@ document.addEventListener('DOMContentLoaded', addBrandMeLoginButton);
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <div class="flex items-center mb-4 md:mb-0">
                     <i data-feather="shield" class="text-indigo-600 w-5 h-5"></i>
-                    <span class="mr-2 text-sm text-gray-600">© 2025 BrandMe. جميع الحقوق محفوظة.</span>
+                    <span class="mr-2 text-sm text-gray-600">© 2025 OnePass. جميع الحقوق محفوظة.</span>
                 </div>
                 <div class="flex space-x-6">
                     <a href="#" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">سياسة الخصوصية</a>

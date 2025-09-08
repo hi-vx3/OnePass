@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>التوثيق الرسمي | BrandMe</title>
+    <title>التوثيق الرسمي | OnePass</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -92,7 +92,7 @@
                 <div class="flex items-center">
                     <div class="flex-shrink-0 flex items-center">
                         <i data-feather="shield" class="text-indigo-600 w-8 h-8"></i>
-                        <span class="ml-2 text-xl font-bold text-gray-900">BrandMe</span>
+                        <span class="ml-2 text-xl font-bold text-gray-900">OnePass</span>
                     </div>
                     <nav class="hidden md:ml-6 md:flex md:items-center md:space-x-4 mr-6">
                         <a href="index.html" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">الرئيسية</a>
@@ -147,7 +147,7 @@
         <main class="flex-1">
             <!-- Page Title -->
             <div class="mb-8 fade-in">
-                <h1 class="text-3xl font-bold text-gray-900">التوثيق الرسمي لـ BrandMe API</h1>
+                <h1 class="text-3xl font-bold text-gray-900">التوثيق الرسمي لـ OnePass API</h1>
                 <p class="text-gray-600 mt-2">كل ما تحتاجه لدمج زر تسجيل الدخول وحماية البريد الوهمي للمستخدمين.</p>
             </div>
 
@@ -156,7 +156,7 @@
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">مقدمة</h2>
                 <div class="bg-white rounded-xl shadow-md p-6">
                     <p class="text-gray-700 mb-4">
-                        BrandMe API تتيح لك دمج نظام تسجيل الدخول عبر البريد الوهمي في تطبيقاتك ومواقعك بسهولة. 
+                        OnePass API تتيح لك دمج نظام تسجيل الدخول عبر البريد الوهمي في تطبيقاتك ومواقعك بسهولة. 
                         وفر تجربة مستخدم سلسة وآمنة مع حماية خصوصية مستخدميك.
                     </p>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
@@ -181,7 +181,7 @@
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">المصادقة</h2>
                 <div class="bg-white rounded-xl shadow-md p-6">
                     <p class="text-gray-700 mb-4">
-                        للوصول إلى BrandMe API، تحتاج إلى مصادقة باستخدام مفتاح API الخاص بك. 
+                        للوصول إلى OnePass API، تحتاج إلى مصادقة باستخدام مفتاح API الخاص بك. 
                         يمكنك الحصول على المفتاح من <a href="api-keys.html" class="text-indigo-600 hover:text-indigo-800">صفحة مفاتيح API</a>.
                     </p>
                     
@@ -192,8 +192,8 @@
                         </button>
                         <pre class="code-font overflow-x-auto text-sm" id="auth-js">
 <code class="text-green-400">
-// مصادقة باستخدام BrandMe API
-fetch("https://api.brandme.me/auth", {
+// مصادقة باستخدام OnePass API
+fetch("https://api.OnePass.me/auth", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -221,7 +221,7 @@ fetch("https://api.brandme.me/auth", {
                         <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">POST</span>
                     </div>
                     <div class="bg-gray-100 p-3 rounded-lg mb-4">
-                        <code class="code-font text-blue-600">https://api.brandme.me/auth</code>
+                        <code class="code-font text-blue-600">https://api.OnePass.me/auth</code>
                     </div>
                     
                     <h4 class="text-lg font-medium text-gray-900 mb-2">Request Parameters</h4>
@@ -241,7 +241,7 @@ fetch("https://api.brandme.me/auth", {
   "success": true,
   "data": {
     "user_id": "user_123",
-    "email": "user@brandme.me",
+    "email": "user@OnePass.me",
     "name": "اسم المستخدم",
     "avatar": "https://example.com/avatar.png"
   }
@@ -257,7 +257,7 @@ fetch("https://api.brandme.me/auth", {
                         <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">GET</span>
                     </div>
                     <div class="bg-gray-100 p-3 rounded-lg mb-4">
-                        <code class="code-font text-blue-600">https://api.brandme.me/user/email</code>
+                        <code class="code-font text-blue-600">https://api.OnePass.me/user/email</code>
                     </div>
                     
                     <h4 class="text-lg font-medium text-gray-900 mb-2">Headers المطلوبة</h4>
@@ -290,7 +290,7 @@ const axios = require('axios');
 
 async function authenticateUser(code) {
   try {
-    const response = await axios.post('https://api.brandme.me/auth', {
+    const response = await axios.post('https://api.OnePass.me/auth', {
       code: code,
       client_id: process.env.CLIENT_ID
     }, {
@@ -335,7 +335,7 @@ def authenticate_user(code):
     }
     
     response = requests.post(
-        'https://api.brandme.me/auth',
+        'https://api.OnePass.me/auth',
         headers=headers,
         json=data
     )
@@ -403,7 +403,7 @@ def authenticate_user(code):
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <div class="flex items-center mb-4 md:mb-0">
                     <i data-feather="shield" class="text-indigo-600 w-5 h-5"></i>
-                    <span class="mr-2 text-sm text-gray-600">© 2025 BrandMe. جميع الحقوق محفوظة.</span>
+                    <span class="mr-2 text-sm text-gray-600">© 2025 OnePass. جميع الحقوق محفوظة.</span>
                 </div>
                 <div class="flex space-x-6">
                     <a href="#" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">سياسة الخصوصية</a>
