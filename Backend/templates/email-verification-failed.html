@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فشل التفعيل | OnePass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3B82F6',
+                            600: '#2563EB',
+                            700: '#1D4ED8',
+                        },
+                        error: {
+                            50: '#fef2f2',
+                            100: '#fee2e2',
+                            500: '#EF4444',
+                            600: '#DC2626',
+                            700: '#B91C1C',
+                        }
+                    },
+                    backgroundImage: {
+                        'pattern-bg': "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100\" height=\"100\" viewBox=\"0 0 100 100\"><rect width=\"100\" height=\"100\" fill=\"%23f8fafc\"/><path d=\"M0 0L100 100\" stroke=\"%23e2e8f0\" stroke-width=\"1\"/><path d=\"M100 0L0 100\" stroke=\"%23e2e8f0\" stroke-width=\"1\"/></svg>')"
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .post-verification-container {
+            background: linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)), 
+                        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100\"><rect width=\"100\" height=\"100\" fill=\"%23f8fafc\"/><path d=\"M0 0L100 100\" stroke=\"%23e2e8f0\" stroke-width=\"1\"/><path d=\"M100 0L0 100\" stroke=\"%23e2e8f0\" stroke-width=\"1\"/></svg>');
+            background-size: 300px;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .error-circle {
+            animation: scaleIn 0.5s ease forwards;
+        }
+        
+        @keyframes scaleIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header Component -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                        <span class="mr-2 text-xl font-bold text-gray-900">OnePass</span>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <a href="/pages/auth/register.html" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors">
+                        العودة إلى صفحة التسجيل
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 post-verification-container">
+        <div class="max-w-md w-full">
+            <!-- Error Content Component -->
+            <div class="bg-white p-8 rounded-xl shadow-lg fade-in">
+                <div class="flex justify-center mb-6">
+                    <div class="error-circle w-20 h-20 rounded-full bg-error-100 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-error-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                </div>
+                
+                <h1 class="text-3xl font-bold text-center text-gray-900 mb-4 text-error-700">
+                    رابط التفعيل غير صالح
+                </h1>
+                
+                <p class="text-center text-gray-600 mb-8">
+                    عذراً، يبدو أن رابط تفعيل الحساب الذي استخدمته غير صالح أو قد انتهت صلاحيته.
+                </p>
+                
+                <div class="mt-8">
+                    <a href="/pages/auth/register.html" class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-primary-600 to-primary-500 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all">
+                        طلب رابط تفعيل جديد
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Component -->
+    <footer class="bg-white border-t border-gray-200 mt-16 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    <span class="text-sm text-gray-600">© 2025  OnePass. جميع الحقوق محفوظة.</span>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-sm text-gray-500 hover:text-primary-600 transition-colors">سياسة الخصوصية</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-primary-600 transition-colors">شروط الخدمة</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-primary-600 transition-colors">اتصل بنا</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

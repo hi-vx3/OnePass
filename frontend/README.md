@@ -45,22 +45,55 @@ OnePass هو مشروع API متقدم مع نظام تسجيل دخول متق�
 ## 4. Project Structure
 ```
 
+frontend/
+├── public/
+│   ├── index.html
+│   └── ... (أصول ثابتة مثل الأيقونات)
+├── src/
+│   ├── components/
+│   │   ├── auth/
+│   │   │   ├── LoginForm.js
+│   │   │   └── RegisterForm.js
+│   │   ├── common/
+│   │   │   ├── Header.js
+│   │   │   ├── Footer.js
+│   │   │   └── LoadingSpinner.js
+│   │   └── layout/
+│   │       └── AuthLayout.js
+│   ├── pages/
+│   │   ├── LoginPage.js
+│   │   ├── RegisterPage.js
+│   │   ├── DashboardPage.js
+│   │   └── NotFoundPage.js
+│   ├── services/
+│   │   └── api.js
+│   ├── App.js
+│   ├── index.js
+│   └── index.css
+├── package.json
+└── ... (ملفات إعداد أخرى)
+
+
 backend/
-├─ src/
-│  ├─ config/          # Environment variables, Vault clients, TLS
-│  ├─ routes/          # Express routers
-│  ├─ controllers/     # Business logic
-│  ├─ services/        # Auth, mail-forwarder, crypto, api-key
-│  ├─ security/        # Rust/Ada bindings, HSM integration
-│  ├─ models/          # Prisma schema
-│  ├─ jobs/            # Workers (BullMQ)
-│  ├─ middleware/
-│  ├─ utils/
-│  └─ app.ts
 ├─ prisma/
-│  └─ schema.prisma
-├─ scripts/
-├─ systemd/            # systemd service units
+│  └─ schema.prisma          
+├─ routes/          
+│  └─ auth.routes.js     
+├─ services/        
+│  ├─ auth.service.js        
+│  └─ email.service.js          
+├─ templates/          
+│  ├─ email-totp.html
+│  ├─ email-verification-success.html
+│  └─ email-verification.html
+├─ utils
+│  ├─ errorHandler.js
+│  └─ logger.js
+├─ .env
+├─ .eslintrc.json
+├─ .prettierrc
+├─ app.js
+├─ package.json
 └─ README.md
 
 ````

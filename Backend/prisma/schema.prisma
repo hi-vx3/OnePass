@@ -8,12 +8,84 @@ datasource db {
    }
 
    model User {
-     id               Int      @id @default(autoincrement())
-     email            String   @unique
-     verificationToken String?
-     isVerified       Boolean  @default(false)
-     createdAt        DateTime @default(now())
-     totpSecret       String?  // Secret for TOTP generation
-     totpCode         String?  // Temporary TOTP code
-     totpExpiresAt    DateTime? // Expiry time for TOTP code
+     id                  Int            @id @default(autoincrement())
+     email               String         @unique
+     verificationToken   String?
+     isVerified          Boolean        @default(false)
+     createdAt           DateTime       @default(now())
+     totpSecret          String? // Secret for TOTP generation
+     totpCode            String? // Temporary TOTP code
+     totpExpiresAt       DateTime? // Expiry time for TOTP code
+     totpLoginAttempts   Int            @default(0) // Failed TOTP login attempts
+     totpBlockedUntil    DateTime? // Timestamp until which the user is blocked from TOTP login
+     virtualEmail        VirtualEmail?
+     apiKeys             ApiKey[]
+     linkedSites         LinkedSite[]
+     notifications       Notification[]
+     activities          Activity[]
+     notificationsEnabled Boolean        @default(true)
+   }
+
+   model VirtualEmail {
+     id        Int      @id @default(autoincrement())
+     address   String   @unique
+     isActive  Boolean  @default(true)
+     user      User     @relation(fields: [userId], references: [id])
+     userId    Int      @unique
+     createdAt DateTime @default(now())
+   }
+
+   model ApiKey {
+     id           String   @id @default(uuid())
+     name         String
+     clientId     String   @unique @map("client_id")
+     clientSecret String   @map("client_secret")
+     hashedSecret String   @map("hashed_secret")
+     redirectUris String   @db.Text @map("redirect_uris")
+     logoUrl      String?  @map("logo_url")
+     user         User     @relation(fields: [userId], references: [id])
+     userId       Int      @map("user_id")
+     createdAt    DateTime @default(now())
+   }
+
+   model LinkedSite {
+     id           Int      @id @default(autoincrement())
+     name         String
+     url          String
+     email        String
+     lastActivity DateTime @default(now())
+     user         User     @relation(fields: [userId], references: [id])
+     userId       Int
+   }
+
+   model Notification {
+     id        Int      @id @default(autoincrement())
+     type      String // 'security', 'message', 'warning', 'success'
+     title     String
+     message   String
+     isRead    Boolean  @default(false)
+     user      User     @relation(fields: [userId], references: [id])
+     userId    Int
+     createdAt DateTime @default(now())
+   }
+
+   model Activity {
+     id          Int      @id @default(autoincrement())
+     type        String // 'login', 'message', 'create', 'update'
+     title       String
+     description String
+     user        User     @relation(fields: [userId], references: [id])
+     userId      Int
+     createdAt   DateTime @default(now())
+   }
+
+   model AuthorizationCode {
+     id          Int      @id @default(autoincrement())
+     code        String   @unique
+     expiresAt   DateTime @map("expires_at")
+     redirectUri String   @map("redirect_uri")
+     scope       String
+     clientId    String   @map("client_id")
+     userId      Int      @map("user_id")
+     createdAt   DateTime @default(now())
    }
