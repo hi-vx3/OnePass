@@ -9,6 +9,7 @@ require('dotenv').config();
    const createAuthRouter = require('./routes/auth.routes');   
    const createUserRouter = require('./routes/user.routes');
    const createDashboardRouter = require('./routes/dashboard.routes');
+   const createWebhookRouter = require('./routes/webhook.routes');
    const errorHandler = require('./utils/errorHandler');
    const { initializeLogger } = require('./utils/logger');
    const { verifyTransporter } = require('./services/email.service');
@@ -68,11 +69,22 @@ app.use(cors({
 
    log.info(`Environment variables: EMAIL_HOST=${process.env.EMAIL_HOST}, EMAIL_PORT=${process.env.EMAIL_PORT}, EMAIL_USER=${process.env.EMAIL_USER}`);
 
-   app.use(express.json());
+   // Apply JSON parser to all routes EXCEPT webhooks, which need the raw body for signature validation.
+   app.use(express.json({
+     verify: (req, res, buf) => {
+       // Save the raw body to a new property on the request object
+       if (req.originalUrl.startsWith('/api/webhooks')) {
+         req.rawBody = buf;
+       }
+     }
+   }));
+
+   // Routers
    app.use('/api/oauth', createOAuthRouter(prisma, log));
    app.use('/api/auth', createAuthRouter(prisma, log));
    app.use('/api/user', createUserRouter(prisma, log));
    app.use('/api/dashboard', createDashboardRouter(prisma, log));
+   app.use('/api/webhooks', createWebhookRouter(prisma, log));
 
    // Global error handler
    app.use((err, req, res, next) => errorHandler(err, req, res, next, log));

@@ -12,7 +12,17 @@ import {
     BellOff,
     Bell,
     Globe,
-    Activity
+    Activity,
+    Loader,
+    ChevronRight,
+    ChevronLeft,
+    Check,
+    User as UserIcon,
+    Calendar,
+    RefreshCw,
+    Forward as MailForward,
+    AlertTriangle,
+    LogOut
 } from 'lucide-react'; // FeatherIcon is not used, lucide-react is. Let's stick to lucide-react.
 import axios from 'axios';
 import { Link } from 'react-router-dom';
@@ -21,29 +31,84 @@ import './DashboardPage.css';
 const DashboardPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [stats, setStats] = useState({ totalMessages: 128, linkedSites: 5, apiKeys: 2, linkedSitesList: [], recentActivities: [] });
+    const [linkedSites, setLinkedSites] = useState([]);
+    const [linkedSitesPagination, setLinkedSitesPagination] = useState({ currentPage: 1, totalPages: 1 });
     const [apiKeys, setApiKeys] = useState([]);
     const [notifications, setNotifications] = useState([]);
-    const [virtualEmail, setVirtualEmail] = useState('mohamed123@OnePass.me');
+    const [virtualEmail, setVirtualEmail] = useState(null); // Set initial state to null
     const [isEmailActive, setIsEmailActive] = useState(true);
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+    const [isCopied, setIsCopied] = useState(false);
+    const [alias, setAlias] = useState('');
+    const [isDobCopied, setIsDobCopied] = useState(false);
+    const [combinedFeed, setCombinedFeed] = useState([]);
+    const [isForwardingActive, setIsForwardingActive] = useState(true);
+    const [forwardedLogs, setForwardedLogs] = useState([]);
+    const [logsPagination, setLogsPagination] = useState({ currentPage: 1, totalPages: 1 });
+    const [canChange, setCanChange] = useState(true);
+    const [showRegenerateModal, setShowRegenerateModal] = useState(false);
+    const [showDeactivateModal, setShowDeactivateModal] = useState(false);
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const [newAlias, setNewAlias] = useState('');
+    const [user, setUser] = useState({ name: 'مستخدم وهمي', dob: '1998-05-15' }); // Add state for fake user data
+
+    const loadLinkedSites = async (page = 1) => {
+        try {
+            const response = await axios.get(`http://localhost:3001/api/user/linked-sites?page=${page}&limit=5`, { withCredentials: true });
+            setLinkedSites(response.data.sites);
+            setLinkedSitesPagination(response.data.pagination);
+        } catch (error) {
+            console.error('Error loading linked sites:', error);
+            showError('حدث خطأ أثناء تحميل المواقع المرتبطة');
+        }
+    };
+
+    const loadForwardedLogs = async (page = 1) => {
+        try {
+            const response = await axios.get(`http://localhost:3001/api/user/forwarded-logs?page=${page}&limit=5`, { withCredentials: true });
+            setForwardedLogs(response.data.logs);
+            setLogsPagination(response.data.pagination);
+        } catch (error) {
+            console.error('Error loading forwarded logs:', error);
+            showError('حدث خطأ أثناء تحميل سجل الرسائل');
+        }
+    };
 
     useEffect(() => {
         loadDashboardData();
+        loadLinkedSites(1);
+        loadForwardedLogs(1);
         const cards = document.querySelectorAll('.fade-in');
         cards.forEach((card, index) => {
             card.style.animationDelay = `${index * 0.1}s`;
         });
     }, []);
-
-    const loadDashboardData = async () => {
+        const loadDashboardData = async () => {
         setIsLoading(true);
         try {
-            const statsResponse = await axios.get('http://localhost:3001/api/dashboard/stats');
-            setStats(statsResponse.data);
-            const apiKeysResponse = await axios.get('http://localhost:3001/api/user/api-keys');
-            setApiKeys(apiKeysResponse.data);
-            const notificationsResponse = await axios.get('http://localhost:3001/api/notifications');
-            setNotifications(notificationsResponse.data);
+            // Call the single, unified endpoint
+            const response = await axios.get('http://localhost:3001/api/dashboard/stats', { withCredentials: true });
+            const data = response.data;
+
+            // Process responses after all have completed
+            setStats(data);
+            setVirtualEmail(data.virtualEmail);
+            setIsEmailActive(data.isEmailActive);
+            setIsForwardingActive(data.isForwardingActive);
+            setApiKeys(data.apiKeysList);
+             setCanChange(data.canChange);
+            
+            // Combine notifications and activities into a single feed
+            const activities = data.recentActivities.map(item => ({ ...item, feedType: 'activity' }));
+            const notifications = data.notificationsList.map(item => ({ ...item, feedType: 'notification' }));
+            const feed = [...activities, ...notifications].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            setCombinedFeed(feed);
+
+            // Set fake user data from backend if available, otherwise use default
+            setUser({
+                name: data.username || 'مستخدم وهمي', // Assuming username is part of the response
+                dob: data.dob || '1998-05-15', // Assuming dob is part of the response
+            });
         } catch (error) {
             console.error('Error loading dashboard data:', error);
             showError('حدث خطأ أثناء تحميل بيانات لوحة التحكم');
@@ -51,33 +116,169 @@ const DashboardPage = () => {
             setIsLoading(false);
         }
     };
-
     const copyToClipboard = (text) => {
-        navigator.clipboard.writeText(text);
+        // Use the modern Clipboard API in secure contexts
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).catch(err => {
+                console.error('Could not copy text using navigator: ', err);
+            });
+        } else {
+            // Fallback for insecure contexts or older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            
+            // Make the textarea non-editable and move it off-screen
+            textArea.style.position = 'absolute';
+            textArea.style.left = '-9999px';
+            
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+            
+            document.body.removeChild(textArea);
+        }
     };
 
     const handleCopyEmail = () => {
         copyToClipboard(virtualEmail);
+        setIsCopied(true);
+        // Reset the icon after 2 seconds
+        setTimeout(() => {
+            setIsCopied(false);
+        }, 2000);
+    };
+
+    const handleCopyDob = () => {
+        if (!user.dob) return;
+        copyToClipboard(user.dob);
+        setIsDobCopied(true);
+        setTimeout(() => {
+            setIsDobCopied(false);
+        }, 2000);
+    };
+
+    const handleRegenerateVirtualEmail = async (useAlias = false) => {
+        setIsLoading(true);
+        try {
+            if (useAlias && (!newAlias || newAlias.length < 3)) {
+                showError('يجب أن يتكون الاسم المستعار من 3 أحرف على الأقل.');
+                setIsLoading(false);
+                return;
+            }
+
+            const payload = useAlias && newAlias ? { alias: newAlias } : {};
+            const response = await axios.post('http://localhost:3001/api/user/virtual-email/regenerate', payload, { withCredentials: true });
+            if (response.data.success) {
+                setVirtualEmail(response.data.email);
+                setIsEmailActive(true);
+                setCanChange(response.data.canChange); // Update the canChange state
+                setShowRegenerateModal(false);
+                setNewAlias('');
+                alert('تم إنشاء بريد وهمي جديد بنجاح.'); // Using alert for success feedback
+            }
+        } catch (error) {
+            const errorMessage = error.response?.data?.error || 'حدث خطأ أثناء إنشاء البريد الوهمي الجديد';
+            showError(errorMessage);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    const handleToggleForwarding = async () => {
+        const newForwardingState = !isForwardingActive;
+        try {
+            await axios.patch('http://localhost:3001/api/user/virtual-email/forwarding', {
+                enabled: newForwardingState,
+            }, { withCredentials: true });
+            setIsForwardingActive(newForwardingState);
+        } catch (error) {
+            console.error('Error toggling email forwarding:', error);
+            showError('حدث خطأ أثناء تغيير حالة إعادة التوجيه');
+            // Revert UI on failure
+            setIsForwardingActive(!newForwardingState);
+        }
+    };
+
+    const confirmDeactivateEmail = async () => {
+        setIsLoading(true);
+        try {
+            await axios.patch('http://localhost:3001/api/user/virtual-email', {
+                active: false,
+            }, { withCredentials: true });
+            setIsEmailActive(false);
+            setShowDeactivateModal(false);
+        } catch (error) {
+            console.error('Error deactivating virtual email:', error);
+            showError('حدث خطأ أثناء إيقاف البريد الوهمي');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleToggleEmail = async () => {
+        // If we are activating, do it directly without confirmation
+        if (!isEmailActive) {
+            try {
+                const response = await axios.patch('http://localhost:3001/api/user/virtual-email', {
+                    active: true,
+                }, { withCredentials: true });
+                if (response.data.success) {
+                    setIsEmailActive(true);
+                }
+            } catch (error) {
+                console.error('Error activating virtual email:', error);
+                showError('حدث خطأ أثناء تفعيل البريد الوهمي');
+            }
+        } else {
+            // If we are deactivating, show the confirmation modal
+            setShowDeactivateModal(true);
+        }
+    };
+
+    const handleLogout = async () => {
         try {
-            const response = await axios.patch('http://localhost:3001/api/user/virtual-email', {
-                active: !isEmailActive
-            });
+            await axios.post('http://localhost:3001/api/auth/logout', {}, { withCredentials: true });
+            // Redirect to a public page, e.g., the login page
+            window.location.href = '/';
+        } catch (error) {
+            console.error('Error logging out:', error);
+            showError('حدث خطأ أثناء تسجيل الخروج.');
+        }
+    };
+
+    const handleGenerateVirtualEmail = async (useAlias = false) => {
+        setIsLoading(true);
+        try {
+            if (useAlias && (!alias || alias.length < 3)) {
+                showError('يجب أن يتكون الاسم المستعار من 3 أحرف على الأقل.');
+                setIsLoading(false);
+                return;
+            }
+
+            const payload = useAlias && alias ? { alias } : {};
+            const response = await axios.post('http://localhost:3001/api/user/virtual-email/generate', payload, { withCredentials: true });
             if (response.data.success) {
-                setIsEmailActive(!isEmailActive);
+                setVirtualEmail(response.data.email);
+                setIsEmailActive(true);
+                setAlias(''); // Clear the input on success
             }
         } catch (error) {
-            console.error('Error toggling virtual email:', error);
-            showError('حدث خطأ أثناء تغيير حالة البريد الوهمي');
+            const errorMessage = error.response?.data?.error || 'حدث خطأ أثناء إنشاء البريد الوهمي';
+            showError(errorMessage);
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const handleDeleteApiKey = async (keyId) => {
         if (!window.confirm('هل أنت متأكد من حذف مفتاح API هذا؟')) return;
         try {
-            await axios.delete(`http://localhost:3001/api/user/api-keys/${keyId}`);
+            await axios.delete(`http://localhost:3001/api/user/api-keys/${keyId}`, { withCredentials: true });
             setApiKeys(apiKeys.filter(key => key.id !== keyId));
             setStats(prev => ({ ...prev, apiKeys: prev.apiKeys - 1 }));
         } catch (error) {
@@ -89,8 +290,8 @@ const DashboardPage = () => {
     const handleUnlinkSite = async (siteId) => {
         if (!window.confirm('هل أنت متأكد من فصل هذا الموقع؟')) return;
         try {
-            await axios.delete(`http://localhost:3001/api/user/linked-sites/${siteId}`);
-            loadDashboardData();
+            await axios.delete(`http://localhost:3001/api/user/linked-sites/${siteId}`, { withCredentials: true });
+            loadLinkedSites(linkedSitesPagination.currentPage); // Reload the current page of sites
         } catch (error) {
             console.error('Error unlinking site:', error);
             showError('حدث خطأ أثناء فصل الموقع');
@@ -100,7 +301,7 @@ const DashboardPage = () => {
     const handleNotificationsToggle = async (e) => {
         const enabled = e.target.checked;
         try {
-            await axios.patch('http://localhost:3001/api/user/notifications', { enabled });
+            await axios.patch('http://localhost:3001/api/user/notifications', { enabled }, { withCredentials: true });
             setNotificationsEnabled(enabled);
         } catch (error) {
             console.error('Error toggling notifications:', error);
@@ -200,8 +401,7 @@ const DashboardPage = () => {
                             </div>
                             <nav className="hidden md:ml-6 md:flex md:items-center md:space-x-4 mr-6">
                                 <Link to="/" className="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">الرئيسية</Link>
-                                <a href="#" className="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">المطورون</a>
-                                <a href="#" className="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">الإعدادات</a>
+                                <Link to="/settings" className="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">الإعدادات</Link>
                             </nav>
                         </div>
                         <div className="flex items-center">
@@ -212,11 +412,29 @@ const DashboardPage = () => {
                                 </div>
                             </div>
                             <div className="relative">
-                                <button className="flex items-center text-sm focus:outline-none">
-                                    <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium">م</div>
-                                    <span className="mr-2 text-gray-700">محمد أحمد</span>
-                                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                                <button 
+                                    onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                                    className="flex items-center text-sm p-1 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                                >
+                                    <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-semibold">{user.name.charAt(0)}</div>
+                                    <span className="mr-2 text-gray-800 font-medium hidden sm:block">{user.name}</span>
+                                    <ChevronDown className="w-4 h-4 text-gray-500 mr-1 hidden sm:block" />
                                 </button>
+                                {isProfileMenuOpen && (
+                                    <div 
+                                        className="origin-top-left absolute left-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" 
+                                        role="menu" 
+                                        aria-orientation="vertical" 
+                                        aria-labelledby="user-menu-button"
+                                    >
+                                        <Link to="/settings" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                                            الإعدادات
+                                        </Link>
+                                        <button onClick={handleLogout} className="flex items-center w-full text-right px-4 py-2 text-sm text-red-600 hover:bg-gray-100" role="menuitem">
+                                            <LogOut className="w-4 h-4 ml-2" /> تسجيل الخروج
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -255,7 +473,7 @@ const DashboardPage = () => {
                     <div className="dashboard-stats__card bg-white rounded-xl shadow-md p-6 card-hover">
                         <div className="flex items-center">
                             <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-                                <Shield className="text-purple-600 w-6 h-6" />
+                                <Key className="text-purple-600 w-6 h-6" />
                             </div>
                             <div className="mr-3">
                                 <p className="text-sm text-gray-600">مفاتيح API</p>
@@ -268,83 +486,98 @@ const DashboardPage = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-1 space-y-6">
                         <div className="bg-white rounded-xl shadow-md p-6 card-hover fade-in">
-                            <h2 className="text-lg font-semibold text-gray-900 mb-4">البريد الوهمي</h2>
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center">
-                                    <Mail className="text-indigo-600 w-5 h-5 ml-2" />
-                                    <span className="text-gray-700 font-medium">{virtualEmail}</span>
-                                </div>
-                                <button className="text-indigo-600 hover:text-indigo-800 transition-colors" onClick={handleCopyEmail}>
-                                    <Copy className="w-4 h-4" />
-                                </button>
+                            <div className="flex items-center mb-4">
+                                <h2 className="text-lg font-semibold text-gray-900">البريد الوهمي</h2>
+                                {virtualEmail && <span className={`w-2.5 h-2.5 rounded-full mr-2 ${isEmailActive ? 'bg-green-500' : 'bg-gray-400'}`}></span>}
                             </div>
-                            <div className="flex items-center justify-between">
-                                <div className={`status-badge flex items-center bg-${isEmailActive ? 'green' : 'gray'}-100 text-${isEmailActive ? 'green' : 'gray'}-800 text-sm font-medium px-3 py-1 rounded-full`}>
-                                    <div className={`w-2 h-2 bg-${isEmailActive ? 'green' : 'gray'}-500 rounded-full ml-1`}></div>
-                                    {isEmailActive ? 'نشط' : 'موقوف'}
-                                </div>
-                                <button className="btn-secondary text-red-600 hover:text-red-800 text-sm font-medium transition-colors" onClick={handleToggleEmail}>
-                                    <Power className="w-4 h-4 ml-1" />
-                                    {isEmailActive ? 'إيقاف مؤقت' : 'تفعيل'}
-                                </button>
-                            </div>
-                        </div>
-                        <div className="bg-white rounded-xl shadow-md p-6 card-hover fade-in">
-                            <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-lg font-semibold text-gray-900">مفاتيح API</h2>
-                                <Link to="/api-keys" className="btn-primary text-sm px-3 py-1 rounded-md flex items-center">
-                                    <Plus className="w-4 h-4 ml-1" />
-                                    جديد
-                                </Link>
-                            </div>
-                            <div className="space-y-3">
-                                {apiKeys.length === 0 ? (
-                                    <div className="text-center py-4 text-gray-500">
-                                        <Key className="w-8 h-8 mx-auto mb-2" />
-                                        <p>لا توجد مفاتيح API</p>
+                            {virtualEmail ? (
+                                <>
+                                    <div className="flex items-center justify-between bg-gray-50 rounded-md border border-gray-200">
+                                        <div className="flex items-center p-3">
+                                            <Mail className="text-gray-500 w-5 h-5 ml-2" />
+                                            <span className="text-gray-800 font-medium">{virtualEmail}</span>
+                                        </div>
+                                        <div className="flex items-center space-x-2 pl-3">
+                                            <button className="text-gray-500 hover:text-indigo-600 transition-colors" onClick={handleCopyEmail} disabled={isCopied}>
+                                                {isCopied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                                            </button>
+                                         {canChange && (   <button className="text-gray-500 hover:text-blue-600 transition-colors" onClick={() => setShowRegenerateModal(true)}>
+                                                <RefreshCw className="w-4 h-4" />
+                                            </button>)}
+
+                                            <button className={`text-sm font-medium transition-colors flex items-center p-1 rounded-md ${isEmailActive ? 'text-red-600 hover:bg-red-100' : 'text-green-600 hover:bg-green-100'}`} onClick={handleToggleEmail}>
+                                                <Power className="w-4 h-4" />
+                                            </button>
+                                        </div>
                                     </div>
-                                ) : (
-                                    apiKeys.map(key => (
-                                        <div key={key.id} className="flex items-center justify-between py-2">
-                                            <div className="flex items-center">
-                                                <Key className="text-gray-500 w-4 h-4 ml-2" />
-                                                <span className="text-sm text-gray-700">{key.maskedKey}</span>
-                                            </div>
-                                            <div className="flex space-x-2">
-                                                <button className="text-gray-500 hover:text-indigo-600 transition-colors" onClick={() => copyToClipboard(key.actualKey)}>
-                                                    <Copy className="w-4 h-4" />
-                                                </button>
-                                                <button className="text-gray-500 hover:text-red-600 transition-colors" onClick={() => handleDeleteApiKey(key.id)}>
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
+                                    <div className="flex items-center justify-between pt-4 mt-4 border-t border-gray-100">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">إعادة توجيه الرسائل</label>
+                                            <span className="text-xs text-gray-500">إرسال الرسائل إلى بريدك الأساسي</span>
+                                        </div>
+                                        <label className="toggle-switch">
+                                            <input type="checkbox" checked={isForwardingActive} onChange={handleToggleForwarding} />
+                                            <span className="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="space-y-4">
+                                    <p className="text-gray-500 text-center">لم يتم تفعيل البريد المؤقت بعد.</p>
+                                    <div>
+                                        <label htmlFor="alias" className="block text-sm font-medium text-gray-700 text-right mb-1">اختر اسمًا مستعارًا (اختياري)</label>
+                                        <div className="flex items-center w-full rounded-md shadow-sm border border-gray-300 focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500 transition-all">
+                                            <input 
+                                                type="text" 
+                                                id="alias" 
+                                                className="flex-grow block w-full px-3 py-2 border-0 rounded-r-md focus:outline-none sm:text-sm text-right"
+                                                placeholder="my-alias"
+                                                value={alias}
+                                                onChange={(e) => setAlias(e.target.value)}
+                                                disabled={isLoading}
+                                            />
+                                            <div className="flex items-center pl-3 pr-2 bg-gray-50 border-l border-gray-300 rounded-l-md">
+                                                <span className="text-gray-500 sm:text-sm whitespace-nowrap">@onepass.me</span>
                                             </div>
                                         </div>
-                                    ))
-                                )}
-                            </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <button className="btn-primary text-sm px-4 py-2 rounded-md flex items-center justify-center w-1/2" onClick={() => handleGenerateVirtualEmail(true)} disabled={isLoading || !alias || alias.length < 3}>
+                                            {isLoading ? <Loader className="w-4 h-4 animate-spin" /> : <><Plus className="w-4 h-4 ml-2" /> إنشاء بريد</>}
+                                        </button>
+                                        <button className="btn-secondary text-sm px-4 py-2 rounded-md flex items-center justify-center w-1/2 border border-gray-300" onClick={() => handleGenerateVirtualEmail(false)} disabled={isLoading}>
+                                            {isLoading ? <Loader className="w-4 h-4 animate-spin" /> : <><Power className="w-4 h-4 ml-2" /> إنشاء عشوائي</>}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                         <div className="bg-white rounded-xl shadow-md p-6 card-hover fade-in">
                             <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-lg font-semibold text-gray-900">الإشعارات</h2>
-                                {notifications.length > 0 && <span className="notification-dot w-2 h-2 bg-red-500 rounded-full"></span>}
+                                <h2 className="text-lg font-semibold text-gray-900">آخر التحديثات</h2>
+                                {combinedFeed.some(item => item.feedType === 'notification' && !item.isRead) && <span className="notification-dot w-2 h-2 bg-red-500 rounded-full"></span>}
                             </div>
                             <div className="space-y-4">
-                                {notifications.length === 0 ? (
+                                {combinedFeed.length === 0 ? (
                                     <div className="text-center py-4 text-gray-500">
                                         <BellOff className="w-8 h-8 mx-auto mb-2" />
-                                        <p>لا توجد إشعارات جديدة</p>
+                                        <p>لا توجد تحديثات جديدة</p>
                                     </div>
                                 ) : (
-                                    notifications.map(notification => (
-                                        <div key={notification.id} className="flex items-start">
+                                    combinedFeed.slice(0, 5).map(item => ( // Show latest 5 items
+                                        <div key={`${item.feedType}-${item.id}`} className="flex items-start">
                                             <div className="flex-shrink-0">
-                                                <div className={`w-8 h-8 rounded-full ${getNotificationColor(notification.type).bg} flex items-center justify-center`}>{/* Icon logic needs to be updated if using lucide */}
-                                                    <Bell className={`${getNotificationColor(notification.type).text} w-4 h-4`} /></div>
+                                                <div className={`w-8 h-8 rounded-full ${item.feedType === 'activity' ? getActivityColor(item.type).bg : getNotificationColor(item.type).bg} flex items-center justify-center`}>
+                                                    {item.feedType === 'activity' ? 
+                                                        <Activity className={`${getActivityColor(item.type).text} w-4 h-4`} /> :
+                                                        <Bell className={`${getNotificationColor(item.type).text} w-4 h-4`} />
+                                                    }
+                                                </div>
                                             </div>
                                             <div className="mr-3">
-                                                <p className="text-sm font-medium text-gray-900">{notification.title}</p>
-                                                <p className="text-xs text-gray-500">{notification.message}</p>
-                                                <p className="text-xs text-gray-400">{formatTimeAgo(notification.timestamp)}</p>
+                                                <p className="text-sm font-medium text-gray-900">{item.title}</p>
+                                                <p className="text-xs text-gray-500">{item.message || item.description}</p>
+                                                <p className="text-xs text-gray-400">{formatTimeAgo(item.createdAt)}</p>
                                             </div>
                                         </div>
                                     ))
@@ -380,7 +613,7 @@ const DashboardPage = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-200">
-                                        {stats.linkedSitesList.length === 0 ? (
+                                        {linkedSites.length === 0 ? (
                                             <tr>
                                                 <td colSpan="4" className="px-4 py-8 text-center text-gray-500">
                                                     <LinkIcon className="w-8 h-8 mx-auto mb-2" />
@@ -388,12 +621,11 @@ const DashboardPage = () => {
                                                 </td>
                                             </tr>
                                         ) : (
-                                            stats.linkedSitesList.map(site => (
+                                            linkedSites.map(site => (
                                                 <tr key={site.id}>
                                                     <td className="px-4 py-4 whitespace-nowrap">
                                                         <div className="flex items-center" >
-                                                            <div className={`w-8 h-8 rounded-full ${getSiteColor(site.name).bg} flex items-center justify-center ml-3`}>{/* Icon logic needs to be updated if using lucide */}
-                                                                <Globe className={`${getSiteColor(site.name).text} w-4 h-4`} /></div>
+                                                            <div className={`w-8 h-8 rounded-full ${getSiteColor(site.name).bg} flex items-center justify-center ml-3`}><Globe className={`${getSiteColor(site.name).text} w-4 h-4`} /></div>
                                                             <div>
                                                                 <div className="text-sm font-medium text-gray-900">{site.name}</div>
                                                             </div>
@@ -411,39 +643,143 @@ const DashboardPage = () => {
                                     </tbody>
                                 </table>
                             </div>
+                            {linkedSitesPagination.totalPages > 1 && (
+                                <div className="flex items-center justify-between mt-4">
+                                    <button
+                                        onClick={() => loadLinkedSites(linkedSitesPagination.currentPage - 1)}
+                                        disabled={linkedSitesPagination.currentPage === 1}
+                                        className="flex items-center px-3 py-1 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <ChevronRight className="w-4 h-4 ml-1" /> السابق
+                                    </button>
+                                    <span className="text-sm text-gray-700">صفحة {linkedSitesPagination.currentPage} من {linkedSitesPagination.totalPages}</span>
+                                    <button
+                                        onClick={() => loadLinkedSites(linkedSitesPagination.currentPage + 1)}
+                                        disabled={linkedSitesPagination.currentPage === linkedSitesPagination.totalPages}
+                                        className="flex items-center px-3 py-1 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        التالي <ChevronLeft className="w-4 h-4 mr-1" />
+                                    </button>
+                                </div>
+                            )}
                         </div>
                         <div className="bg-white rounded-xl shadow-md p-6 card-hover fade-in">
                             <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-lg font-semibold text-gray-900">آخر النشاطات</h2>
-                                <button className="text-sm text-indigo-600 hover:text-indigo-800">عرض الكل</button>
+                                <h2 className="text-lg font-semibold text-gray-900">سجل الرسائل المعاد توجيهها</h2>
+                                <span className="text-sm text-gray-500">{logsPagination.totalItems} رسائل</span>
                             </div>
-                            <div className="space-y-4">
-                                {stats.recentActivities.length === 0 ? (
-                                    <div className="text-center py-4 text-gray-500" >
-                                    <Activity className="w-8 h-8 mx-auto mb-2" />
-                                    <p>لا توجد نشاطات حديثة</p>
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-200">
+                                    <thead>
+                                        <tr>
+                                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المرسل</th>
+                                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الموضوع</th>
+                                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الوقت</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-200">
+                                        {forwardedLogs.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="3" className="px-4 py-8 text-center text-gray-500">
+                                                    <MailForward className="w-8 h-8 mx-auto mb-2" />
+                                                    <p>لا توجد رسائل معاد توجيهها بعد.</p>
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            forwardedLogs.map(log => (
+                                                <tr key={log.id}>
+                                                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">{log.senderAddress}</td>
+                                                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 truncate max-w-xs">{log.subject}</td>
+                                                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{formatTimeAgo(log.forwardedAt)}</td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {logsPagination.totalPages > 1 && (
+                                <div className="flex items-center justify-between mt-4">
+                                    <button onClick={() => loadForwardedLogs(logsPagination.currentPage - 1)} disabled={logsPagination.currentPage === 1} className="flex items-center px-3 py-1 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <ChevronRight className="w-4 h-4 ml-1" /> السابق
+                                    </button>
+                                    <span className="text-sm text-gray-700">صفحة {logsPagination.currentPage} من {logsPagination.totalPages}</span>
+                                    <button onClick={() => loadForwardedLogs(logsPagination.currentPage + 1)} disabled={logsPagination.currentPage === logsPagination.totalPages} className="flex items-center px-3 py-1 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        التالي <ChevronLeft className="w-4 h-4 mr-1" />
+                                    </button>
                                 </div>
-                                ) : (
-                                    stats.recentActivities.map(activity => (
-                                        <div key={activity.id} className="flex items-start">
-                                            <div className="flex-shrink-0">
-                                                <div className={`w-8 h-8 rounded-full ${getActivityColor(activity.type).bg} flex items-center justify-center`}>
-                                                    <Activity className={`${getActivityColor(activity.type).text} w-4 h-4`} />
-                                                </div>
-                                            </div>
-                                            <div className="mr-3">
-                                                <p className="text-sm font-medium text-gray-900">{activity.title}</p>
-                                                <p className="text-xs text-gray-500">{activity.description}</p>
-                                                <p className="text-xs text-gray-400">{formatTimeAgo(activity.timestamp)}</p>
-                                            </div>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
+                            )}
                         </div>
                     </div>
                 </div>
             </main>
+
+            {showRegenerateModal && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md m-4">
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">إعادة إنشاء البريد الوهمي</h3>
+                        <div className="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700 p-4 mb-4" role="alert">
+                            <p className="font-bold">تحذير</p>
+                            <p>هذا الإجراء سيحذف بريدك الحالي نهائياً. ستفقد الوصول إلى أي حسابات مرتبطة به.</p>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            <p className="text-gray-500 text-center">يمكنك اختيار اسم مستعار جديد أو إنشاء واحد عشوائي.</p>
+                            <div>
+                                <label htmlFor="new-alias" className="block text-sm font-medium text-gray-700 text-right mb-1">اسم مستعار جديد (اختياري)</label>
+                                <div className="flex items-center w-full rounded-md shadow-sm border border-gray-300 focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500 transition-all">
+                                    <input 
+                                        type="text" 
+                                        id="new-alias" 
+                                        className="flex-grow block w-full px-3 py-2 border-0 rounded-r-md focus:outline-none sm:text-sm text-right"
+                                        placeholder="my-new-alias"
+                                        value={newAlias}
+                                        onChange={(e) => setNewAlias(e.target.value)}
+                                        disabled={isLoading}
+                                    />
+                                    <div className="flex items-center pl-3 pr-2 bg-gray-50 border-r border-gray-300 rounded-l-md">
+                                        <span className="text-gray-500 sm:text-sm whitespace-nowrap">@onepass.me</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button className="btn-primary text-sm px-4 py-2 rounded-md flex items-center justify-center w-full" onClick={() => handleRegenerateVirtualEmail(true)} disabled={isLoading}>
+                                {isLoading ? <Loader className="w-4 h-4 animate-spin" /> : <><Plus className="w-4 h-4 ml-2" /> إنشاء بريد جديد</>}
+                            </button>
+                            <button className="btn-secondary text-sm px-4 py-2 rounded-md flex items-center justify-center w-full border border-gray-300" onClick={() => handleRegenerateVirtualEmail(false)} disabled={isLoading}>
+                                {isLoading ? <Loader className="w-4 h-4 animate-spin" /> : <><RefreshCw className="w-4 h-4 ml-2" /> إنشاء بريد عشوائي جديد</>}
+                            </button>
+                            <button className="text-sm text-gray-600 hover:text-gray-900 w-full mt-2" onClick={() => setShowRegenerateModal(false)} disabled={isLoading}>
+                                إلغاء
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showDeactivateModal && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md m-4">
+                        <div className="flex items-start">
+                            <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                                <AlertTriangle className="h-6 w-6 text-red-600" aria-hidden="true" />
+                            </div>
+                            <div className="mt-3 text-center sm:mt-0 sm:mr-4 sm:text-right">
+                                <h3 className="text-lg leading-6 font-medium text-gray-900">
+                                    إيقاف البريد الوهمي
+                                </h3>
+                                <div className="mt-2">
+                                    <p className="text-sm text-gray-500">
+                                        هل أنت متأكد؟ عند إيقاف البريد، لن تتمكن من استقبال أي رسائل جديدة على هذا العنوان.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                            <button type="button" className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 sm:mr-3 sm:w-auto sm:text-sm" onClick={confirmDeactivateEmail} disabled={isLoading}>{isLoading ? <Loader className="w-5 h-5 animate-spin" /> : 'تأكيد الإيقاف'}</button>
+                            <button type="button" className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm" onClick={() => setShowDeactivateModal(false)} disabled={isLoading}>إلغاء</button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <footer className="bg-white border-t border-gray-200 mt-16 py-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

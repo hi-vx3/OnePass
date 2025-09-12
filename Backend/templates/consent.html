@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منح الصلاحية - OnePass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div id="loading-state" class="text-center">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+        <p class="mt-3 text-gray-600">جاري تحميل تفاصيل التطبيق...</p>
+    </div>
+
+    <div id="consent-card" class="hidden max-w-md w-full bg-white rounded-xl shadow-lg p-8 fade-in">
+        <div class="text-center mb-6">
+            <div class="flex justify-center items-center mb-4">
+                <div class="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center">
+                    <img id="app-logo" src="https://via.placeholder.com/150" alt="App Logo" class="w-12 h-12 rounded-full object-cover">
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 mx-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+                <div class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                </div>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-800">
+                تطبيق <span id="app-name" class="text-indigo-600">...</span> يطلب صلاحية الوصول
+            </h1>
+            <p class="text-gray-600 mt-2">
+                من خلال الموافقة، ستسمح لتطبيق <strong id="app-name-2">...</strong> بالوصول إلى البيانات التالية من حسابك في OnePass.
+            </p>
+        </div>
+
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+            <h2 class="text-md font-semibold text-gray-700 mb-3">سيتمكن هذا التطبيق من:</h2>
+            <ul id="scope-list" class="space-y-2 text-sm text-gray-600">
+                <!-- Scopes will be populated here -->
+            </ul>
+        </div>
+
+        <div class="text-xs text-gray-500 text-center mb-6">
+            تأكد من أنك تثق بهذا التطبيق قبل المتابعة. يمكنك إلغاء هذه الصلاحيات في أي وقت من <a href="/dashboard" class="text-indigo-500 hover:underline">لوحة التحكم</a>.
+        </div>
+
+        <form id="consent-form" method="POST" action="/api/oauth/consent">
+            <input type="hidden" name="action" id="action-input">
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button type="submit" name="action" value="deny" class="flex-1 w-full bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors">
+                    رفض
+                </button>
+                <button type="submit" name="action" value="allow" class="flex-1 w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors">
+                    سماح
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loadingState = document.getElementById('loading-state');
+            const consentCard = document.getElementById('consent-card');
+            const appNameEl = document.getElementById('app-name');
+            const appName2El = document.getElementById('app-name-2');
+            const appLogoEl = document.getElementById('app-logo');
+            const scopeListEl = document.getElementById('scope-list');
+            const consentForm = document.getElementById('consent-form');
+            const actionInput = document.getElementById('action-input');
+
+            const scopeDescriptions = {
+                'read:user': 'قراءة معلومات ملفك الشخصي الأساسية (مثل البريد الوهمي واسم المستخدم).',
+                'read:email': 'الوصول إلى البريد الوهمي وعرض الرسائل.',
+                'write:email': 'إرسال رسائل من خلال البريد الوهمي.',
+                'openid': 'التحقق من هويتك.',
+                'profile': 'الوصول إلى معلومات ملفك الشخصي.',
+                'email': 'الوصول إلى بريدك الإلكتروني.'
+            };
+
+            // Fetch consent details from the server
+            fetch('/api/oauth/consent-details')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load consent details.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const { client, scope } = data;
+
+                    // Populate the UI
+                    appNameEl.textContent = client.name;
+                    appName2El.textContent = client.name;
+                    if (client.logoUrl) {
+                        appLogoEl.src = client.logoUrl;
+                    }
+
+                    const scopes = scope ? scope.split(' ') : ['read:user'];
+                    scopeListEl.innerHTML = scopes.map(s => `
+                        <li class="flex items-start">
+                            <svg class="w-4 h-4 text-green-500 mt-1 ml-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>${scopeDescriptions[s] || `الوصول إلى صلاحية: ${s}`}</span>
+                        </li>
+                    `).join('');
+
+                    // Show the consent card
+                    loadingState.classList.add('hidden');
+                    consentCard.classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error(error);
+                    loadingState.innerHTML = `<p class="text-red-600">${error.message}</p>`;
+                });
+
+            // Handle form submission to avoid default form behavior
+            consentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const action = e.submitter.value; // 'allow' or 'deny'
+                actionInput.value = action;
+                
+                // Use fetch to submit the form data
+                fetch('/api/oauth/consent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ action: action })
+                })
+                .then(response => {
+                    // The server will handle the redirect, so we just need to follow it.
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    }
+                })
+                .catch(err => {
+                    console.error('Consent submission error:', err);
+                    alert('An error occurred. Please try again.');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

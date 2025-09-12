@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار تسجيل الدخول عبر OnePass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .onepass-button {
+            background-color: #2563EB;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+        .onepass-button:hover {
+            background-color: #1D4ED8;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <script>
+        // This script runs on every page load.
+        // It checks if the page is being used as an OAuth callback.
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('code');
+            const state = params.get('state');
+            const error = params.get('error');
+
+            // If 'code' or 'error' is in the URL and this window was opened by another window (the popup case)
+            if ((code || error) && window.opener) {
+                // This is the callback flow. Send the data back to the parent window.
+                window.opener.postMessage({
+                    type: 'onepass-auth-response',
+                    code: code,
+                    state: state,
+                    error: error,
+                    error_description: params.get('error_description')
+                }, window.location.origin);
+
+                // The parent window will close the popup. We can stop rendering the rest of the page.
+                document.write('<div style="font-family: sans-serif; text-align: center; padding: 40px;"><h1>Please wait...</h1><p>Finishing authentication.</p></div>');
+            }
+        })();
+    </script>
+
+    <div class="bg-white p-8 rounded-xl shadow-lg text-center max-w-md w-full">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/1280px-Netflix_2015_logo.svg.png" alt="Netflix Logo" class="h-8 mx-auto mb-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">تسجيل الدخول</h1>
+
+        <div id="login-section">
+            <button id="loginBtn" class="onepass-button">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span>تسجيل الدخول بواسطة OnePass</span>
+            </button>
+        </div>
+
+        <div id="result-section" class="hidden mt-6 text-left">
+            <h2 class="text-xl font-bold text-green-600 mb-4">تمت المصادقة بنجاح!</h2>
+            <p class="text-gray-700">تم تسجيل دخولك بنجاح. هذه هي البيانات التي حصل عليها موقع Netflix:</p>
+            <div class="mt-4 bg-gray-100 p-4 rounded-lg">
+                <p class="font-semibold">بيانات المستخدم:</p>
+                <pre id="auth-code" class="block break-all text-sm text-gray-800 bg-gray-200 p-2 rounded mt-1"></pre>
+            </div>
+            <div class="mt-4 p-4 rounded-lg bg-blue-50 border border-blue-200">
+                <h3 class="font-bold text-blue-800">الخطوة التالية:</h3>
+                <p class="text-sm text-blue-700 mt-1">
+                    في تطبيق حقيقي، يمكن الآن استخدام هذه البيانات لإنشاء حساب للمستخدم أو تسجيل دخوله في قاعدة بيانات Netflix.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. Include the OnePass SDK -->
+    <script id="onepass-sdk-script" src="/sdk/onepass-sdk.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginBtn = document.getElementById('loginBtn');
+            const loginSection = document.getElementById('login-section');
+            const resultSection = document.getElementById('result-section');
+            const authCodeEl = document.getElementById('auth-code');
+
+            // 2. Get Client ID from URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const clientIdFromUrl = urlParams.get('clientId');
+            const scopesFromUrl = urlParams.get('scopes');
+
+            if (!clientIdFromUrl) {
+                loginSection.innerHTML = `
+                    <p class="text-red-600 font-bold">خطأ: لم يتم توفير Client ID.</p>
+                    <p class="text-sm text-gray-500 mt-2">يرجى الوصول إلى هذه الصفحة من خلال زر "اختبار" في لوحة التحكم.</p>
+                `;
+                return;
+            }
+
+            // 3. Initialize the SDK with the Client ID from the URL
+            const onepassClient = onepass.init({
+                clientId: clientIdFromUrl
+            });
+
+            // 4. Handle the login button click
+            loginBtn.addEventListener('click', () => {
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>جاري التحميل...</span>
+                `;
+                
+                // The SDK opens a popup and returns a promise with the code
+                onepassClient.signIn({ scope: scopesFromUrl }) // Pass the scopes from the URL
+                    .then(async (userInfo) => {
+                        try {
+                            // 4. Display the results
+                            authCodeEl.textContent = JSON.stringify(userInfo, null, 2);
+                            loginSection.classList.add('hidden');
+                            resultSection.classList.remove('hidden');
+
+                        } catch (processError) {
+                            alert(`Authentication process failed: ${processError.message}`);
+                        } finally {
+                            // Restore the button state regardless of success or failure
+                            loginBtn.disabled = false;
+                            loginBtn.innerHTML = `
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                                <span>تسجيل الدخول بواسطة OnePass</span>
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        alert(`Login failed: ${error.message}`);
+                        loginBtn.disabled = false;
+                        loginBtn.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                            <span>تسجيل الدخول بواسطة OnePass</span>
+                        `;
+                    });
+            });
+        });
+    </script>
+</body>
+</html>

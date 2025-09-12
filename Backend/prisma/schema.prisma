@@ -10,6 +10,7 @@ datasource db {
    model User {
      id                  Int            @id @default(autoincrement())
      email               String         @unique
+     username            String?        @unique // اسم المستخدم أو الاسم المستعار
      verificationToken   String?
      isVerified          Boolean        @default(false)
      createdAt           DateTime       @default(now())
@@ -23,6 +24,7 @@ datasource db {
      linkedSites         LinkedSite[]
      notifications       Notification[]
      activities          Activity[]
+     forwardedEmailLogs  ForwardedEmailLog[]
      notificationsEnabled Boolean        @default(true)
    }
 
@@ -30,9 +32,11 @@ datasource db {
      id        Int      @id @default(autoincrement())
      address   String   @unique
      isActive  Boolean  @default(true)
+     isForwardingActive Boolean  @default(true)
      user      User     @relation(fields: [userId], references: [id])
      userId    Int      @unique
      createdAt DateTime @default(now())
+     canChange Boolean  @default(true)
    }
 
    model ApiKey {
@@ -42,10 +46,13 @@ datasource db {
      clientSecret String   @map("client_secret")
      hashedSecret String   @map("hashed_secret")
      redirectUris String   @db.Text @map("redirect_uris")
+     scopes       String   @db.Text @default("")
      logoUrl      String?  @map("logo_url")
      user         User     @relation(fields: [userId], references: [id])
      userId       Int      @map("user_id")
      createdAt    DateTime @default(now())
+     requestCount Int      @default(0) @map("request_count")
+     lastUsedAt   DateTime? @map("last_used_at")
    }
 
    model LinkedSite {
@@ -87,5 +94,17 @@ datasource db {
      scope       String
      clientId    String   @map("client_id")
      userId      Int      @map("user_id")
+   codeChallenge       String?  @map("code_challenge")
+   codeChallengeMethod String?  @map("code_challenge_method")
      createdAt   DateTime @default(now())
+   }
+
+   model ForwardedEmailLog {
+     id                  Int      @id @default(autoincrement())
+     virtualEmailAddress String
+     senderAddress       String
+     subject             String
+     forwardedAt         DateTime @default(now())
+     user                User     @relation(fields: [userId], references: [id])
+     userId              Int
    }

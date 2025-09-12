@@ -10,8 +10,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     // Check for an active session when the app loads
     api.get('/auth/session')
-      .then(response => {
-        if (response.data.loggedIn) {
+      .then(response => {        if (response.data.loggedIn) {
           setUser(response.data.user);
         }
       })

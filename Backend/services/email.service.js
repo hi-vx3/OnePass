@@ -74,6 +74,10 @@ async function sendEmail(to, { verificationToken = null, totpCode = null, isSucc
         .replace('{{contact_link}}', 'http://localhost:3001/contact');
       subject = 'رمز التحقق لتسجيل الدخول - OnePass';
       log.info(`TOTP email content after replacement: ${html.includes(totpCode) ? 'TOTP code included' : 'TOTP code NOT included'}`);
+    } else if (isForward) {
+      // Handle forwarded emails
+      subject = forwardSubject;
+      html = forwardHtml;
     } else {
       throw new Error('No email type specified. Provide verificationToken, totpCode, or set isSuccessNotification to true.');
     }

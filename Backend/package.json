@@ -6,7 +6,8 @@
     "start": "node app.js",
     "dev": "node --watch app.js",
     "lint": "eslint . --ext .js",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev",
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
     "@prisma/client": "6.15.0",
@@ -30,8 +31,5 @@
     "eslint": "^8.0.0",
     "pino-pretty": "^11.3.0",
     "prettier": "^2.0.0"
-  },
-  "prisma": {
-    "seed": "node prisma/seed.js"
   }
 }

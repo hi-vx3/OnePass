@@ -145,6 +145,11 @@ body {
     background-color: var(--color-primary-hover);
 }
 
+.btn-primary:disabled {
+    background-color: #93c5fd; /* A lighter, disabled blue */
+    cursor: not-allowed;
+}
+
 .btn-secondary {
     transition: all 0.2s ease;
     background-color: #F3F4F6;
