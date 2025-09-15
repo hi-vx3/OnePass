@@ -1,69 +1,59 @@
 const getDashboardStats = async (userId, prisma, log) => {
   try {
     const numericUserId = Number(userId);
-
-    // Fetch user's virtual email info
-    const virtualEmailInfo = await prisma.virtualEmail.findUnique({
-      where: { userId: numericUserId },
-    });
-
-    // Fetch the count of unread notifications for the user
-    const totalMessages = await prisma.notification.count({
-      where: { userId: numericUserId, isRead: false },
-    });
-
-    // Use Promise.all to fetch data concurrently on the backend
+ 
+    // --- تحسين الأداء: دمج جميع الاستعلامات في معاملة واحدة ---
+    // هذا يقلل من عدد الرحلات إلى قاعدة البيانات ويسرّع عملية جلب البيانات.
     const [
-      linkedSitesCount,
-      apiKeys,
+      userWithCounts,
       recentActivities,
       notifications,
     ] = await Promise.all([
-      prisma.linkedSite.count({ where: { userId: numericUserId } }),
-      prisma.apiKey.findMany({
-        where: { userId: numericUserId },
-        orderBy: { createdAt: 'desc' },
-        select: {
-          id: true,
-          name: true,
-          clientId: true,
-          redirectUris: true,
-          scopes: true,
-          logoUrl: true,
-          createdAt: true,
-          requestCount: true,
-          lastUsedAt: true,
+      // استعلام واحد لجلب معلومات المستخدم وعدد العناصر المرتبطة به
+      prisma.user.findUnique({
+        where: { id: numericUserId },
+        include: {
+          virtualEmail: true, // جلب معلومات البريد الوهمي
+          _count: {
+            select: {
+              linkedSites: true, // حساب عدد المواقع المرتبطة
+              apiKeys: true,     // حساب عدد مفاتيح API
+              notifications: { where: { isRead: false } }, // حساب الإشعارات غير المقروءة
+            },
+          },
         },
       }),
+      // جلب آخر 5 أنشطة فقط بدلاً من جميع الأنشطة في آخر 3 أيام
       prisma.activity.findMany({
         where: { userId: numericUserId },
         orderBy: { createdAt: 'desc' },
         take: 5,
       }),
+      // جلب آخر 5 إشعارات فقط
       prisma.notification.findMany({
         where: { userId: numericUserId },
         orderBy: { createdAt: 'desc' },
+        take: 5,
       }),
     ]);
-
-    // Format API keys after fetching
-    const formattedApiKeys = apiKeys.map(key => ({
-      ...key,
-      redirectUris: key.redirectUris ? key.redirectUris.split(',') : [],
-      scopes: key.scopes ? key.scopes.split(',') : [],
-    }));
-
+ 
+    // استخراج البيانات من النتائج المدمجة
+    const virtualEmailInfo = userWithCounts?.virtualEmail;
+    const counts = userWithCounts?._count || {
+      linkedSites: 0,
+      apiKeys: 0,
+      notifications: 0,
+    };
+ 
     const stats = {
-      totalMessages,
-      linkedSites: linkedSitesCount,
-      apiKeys: apiKeys.length, // Get count from the fetched array
+      totalMessages: counts.notifications,
+      linkedSites: counts.linkedSites,
+      apiKeys: counts.apiKeys,
       recentActivities,
       virtualEmail: virtualEmailInfo?.address || null,
       isEmailActive: virtualEmailInfo?.isActive ?? false,
       isForwardingActive: virtualEmailInfo?.isForwardingActive ?? false,
       canChange: virtualEmailInfo?.canChange ?? true, // If no email, they can create one.
-      // Add the full data to the response
-      apiKeysList: formattedApiKeys,
       notificationsList: notifications,
     };
 
@@ -73,7 +63,7 @@ const getDashboardStats = async (userId, prisma, log) => {
     log.error({ err: error, userId }, 'Error fetching dashboard stats');
     throw {
       status: 500,
-      message: 'Server error while fetching dashboard stats',
+      message: 'Server error while fetching dashboard statistics.',
       code: 'DASHBOARD_STATS_ERROR',
     };
   }

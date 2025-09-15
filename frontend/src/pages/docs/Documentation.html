@@ -133,7 +133,7 @@
                         <i data-feather="layers" class="ml-2 w-4 h-4"></i>
                         أزرار جاهزة
                     </a>
-                    <a href="#sdk" class="px-5 py-2.5 rounded-lg border border-indigo-600 text-indigo-600 hover:bg-indigo-600 hover:text-white focus:outline-none focus:brand-ring font-medium flex items-center">
+                    <a href="#sdk-usage" class="px-5 py-2.5 rounded-lg border border-indigo-600 text-indigo-600 hover:bg-indigo-600 hover:text-white focus:outline-none focus:brand-ring font-medium flex items-center">
                         <i data-feather="code" class="ml-2 w-4 h-4"></i>
                         استخدم SDK
                     </a>
@@ -215,50 +215,29 @@
                 </h2>
                 
                 <div class="mobile-collapsible bg-white rounded-xl shadow-md p-6 section-card">
-                    <h3 class="text-xl font-semibold mb-4 text-gray-800">الزر الأساسي</h3>
-                    <p class="text-gray-600 mb-5">زر مستطيل قياسي مع الشعار والنص.</p>
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">أمثلة على الأزرار</h3>
+                    <p class="text-gray-600 mb-5">يمكنك الآن إنشاء أزرار متنوعة بسهولة باستخدام دالة `renderButton` الجديدة في الـ SDK.</p>
                     
                     <div class="flex flex-wrap gap-4 items-center mb-6">
-                        <button class="flex items-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white brand-gradient hover:opacity-90 focus:outline-none focus:brand-ring">
-                            <i data-feather="shield" class="ml-2 w-4 h-4"></i>
-                            تسجيل الدخول مع OnePass
-                        </button>
-                        
-                        <button class="flex items-center px-4 py-2.5 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:brand-ring">
-                            <i data-feather="shield" class="ml-2 w-4 h-4 text-indigo-600"></i>
-                            تسجيل الدخول مع OnePass
-                        </button>
+                        <!-- Placeholder for SDK-rendered buttons -->
+                        <div id="button-example-1"></div>
+                        <div id="button-example-2"></div>
+                        <div id="button-example-3"></div>
+                        <div id="button-example-4"></div>
                     </div>
-                    
-                    <div class="mobile-content">
-                        <h4 class="text-sm font-medium text-gray-500 mb-2">كود HTML:</h4>
-                        <pre class="code-block"><code>&lt;button class="flex items-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white brand-gradient hover:opacity-90 focus:outline-none focus:brand-ring"&gt;
-  &lt;i data-feather="shield" class="ml-2 w-4 h-4"&gt;&lt;/i&gt;
-  تسجيل الدخول مع OnePass
-&lt;/button&gt;</code></pre>
-                    </div>
-                </div>
-                
-                <div class="mt-6 mobile-collapsible bg-white rounded-xl shadow-md p-6 section-card">
-                    <h3 class="text-xl font-semibold mb-4 text-gray-800">زر الأيقونة فقط</h3>
-                    <p class="text-gray-600 mb-5">زر مدمج للأيقونة فقط للمساحات المحدودة.</p>
-                    
                     <div class="flex flex-wrap gap-4 items-center mb-6">
-                        <button class="p-2.5 rounded-full text-white brand-gradient hover:opacity-90 focus:outline-none focus:brand-ring">
-                            <i data-feather="shield" class="w-5 h-5"></i>
-                        </button>
-                        
-                        <button class="p-2.5 rounded-full border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:brand-ring">
-                            <i data-feather="shield" class="w-5 h-5 text-indigo-600"></i>
-                        </button>
+                        <!-- Placeholder for size examples -->
+                        <div id="button-example-large"></div>
+                        <div id="button-example-medium"></div>
+                        <div id="button-example-small"></div>
                     </div>
                     
-                    <div class="mobile-content">
-                        <h4 class="text-sm font-medium text-gray-500 mb-2">كود HTML:</h4>
-                        <pre class="code-block"><code>&lt;button class="p-2.5 rounded-full text-white brand-gradient hover:opacity-90 focus:outline-none focus:brand-ring"&gt;
-  &lt;i data-feather="shield" class="w-5 h-5"&gt;&lt;/i&gt;
-&lt;/button&gt;</code></pre>
-                    </div>
+                    <p class="text-gray-600 mb-5 mt-8">
+                        أصبح الآن كل ما تحتاجه هو عنصر `div` في صفحتك، والـ SDK سيتولى الباقي.
+                    </p>
+                    <p class="text-gray-600 mb-5">
+                        انتقل إلى قسم <a href="#sdk-usage" class="text-indigo-600 hover:underline">استخدام SDK</a> لمعرفة كيفية تنفيذ ذلك.
+                    </p>
                 </div>
             </section>
 
@@ -277,7 +256,7 @@
                     <div class="space-y-4 mb-6">
                         <div class="bg-gray-50 p-4 rounded-lg">
                             <h3 class="font-semibold mb-2 text-gray-800">Access Token</h3>
-                            <p class="text-sm text-gray-600 mb-2">صلاحية 15 دقيقة، يُرسل في رأس الطلب:</p>
+                            <p class="text-sm text-gray-600 mb-2">            توكن قصير الأمد (عادة 15 دقيقة)، يُرسل مع كل طلب في رأس HTTP للتحقق من هوية المستخدم:</p>
                             <div class="code-block">
                                 Authorization: Bearer YOUR_ACCESS_TOKEN
                             </div>
@@ -285,7 +264,7 @@
                         
                         <div class="bg-gray-50 p-4 rounded-lg">
                             <h3 class="font-semibold mb-2 text-gray-800">Refresh Token</h3>
-                            <p class="text-sm text-gray-600 mb-2">صلاحية 7 أيام، يُخزن في HttpOnly cookie:</p>
+                            <p class="text-sm text-gray-600 mb-2">            توكن طويل الأمد (عادة 7 أيام)، يُخزن في HttpOnly cookie ويُستخدم لتجديد Access Token عند انتهاء صلاحيته:</p>
                             <div class="code-block">
                                 Cookie: bm_rt=YOUR_REFRESH_TOKEN
                             </div>
@@ -398,62 +377,53 @@
             </section>
 
             <!-- SDK للجافاسكريبت -->
-            <section id="sdk" class="mb-12">
+            <section id="sdk-usage" class="mb-12">
                 <h2 class="text-2xl font-bold mb-6 flex items-center">
                     <i data-feather="package" class="ml-2 text-indigo-600"></i>
                     SDK للجافاسكريبت
                 </h2>
                 
                 <div class="mobile-collapsible bg-white rounded-xl shadow-md p-6 section-card">
-                    <p class="text-gray-700 mb-6 leading-relaxed">
-                        يمكنك استخدام SDK الجاهز لتكامل سهل مع واجهة البرمجة في دقائق معدودة.
+                    <p class="text-gray-700 mb-4 leading-relaxed">
+                        استخدم الـ SDK الخاص بنا لتبسيط عملية الدمج. اتبع الخطوات التالية:
                     </p>
-                    
-                    <div class="mobile-content">
-                        <div class="code-block mb-6">
-// التضمين في HTML
-&lt;script src="https://OnePass.me/sdk/OnePass.js"&gt;&lt;/script&gt;
 
-// التهيئة
-OnePass.init({
+                    <h4 class="text-lg font-semibold text-gray-800 mt-6 mb-2">1. أضف الـ SDK إلى صفحتك</h4>
+                    <pre class="code-block"><code>&lt;!-- أضف هذا السطر قبل إغلاق وسم &lt;/body&gt; --&gt;
+&lt;script id="onepass-sdk-script" src="/sdk/onepass-sdk.js"&gt;&lt;/script&gt;</code></pre>
+
+                    <h4 class="text-lg font-semibold text-gray-800 mt-6 mb-2">2. أضف حاوية للزر في HTML</h4>
+                    <pre class="code-block"><code>&lt;!-- سيتم عرض الزر داخل هذا العنصر --&gt;
+&lt;div id="onepass-login-container"&gt;&lt;/div&gt;</code></pre>
+
+                    <h4 class="text-lg font-semibold text-gray-800 mt-6 mb-2">3. قم بتهيئة الـ SDK وعرض الزر</h4>
+                    <pre class="code-block"><code>&lt;script&gt;
+  // عرض الزر داخل الحاوية مع دمج المفتاح مباشرة
+  onepass.renderButton('#onepass-login-container', {
+    clientId: 'YOUR_CLIENT_ID', // استبدل هذا بالمعرف الخاص بك
+    scope: 'read:user', // الصلاحيات المطلوبة
+    onSuccess: (result) => {
+      console.log('تم تسجيل الدخول بنجاح:', result.userInfo);
+      // هنا يمكنك توجيه المستخدم أو حفظ بياناته
+    },
+    onError: (error) => {
+      console.error('فشل تسجيل الدخول:', error);
+    }
+  });
+&lt;/script&gt;</code></pre>
+
+                    <h4 class="text-lg font-semibold text-gray-800 mt-6 mb-2">خيارات تخصيص الزر</h4>
+                    <p class="text-gray-700 mb-4">
+                        يمكنك تخصيص شكل الزر عبر الخيارات في دالة `renderButton`:
+                    </p>
+                    <pre class="code-block"><code>onepass.renderButton('#container', {
   clientId: 'YOUR_CLIENT_ID',
-  redirectUri: 'https://yourdomain.com/callback'
-});
-
-// التعامل مع الأحداث
-OnePass.on('success', function(data) {
-  console.log('تم التسجيل بنجاح:', data);
-  // معالجة البيانات المستلمة
-});
-
-// فتح نافذة التسجيل
-document.getElementById('login-btn').addEventListener('click', function() {
-  OnePass.login();
-});
-                        </div>
-                        
-                        <div class="bg-blue-50 p-4 rounded-lg">
-                            <h4 class="font-semibold text-blue-800 mb-2">طرق SDK المتاحة</h4>
-                            <div class="grid md:grid-cols-2 gap-4 text-blue-700">
-                                <div class="flex items-start">
-                                    <i data-feather="arrow-right" class="ml-2 w-4 h-4 mt-0.5 text-blue-600"></i>
-                                    <span><code>OnePass.init(config)</code> - تهيئة SDK</span>
-                                </div>
-                                <div class="flex items-start">
-                                    <i data-feather="arrow-right" class="ml-2 w-4 h-4 mt-0.5 text-blue-600"></i>
-                                    <span><code>OnePass.login()</code> - فتح نافذة التسجيل</span>
-                                </div>
-                                <div class="flex items-start">
-                                    <i data-feather="arrow-right" class="ml-2 w-4 h-4 mt-0.5 text-blue-600"></i>
-                                    <span><code>OnePass.on(event, callback)</code> - التعامل مع الأحداث</span>
-                                </div>
-                                <div class="flex items-start">
-                                    <i data-feather="arrow-right" class="ml-2 w-4 h-4 mt-0.5 text-blue-600"></i>
-                                    <span><code>OnePass.getUser()</code> - الحصول على بيانات المستخدم</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+  theme: 'outline', // 'filled' (افتراضي) أو 'outline'
+  shape: 'circle',  // 'rect' (افتراضي) أو 'circle'
+  size: 'large',    // 'small', 'medium' (افتراضي), 'large'
+  text: 'دخول عبر OnePass', // نص مخصص للزر
+  // ... باقي الخيارات
+});</code></pre>
                 </div>
             </section>
 
@@ -599,6 +569,10 @@ registerUser('user@example.com');
         </div>
     </footer>
 
+    <!-- تضمين الـ SDK -->
+    <script id="onepass-sdk-script" src="http://localhost/b1/frontend/public/sdk/onepass-sdk.js"></script>
+
+
     <script>
         feather.replace();
         
@@ -631,6 +605,31 @@ registerUser('user@example.com');
                 }
             });
         });
+
+        // ننتظر حتى يتم تحميل الصفحة بالكامل لضمان وجود onepass
+        window.addEventListener('load', function() {
+            // Render button examples
+            if (window.onepass && window.onepass.renderButton) {
+                const demoClientId = 'DEMO_CLIENT_ID';
+                onepass.renderButton('#button-example-1', { clientId: demoClientId, theme: 'filled', shape: 'rect' });
+                onepass.renderButton('#button-example-2', { clientId: demoClientId, theme: 'outline', shape: 'rect' });
+                onepass.renderButton('#button-example-3', { clientId: demoClientId, theme: 'filled', shape: 'circle' });
+                onepass.renderButton('#button-example-4', { clientId: demoClientId, theme: 'outline', shape: 'circle' });
+
+                // Render size examples
+                onepass.renderButton('#button-example-large', { clientId: demoClientId, size: 'large', text: 'زر كبير' });
+                onepass.renderButton('#button-example-medium', { clientId: demoClientId, size: 'medium', text: 'زر متوسط' });
+                onepass.renderButton('#button-example-small', { clientId: demoClientId, size: 'small', text: 'زر صغير' });
+            }
+        });
+        // Add a style tag for the spinner animation
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes spin {
+                to { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>

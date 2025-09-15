@@ -31,6 +31,7 @@ const LoginPage = () => {
     const [totpError, setTotpError] = useState('');
     const [totpSuccess, setTotpSuccess] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [redirectCountdown, setRedirectCountdown] = useState(null); // حالة جديدة للعد التنازلي
     const codeInputsRef = useRef([]);
 
     useEffect(() => {
@@ -91,7 +92,7 @@ const LoginPage = () => {
             // لا نعرض رسالة نجاح هنا، بل ننتقل مباشرة للخطوة التالية
             setStep(2);
         } catch (error) {
-            const errorMessage = error.response?.data?.error || error.message || 'حدث خطأ في الاتصال بالخادم';
+            const errorMessage = error.response?.data?.message || error.message || 'حدث خطأ في الاتصال بالخادم';
             setEmailError(handleCooldownMessage(errorMessage));
         } finally {
             setIsLoading(false);
@@ -110,6 +111,9 @@ const LoginPage = () => {
         try {
             const response = await api.post('/auth/verify-totp', { email, code: totpCode });
             const { data } = response;
+            // --- تعطيل النموذج عند النجاح ---
+            // منع المستخدم من الضغط مرة أخرى أثناء انتظار إعادة التوجيه
+            setIsLoading(true); 
             setTotpSuccess(translations[data.message] || data.message || 'تم التحقق من رمز التحقق بنجاح');
             login(data.user); // Update auth context
             setTimeout(() => {
@@ -119,8 +123,36 @@ const LoginPage = () => {
                 }, 2000);
             }, 1500);
         } catch (error) {
-            const errorMessage = error.response?.data?.error || error.message || 'حدث خطأ في الاتصال بالخادم';
-            setTotpError(translations[errorMessage] || errorMessage);
+            const errorData = error.response?.data;
+            const errorMessage = errorData?.message || errorData?.error || 'حدث خطأ في الاتصال بالخادم';
+
+            setTotpError(handleCooldownMessage(errorMessage));
+
+            // --- عرض بيانات الخطأ لأغراض التصحيح ---
+            console.log('بيانات الخطأ المستلمة من الخادم:', errorData);
+
+            // --- التعامل مع حالة إلغاء الرمز ---
+            // يتم بدء العد التنازلي إذا كان رمز الخطأ هو OTP_CANCELLED أو إذا كانت الرسالة تشير إلى 0 محاولات
+            if (errorData?.code === 'OTP_CANCELLED' || (typeof errorMessage === 'string' && errorMessage.includes('0 attempts remaining'))) {
+                setIsLoading(true); // تعطيل الحقول الأخرى
+                setRedirectCountdown(3); // بدء العد التنازلي من 3
+
+                const countdownInterval = setInterval(() => {
+                    setRedirectCountdown(prev => {
+                        if (prev <= 1) {
+                            clearInterval(countdownInterval);
+                            // عند انتهاء العد، أعد المستخدم إلى الخطوة الأولى
+                            setStep(1);
+                            setCode(['', '', '', '', '', '']);
+                            setTotpError('');
+                            setRedirectCountdown(null); // إعادة تعيين العداد
+                            setIsLoading(false); // إعادة تفعيل النموذج
+                            return null;
+                        }
+                        return prev - 1;
+                    });
+                }, 1000);
+            }
         } finally {
             setIsLoading(false);
         }
@@ -135,7 +167,7 @@ const LoginPage = () => {
                 setResendTimer(90);
                 setCountdownTimer(90);
             } catch (error) {
-                const errorMessage = error.response?.data?.error || error.message || 'حدث خطأ في الاتصال بالخادم';
+                const errorMessage = error.response?.data?.message || error.message || 'حدث خطأ في الاتصال بالخادم';
                 setTotpError(handleCooldownMessage(errorMessage));
             }
         }
@@ -170,10 +202,30 @@ const LoginPage = () => {
     };
 
     const handleCooldownMessage = (message) => {
-        if (message.includes('Please wait') && message.includes('seconds')) {
+        if (typeof message === 'string' && message.includes('Please wait') && message.includes('seconds')) {
             const secondsMatch = message.match(/\d+/); // Extract numbers from the string
             if (secondsMatch) {
+                const remainingSeconds = parseInt(secondsMatch[0], 10);
+                // **Improvement**: If we get a cooldown message, we can sync our timers.
+                // This is useful if the user refreshes the page and the server still has a cooldown.
+                if (remainingSeconds > 0) {
+                    setResendTimer(remainingSeconds);
+                    setCountdownTimer(remainingSeconds);
+                }
                 return `يرجى الانتظار ${secondsMatch[0]} ثانية قبل طلب رمز جديد`;
+            }
+        }
+        // --- معالجة رسالة عدد المحاولات المتبقية ---
+        if (typeof message === 'string' && message.startsWith('Invalid code') && message.includes('attempts remaining')) {
+            const attemptsMatch = message.match(/\d+/);
+            if (attemptsMatch) {
+                const attempts = attemptsMatch[0];
+                // --- التعامل مع حالة انتهاء المحاولات ---
+                if (attempts === '0') {
+                    return 'لقد استنفدت جميع المحاولات. سيتم إعادتك لطلب رمز جديد.';
+                }
+                const attemptWord = attempts === '1' ? 'محاولة واحدة' : (attempts === '2' ? 'محاولتان' : `${attempts} محاولات`);
+                return `رمز التحقق غير صحيح. تبقى لديك ${attemptWord}.`;
             }
         }
         return translations[message] || message || 'حدث خطأ غير متوقع';
@@ -299,6 +351,7 @@ const LoginPage = () => {
                                             maxLength="1"
                                             className="code-input w-12 h-12 text-center text-xl border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                             ref={el => codeInputsRef.current[index] = el}
+                                            disabled={isLoading} // تعطيل الحقل أثناء التحميل
                                             value={digit}
                                             onChange={(e) => handleCodeChange(e, index)}
                                             onKeyDown={(e) => handleKeyDown(e, index)}
@@ -315,19 +368,20 @@ const LoginPage = () => {
                                 <div>
                                     <button
                                         type="submit"
-                                        className={`login-form__button ${isLoading ? 'login-form__button--loading' : ''}`}
-                                        disabled={isLoading}
+                                        className={`login-form__button ${isLoading || redirectCountdown !== null ? 'login-form__button--loading' : ''}`}
+                                        disabled={isLoading || redirectCountdown !== null}
                                     >
-                                        {isLoading ? (
+                                        {redirectCountdown !== null ? (
+                                            // عرض العد التنازلي عند انتهاء المحاولات
+                                            <span>{redirectCountdown}</span>
+                                        ) : isLoading ? (
                                             <>
                                                 <span className="absolute right-0 inset-y-0 flex items-center pr-3">
                                                     <Loader className="h-5 w-5 animate-spin" />
                                                 </span>
                                                 جاري المعالجة...
                                             </>
-                                        ) : (
-                                            <>
-                                                <span className="absolute right-0 inset-y-0 flex items-center pr-3">
+                                        ) : ( <> <span className="absolute right-0 inset-y-0 flex items-center pr-3">
                                                     <Check className="h-5 w-5 text-indigo-300 group-hover:text-indigo-200" />
                                                 </span>
                                                 تأكيد الرمز
@@ -335,10 +389,10 @@ const LoginPage = () => {
                                         )}
                                     </button>
                                 </div>
-                                {totpError && <div className="login-form__error">{totpError}</div>}
                                 {totpSuccess && <div className="login-form__success">{totpSuccess}</div>}
                             </form>
                             <div className="text-center mt-4">
+                                {totpError && <div className="login-form__error mb-4">{totpError}</div>}
                                 <button
                                     onClick={handleResend}
                                     className={`text-sm ${resendTimer === 0 ? 'text-indigo-600 hover:text-indigo-500' : 'text-gray-400'} transition-colors`}

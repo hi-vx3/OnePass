@@ -50,7 +50,77 @@ const DashboardPage = () => {
     const [showDeactivateModal, setShowDeactivateModal] = useState(false);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const [newAlias, setNewAlias] = useState('');
-    const [user, setUser] = useState({ name: 'مستخدم وهمي', dob: '1998-05-15' }); // Add state for fake user data
+    const [user, setUser] = useState({ name: 'مستخدم وهمي', dob: '1998-05-15' });
+
+    // --- Helper Function ---
+    const formatTimeAgo = (timestamp) => {
+        if (!timestamp) return 'لم يستخدم بعد';
+        const now = new Date();
+        const time = new Date(timestamp);
+        const diff = now - time;
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(diff / 3600000);
+        const days = Math.floor(diff / 86400000);
+        if (minutes < 60) return `منذ ${minutes} دقيقة`;
+        if (hours < 24) return `منذ ${hours} ساعة`;
+        return `منذ ${days} يوم`;
+    };
+
+    // --- New Component for Linked Site Card ---
+    const LinkedSiteCard = ({ site, onUnlink }) => {
+        const [gradientStyle, setGradientStyle] = useState({});
+
+        const getDominantColor = (imageUrl) => {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.crossOrigin = "Anonymous";
+                img.src = imageUrl;
+                img.onload = () => {
+                    const canvas = document.createElement("canvas");
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0);
+                    const data = ctx.getImageData(0, 0, 1, 1).data;
+                    const hex = `#${("000000" + ((data[0] << 16) | (data[1] << 8) | data[2]).toString(16)).slice(-6)}`;
+                    if (hex === '#ffffff' || hex === '#000000') resolve(null);
+                    resolve(hex);
+                };
+                img.onerror = () => resolve(null);
+            });
+        };
+
+        useEffect(() => {
+            if (site.apiKey?.logoUrl) {
+                getDominantColor(site.apiKey.logoUrl).then(color => {
+                    if (color) {
+                        setGradientStyle({
+                            background: `linear-gradient(to left, ${color}33, transparent)`
+                        });
+                    }
+                });
+            }
+        }, [site.apiKey?.logoUrl]);
+
+        return (
+            <div className="linked-site-card" style={gradientStyle}>
+                <div className="flex items-center">
+                    <div className="linked-site-card__logo bg-white">
+                        {site.apiKey?.logoUrl ? (
+                            <img src={site.apiKey.logoUrl} alt={`${site.name} logo`} className="w-full h-full object-contain" />
+                        ) : (
+                            <Globe className="text-gray-500 w-5 h-5" />
+                        )}
+                    </div>
+                    <div className="flex-grow">
+                        <p className="font-semibold text-gray-800">{site.name}</p>
+                        <p className="text-xs text-gray-500">آخر نشاط: {formatTimeAgo(site.lastActivity)}</p>
+                    </div>
+                    <button className="linked-site-card__unlink-btn" onClick={() => onUnlink(site.id)}><Trash2 className="w-4 h-4" /></button>
+                </div>
+            </div>
+        );
+    };
 
     const loadLinkedSites = async (page = 1) => {
         try {
@@ -183,7 +253,7 @@ const DashboardPage = () => {
                 alert('تم إنشاء بريد وهمي جديد بنجاح.'); // Using alert for success feedback
             }
         } catch (error) {
-            const errorMessage = error.response?.data?.error || 'حدث خطأ أثناء إنشاء البريد الوهمي الجديد';
+            const errorMessage = error.response?.data?.message || 'حدث خطأ أثناء إنشاء البريد الوهمي الجديد';
             showError(errorMessage);
         } finally {
             setIsLoading(false);
@@ -268,7 +338,7 @@ const DashboardPage = () => {
                 setAlias(''); // Clear the input on success
             }
         } catch (error) {
-            const errorMessage = error.response?.data?.error || 'حدث خطأ أثناء إنشاء البريد الوهمي';
+            const errorMessage = error.response?.data?.message || 'حدث خطأ أثناء إنشاء البريد الوهمي';
             showError(errorMessage);
         } finally {
             setIsLoading(false);
@@ -310,18 +380,6 @@ const DashboardPage = () => {
         }
     };
 
-    const formatTimeAgo = (timestamp) => {
-        const now = new Date();
-        const time = new Date(timestamp);
-        const diff = now - time;
-        const minutes = Math.floor(diff / 60000);
-        const hours = Math.floor(diff / 3600000);
-        const days = Math.floor(diff / 86400000);
-        if (minutes < 60) return `منذ ${minutes} دقيقة`;
-        if (hours < 24) return `منذ ${hours} ساعة`;
-        return `منذ ${days} يوم`;
-    };
-
     const getNotificationColor = (type) => {
         const colors = {
             security: { bg: 'bg-red-100', text: 'text-red-600' },
@@ -329,7 +387,7 @@ const DashboardPage = () => {
             warning: { bg: 'bg-yellow-100', text: 'text-yellow-600' },
             success: { bg: 'bg-green-100', text: 'text-green-600' }
         };
-        return colors[type] || colors.info;
+        return colors[type] || { bg: 'bg-gray-100', text: 'text-gray-600' };
     };
 
     const getNotificationIcon = (type) => {
@@ -371,7 +429,7 @@ const DashboardPage = () => {
             create: { bg: 'bg-purple-100', text: 'text-purple-600' },
             update: { bg: 'bg-yellow-100', text: 'text-yellow-600' }
         };
-        return colors[type] || colors.info;
+        return colors[type] || { bg: 'bg-gray-100', text: 'text-gray-600' };
     };
 
     const getActivityIcon = (type) => {
@@ -564,15 +622,15 @@ const DashboardPage = () => {
                                         <p>لا توجد تحديثات جديدة</p>
                                     </div>
                                 ) : (
-                                    combinedFeed.slice(0, 5).map(item => ( // Show latest 5 items
-                                        <div key={`${item.feedType}-${item.id}`} className="flex items-start">
-                                            <div className="flex-shrink-0">
-                                                <div className={`w-8 h-8 rounded-full ${item.feedType === 'activity' ? getActivityColor(item.type).bg : getNotificationColor(item.type).bg} flex items-center justify-center`}>
-                                                    {item.feedType === 'activity' ? 
-                                                        <Activity className={`${getActivityColor(item.type).text} w-4 h-4`} /> :
-                                                        <Bell className={`${getNotificationColor(item.type).text} w-4 h-4`} />
-                                                    }
-                                                </div>
+                                combinedFeed.slice(0, 5).map(item => { // Show latest 5 items
+                                    const isActivity = item.feedType === 'activity';
+                                    const colors = isActivity ? getActivityColor(item.type) : getNotificationColor(item.type);
+                                    const Icon = isActivity ? getActivityIcon(item.type) : getNotificationIcon(item.type);
+
+                                    return (
+                                        <div key={`${item.feedType}-${item.id}`} className="flex items-start p-2 rounded-lg hover:bg-gray-50">
+                                            <div className={`flex-shrink-0 w-8 h-8 rounded-full ${colors.bg} flex items-center justify-center`}>
+                                                <Icon className={`${colors.text} w-4 h-4`} />
                                             </div>
                                             <div className="mr-3">
                                                 <p className="text-sm font-medium text-gray-900">{item.title}</p>
@@ -580,8 +638,8 @@ const DashboardPage = () => {
                                                 <p className="text-xs text-gray-400">{formatTimeAgo(item.createdAt)}</p>
                                             </div>
                                         </div>
-                                    ))
-                                )}
+                                    );
+                                }))}
                             </div>
                             <div className="mt-4 pt-4 border-t border-gray-200">
                                 <label className="flex items-center text-sm text-gray-700">
@@ -602,46 +660,15 @@ const DashboardPage = () => {
                                 <h2 className="text-lg font-semibold text-gray-900">المواقع المرتبطة</h2>
                                 <span className="text-sm text-gray-500">{stats.linkedSites} مواقع</span>
                             </div>
-                            <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead>
-                                        <tr>
-                                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">اسم الموقع</th>
-                                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">البريد المستخدم</th>
-                                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">آخر نشاط</th>
-                                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-200">
-                                        {linkedSites.length === 0 ? (
-                                            <tr>
-                                                <td colSpan="4" className="px-4 py-8 text-center text-gray-500">
-                                                    <LinkIcon className="w-8 h-8 mx-auto mb-2" />
-                                                    <p>لا توجد مواقع مرتبطة</p>
-                                                </td>
-                                            </tr>
-                                        ) : (
-                                            linkedSites.map(site => (
-                                                <tr key={site.id}>
-                                                    <td className="px-4 py-4 whitespace-nowrap">
-                                                        <div className="flex items-center" >
-                                                            <div className={`w-8 h-8 rounded-full ${getSiteColor(site.name).bg} flex items-center justify-center ml-3`}><Globe className={`${getSiteColor(site.name).text} w-4 h-4`} /></div>
-                                                            <div>
-                                                                <div className="text-sm font-medium text-gray-900">{site.name}</div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">{site.email}</td>
-                                                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">{formatTimeAgo(site.lastActivity)}</td>
-                                                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <a href={site.url} className="text-indigo-600 hover:text-indigo-900 mr-3">زيارة</a>
-                                                        <button className="text-red-600 hover:text-red-900" onClick={() => handleUnlinkSite(site.id)}>فصل</button>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        )}
-                                    </tbody>
-                                </table>
+                            <div className="space-y-4">
+                                {linkedSites.length === 0 ? (
+                                    <div className="text-center py-8 text-gray-500">
+                                        <LinkIcon className="w-8 h-8 mx-auto mb-2" />
+                                        <p>لا توجد مواقع مرتبطة</p>
+                                    </div>
+                                ) : (
+                                linkedSites.map(site => <LinkedSiteCard key={site.id} site={site} onUnlink={handleUnlinkSite} />)
+                                )}
                             </div>
                             {linkedSitesPagination.totalPages > 1 && (
                                 <div className="flex items-center justify-between mt-4">

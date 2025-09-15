@@ -53,6 +53,10 @@
 
                 // The parent window will close the popup. We can stop rendering the rest of the page.
                 document.write('<div style="font-family: sans-serif; text-align: center; padding: 40px;"><h1>Please wait...</h1><p>Finishing authentication.</p></div>');
+                
+                // **تصحيح حاسم:** إيقاف تحميل الصفحة بشكل كامل لمنع إعادة التحميل غير المتوقعة
+                // التي كانت تسبب فقدان `state` في الصفحة الرئيسية.
+                window.stop();
             }
         })();
     </script>
@@ -77,6 +81,19 @@
                 <p class="font-semibold">بيانات المستخدم:</p>
                 <pre id="auth-code" class="block break-all text-sm text-gray-800 bg-gray-200 p-2 rounded mt-1"></pre>
             </div>
+            <!-- Section for testing write:profile scope -->
+            <div id="update-profile-section" class="hidden mt-4">
+                <h3 class="font-bold text-lg text-gray-800 mb-2">اختبار صلاحية `write:profile`</h3>
+                <div class="flex items-center gap-2">
+                    <input type="text" id="username-input" placeholder="أدخل اسم مستخدم جديد" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    <button id="updateProfileBtn" class="onepass-button text-sm py-2 px-3">تحديث</button>
+                </div>
+                <div id="update-result" class="mt-2 text-left">
+                    <p class="font-semibold">نتيجة التحديث:</p>
+                    <pre id="update-response" class="block break-all text-sm text-gray-800 bg-gray-200 p-2 rounded mt-1"></pre>
+                </div>
+            </div>
+
             <div class="mt-4 p-4 rounded-lg bg-blue-50 border border-blue-200">
                 <h3 class="font-bold text-blue-800">الخطوة التالية:</h3>
                 <p class="text-sm text-blue-700 mt-1">
@@ -94,9 +111,27 @@
             const loginSection = document.getElementById('login-section');
             const resultSection = document.getElementById('result-section');
             const authCodeEl = document.getElementById('auth-code');
+            const updateProfileSection = document.getElementById('update-profile-section');
+            const updateProfileBtn = document.getElementById('updateProfileBtn');
 
             // 2. Get Client ID from URL parameter
-            const urlParams = new URLSearchParams(window.location.search);
+            let urlParams = new URLSearchParams(window.location.search);
+            
+            // If the URL contains 'code' or 'error', it's a callback. The first script already handled it.
+            // We should not proceed to check for clientId in this case.
+            if (urlParams.has('code') || urlParams.has('error')) {
+                // **تصحيح:** في حالة العودة، قد لا يكون clientId موجودًا في الرابط.
+                // نقوم باستعادته من sessionStorage حيث قمنا بتخزينه قبل بدء العملية.
+                const storedParams = JSON.parse(sessionStorage.getItem('onepass_test_params'));
+                if (storedParams) {
+                    // نعيد بناء urlParams لتشمل المعلمات المخزنة
+                    urlParams = new URLSearchParams(storedParams);
+                    // نزيل البيانات المؤقتة
+                    sessionStorage.removeItem('onepass_test_params');
+                }
+                return;
+            }
+
             const clientIdFromUrl = urlParams.get('clientId');
             const scopesFromUrl = urlParams.get('scopes');
 
@@ -107,6 +142,12 @@
                 `;
                 return;
             }
+
+            // **تصحيح:** نقوم بتخزين المعلمات في sessionStorage قبل بدء عملية تسجيل الدخول.
+            // هذا يضمن أننا سنجدها مرة أخرى عند عودة النافذة المنبثقة.
+            sessionStorage.setItem('onepass_test_params', JSON.stringify({
+                clientId: clientIdFromUrl, scopes: scopesFromUrl
+            }));
 
             // 3. Initialize the SDK with the Client ID from the URL
             const onepassClient = onepass.init({
@@ -125,13 +166,46 @@
                 `;
                 
                 // The SDK opens a popup and returns a promise with the code
-                onepassClient.signIn({ scope: scopesFromUrl }) // Pass the scopes from the URL
-                    .then(async (userInfo) => {
+                onepassClient.signIn({ scope: scopesFromUrl })
+                    .then(async (authResult) => {
                         try {
+                            // The SDK now resolves with an object containing both tokenData and userInfo
+                            const { tokenData, userInfo } = authResult;
+
                             // 4. Display the results
                             authCodeEl.textContent = JSON.stringify(userInfo, null, 2);
                             loginSection.classList.add('hidden');
                             resultSection.classList.remove('hidden');
+
+                            // 5. Check if 'write:profile' scope was granted and show the update section
+                            if (tokenData.scope && tokenData.scope.includes('write:profile')) {
+                                updateProfileSection.classList.remove('hidden');
+                                
+                                // Add event listener for the update button
+                                updateProfileBtn.addEventListener('click', async () => {
+                                    const newUsername = document.getElementById('username-input').value;
+                                    if (!newUsername) {
+                                        alert('Please enter a new username.');
+                                        return;
+                                    }
+
+                                    try {
+                                        const response = await fetch('http://localhost:3001/api/user/profile', {
+                                            method: 'PATCH',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                // Use the access token to authorize the request
+                                                'Authorization': `Bearer ${tokenData.access_token}`
+                                            },
+                                            body: JSON.stringify({ username: newUsername })
+                                        });
+                                        const result = await response.json();
+                                        document.getElementById('update-response').textContent = JSON.stringify(result, null, 2);
+                                    } catch (updateError) {
+                                        document.getElementById('update-response').textContent = `Error: ${updateError.message}`;
+                                    }
+                                });
+                            }
 
                         } catch (processError) {
                             alert(`Authentication process failed: ${processError.message}`);

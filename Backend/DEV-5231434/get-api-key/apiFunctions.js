@@ -1,4 +1,12 @@
 /**
+ * دالة مساعدة لجلب توكن الوصول من التخزين المحلي (مثال)
+ * @returns {string|null} توكن الوصول أو null إذا لم يتم العثور عليه
+ */
+function getAccessToken() {
+  return localStorage.getItem('accessToken'); // أو من sessionStorage أو cookie
+}
+
+/**
  * جلب مفاتيح API من الخادم
  * @async
  * @function loadApiKeys
@@ -6,12 +14,19 @@
  * @throws {Error} إذا فشل جلب البيانات من الخادم
  */
 async function loadApiKeys() {
+    const token = getAccessToken();
+    if (!token) {
+        showAlert('غير مصرح لك بالوصول. يرجى تسجيل الدخول.', 'error');
+        // يمكنك إعادة توجيه المستخدم إلى صفحة تسجيل الدخول هنا
+        // window.location.href = '/login';
+        return;
+    }
     try {
         const response = await fetch('/api/user/api-keys', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
+                'Authorization': `Bearer ${token}`
             }
         });
         
@@ -65,12 +80,18 @@ async function handleApiKeyGeneration(e) {
         redirectUri: document.getElementById('redirect-uri').value
     };
     
+    const token = getAccessToken();
+    if (!token) {
+        showAlert('غير مصرح لك بالوصول. يرجى تسجيل الدخول.', 'error');
+        return;
+    }
+
     try {
         const response = await fetch('/api/user/api-keys', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(formData)
         });
@@ -101,11 +122,17 @@ async function handleApiKeyGeneration(e) {
 async function confirmDelete() {
     if (!state.keyToDelete) return;
     
+    const token = getAccessToken();
+    if (!token) {
+        showAlert('غير مصرح لك بالوصول. يرجى تسجيل الدخول.', 'error');
+        return;
+    }
+
     try {
         const response = await fetch(`/api/user/api-keys/${state.keyToDelete}`, {
             method: 'DELETE',
             headers: {
-                'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
+                'Authorization': `Bearer ${token}`
             }
         });
         

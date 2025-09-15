@@ -9,9 +9,10 @@ datasource db {
 
    model User {
      id                  Int            @id @default(autoincrement())
+     publicId            BigInt         @unique @map("public_id")
      email               String         @unique
-     username            String?        @unique // اسم المستخدم أو الاسم المستعار
      verificationToken   String?
+     name                String?
      isVerified          Boolean        @default(false)
      createdAt           DateTime       @default(now())
      totpSecret          String? // Secret for TOTP generation
@@ -26,6 +27,7 @@ datasource db {
      activities          Activity[]
      forwardedEmailLogs  ForwardedEmailLog[]
      notificationsEnabled Boolean        @default(true)
+     avatarUrl           String?
    }
 
    model VirtualEmail {
@@ -38,6 +40,8 @@ datasource db {
      createdAt DateTime @default(now())
      canChange Boolean  @default(true)
    }
+
+
 
    model ApiKey {
      id           String   @id @default(uuid())
@@ -53,6 +57,7 @@ datasource db {
      createdAt    DateTime @default(now())
      requestCount Int      @default(0) @map("request_count")
      lastUsedAt   DateTime? @map("last_used_at")
+     linkedSites  LinkedSite[]
    }
 
    model LinkedSite {
@@ -61,8 +66,12 @@ datasource db {
      url          String
      email        String
      lastActivity DateTime @default(now())
+     apiKey       ApiKey   @relation(fields: [clientId], references: [clientId])
+     clientId     String   @map("client_id")
      user         User     @relation(fields: [userId], references: [id])
      userId       Int
+
+     @@unique([userId, clientId], name: "userId_clientId")
    }
 
    model Notification {
@@ -82,6 +91,8 @@ datasource db {
      title       String
      description String
      user        User     @relation(fields: [userId], references: [id])
+     ipAddress   String?  @map("ip_address")
+     userAgent   String?  @db.Text @map("user_agent")
      userId      Int
      createdAt   DateTime @default(now())
    }

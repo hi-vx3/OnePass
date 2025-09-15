@@ -18,13 +18,17 @@
     "express": "5.1.0",
     "express-rate-limit": "^7.4.0",
     "express-session": "^1.18.0",
+    "geoip-lite": "^1.4.10",
     "ioredis": "^5.4.1",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
     "nodemailer": "^6.9.13",
     "pino": "8.0.0",
     "prisma": "6.15.0",
     "speakeasy": "^2.0.0",
+    "ua-parser-js": "^1.0.41",
     "uuid": "^9.0.0",
+    "ws": "^8.18.3",
     "zod": "^3.25.76"
   },
   "devDependencies": {

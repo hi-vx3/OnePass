@@ -1,9 +1,21 @@
      const { v4: uuidv4 } = require('uuid');
      const speakeasy = require('speakeasy');
+     const crypto = require('crypto');
      const { sendEmail } = require('./email.service');
+     const { sendNotificationToUser } = require('./websocket.service');
 
      const MAX_TOTP_ATTEMPTS = 5;
-     const LOCKOUT_DURATION_MINUTES = 15;
+     const LOCKOUT_DURATION_MINUTES = 5; // تخفيض مدة الحظر إلى 5 دقائق
+
+     /**
+      * Generates a unique, large random number to be used as a public ID.
+      * It ensures the number is positive and fits within a 64-bit integer range.
+      * @returns {BigInt}
+      */
+     function generateNumericPublicId() {
+       const buffer = crypto.randomBytes(8); // 8 bytes for a 64-bit number
+       return buffer.readBigUInt64BE();
+     }
 
      async function registerUser(email, prisma, log) {
        try {
@@ -12,9 +24,21 @@
            throw { status: 409, message: 'Email is already registered', code: 'AUTH_EMAIL_EXISTS' };
          }
 
+         // Generate a unique numeric public ID
+         let publicId;
+         let isUnique = false;
+         while (!isUnique) {
+           publicId = generateNumericPublicId();
+           const existingId = await prisma.user.findUnique({ where: { publicId: publicId } });
+           if (!existingId) {
+             isUnique = true;
+           }
+         }
+
          const verificationToken = uuidv4();
          await prisma.user.create({
            data: {
+             publicId,
              email,
              verificationToken,
              isVerified: false,
@@ -121,7 +145,7 @@
        }
      }
 
-     async function verifyTOTP(email, code, prisma, log) {
+     async function verifyTOTP(email, code, req, prisma, log) { // إضافة req للحصول على IP و userAgent
        try {
          const user = await prisma.user.findUnique({ where: { email } });
          if (!user) {
@@ -130,49 +154,86 @@
 
          // Check if user is currently locked out
          if (user.totpBlockedUntil && new Date() < user.totpBlockedUntil) {
-           const remainingMinutes = Math.ceil((user.totpBlockedUntil - new Date()) / (1000 * 60));
-           throw { status: 429, message: `Too many failed attempts. Please try again in ${remainingMinutes} minutes.`, code: 'AUTH_LOCKED_OUT' };
+            const remainingMinutes = Math.ceil((user.totpBlockedUntil - new Date()) / (1000 * 60));
+            return { user, loginFailed: true, remainingAttempts: 0, errorMessage: `Too many failed attempts. Please try again in ${remainingMinutes} minutes.`, errorCode: 'AUTH_LOCKED_OUT' };
          }
 
          if (!user.totpSecret || !user.totpCode || !user.totpExpiresAt) {
-           throw { status: 400, message: 'No valid TOTP code found', code: 'AUTH_NO_VALID_TOTP' };
+            return { user, loginFailed: true, remainingAttempts: 0, errorMessage: 'No valid TOTP code found', errorCode: 'AUTH_NO_VALID_TOTP' };
          }
 
          if (new Date() > user.totpExpiresAt) {
-           throw { status: 400, message: 'TOTP code has expired', code: 'AUTH_TOTP_EXPIRED' };
+            return { user, loginFailed: true, remainingAttempts: 0, errorMessage: 'TOTP code has expired', errorCode: 'AUTH_TOTP_EXPIRED' };
          }
 
-         const isValid = user.totpCode === code;
-         if (!isValid) {
-           const newAttempts = user.totpLoginAttempts + 1;
-           let updateData = { totpLoginAttempts: newAttempts };
+    const isValid = user.totpCode === code; // Compare the codes
 
-           if (newAttempts >= MAX_TOTP_ATTEMPTS) {
-             const blockedUntil = new Date(Date.now() + LOCKOUT_DURATION_MINUTES * 60 * 1000);
-             updateData = {
-               ...updateData,
-               totpBlockedUntil: blockedUntil,
-               totpLoginAttempts: 0, // Reset attempts after locking
-             };
-             log.warn({ email }, `User locked out for ${LOCKOUT_DURATION_MINUTES} minutes due to too many failed TOTP attempts.`);
-           }
+    if (!isValid) {
+      // --- Logic for handling a failed attempt ---
+      const newAttempts = (user.totpLoginAttempts || 0) + 1;
+      let remainingAttempts = MAX_TOTP_ATTEMPTS - newAttempts;
 
-           await prisma.user.update({ where: { id: user.id }, data: updateData });
+      let updateData = { totpLoginAttempts: newAttempts };
 
-           throw { status: 400, message: 'Invalid TOTP code', code: 'AUTH_INVALID_TOTP' };
+      if (newAttempts >= MAX_TOTP_ATTEMPTS) {
+        // إلغاء الرمز بدلاً من الحظر
+        updateData = {
+          totpCode: null,
+          totpExpiresAt: null,
+          totpLoginAttempts: 0, // Reset attempts after locking
+        };
+
+        // --- Security Notifications on Lockout ---
+        const ip = req.ip;
+        const userAgent = req.headers['user-agent'] || 'Unknown Device';
+
+        // 1. Create an activity log entry
+        prisma.activity.create({
+          data: {
+            userId: user.id,
+            type: 'security_alert',
+            title: 'Suspicious Login Attempt',
+            description: 'Account has been temporarily locked due to multiple failed login attempts.',
+            ipAddress: ip,
+            userAgent: userAgent,
+          },
+        }).catch(err => log.error({ err }, 'Failed to create security alert activity log.'));
+
+        log.warn({ email }, `User exceeded max TOTP attempts. OTP has been cancelled.`);
+      }
+
+      // Update the attempt count in the database
+      await prisma.user.update({ where: { id: user.id }, data: updateData });
+      
+      // Return failure status instead of throwing an error
+      return { user, loginFailed: true, remainingAttempts };
          }
 
-         // On successful login, reset attempts and lockout
+    // --- Logic for a successful login ---
+    // On successful login, reset attempts, lockout, and the code itself
          await prisma.user.update({
            where: { id: user.id },
            data: { totpCode: null, totpExpiresAt: null, totpLoginAttempts: 0, totpBlockedUntil: null },
          });
 
-         // Return a safe user object (without sensitive data)
+         // --- إرسال إشعار فوري عبر WebSocket ---
+         sendNotificationToUser(user.id, {
+           type: 'notification',
+           payload: {
+             title: 'New Login',
+             message: 'A successful login to your account has occurred.',
+           }
+         });
+
+    // Return a safe user object and success status
          return {
-           id: user.id,
-           email: user.email,
-           isVerified: user.isVerified,
+      user: {
+        id: user.id,
+        email: user.email,
+        isVerified: user.isVerified,
+      },
+      loginFailed: false,
+      remainingAttempts: MAX_TOTP_ATTEMPTS,
          };
        } catch (error) {
          log.error({ err: error }, 'Verify TOTP error');

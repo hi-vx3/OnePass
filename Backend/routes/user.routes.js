@@ -1,6 +1,11 @@
 const express = require('express');
-const { isAuthenticated, requireScope } = require('./auth.middleware');
+const { isAuthenticated, requireScope, verifyAccessToken, requireTokenScope } = require('./auth.middleware');
+const { z } = require('zod');
 const { v4: uuidv4 } = require('uuid');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const { getUserInfo } = require('../services/oauth.service');
 
 // Argon2 for hashing client secrets
 const argon2 = require('argon2');
@@ -8,58 +13,205 @@ const argon2 = require('argon2');
 const createUserRouter = (prisma, log) => {
   const router = express.Router();
 
+  // --- إعداد Multer لرفع الصور ---
+  const avatarUploadPath = path.join(__dirname, '..', 'public', 'uploads', 'avatars');
+  // التأكد من وجود مجلد الرفع
+  fs.mkdirSync(avatarUploadPath, { recursive: true });
+
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, avatarUploadPath);
+    },
+    filename: (req, file, cb) => {
+      const userId = req.session.user.id;
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      const extension = path.extname(file.originalname);
+      cb(null, `avatar-${userId}-${uniqueSuffix}${extension}`);
+    }
+  });
+
+  const fileFilter = (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif/;
+    const mimetype = allowedTypes.test(file.mimetype);
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    if (mimetype && extname) {
+      return cb(null, true);
+    }
+    cb(new Error('Unsupported file type. Please upload an image (jpeg, png, gif).'));
+  };
+
+  const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } }); // حد 5 ميجابايت
+
   // Helper function to generate a secure secret
   const generateClientSecret = () => {
     return `onepass_sk_${uuidv4().replace(/-/g, '')}`;
   };
 
+  // Define Zod schemas for validation
+  const apiKeyCreateSchema = z.object({
+    name: z.string().min(1, 'Name is required.'),
+    redirectUris: z.array(z.string().url()).min(1, 'At least one Redirect URI is required.'),
+    logoUrl: z.string().url().optional().or(z.literal('')),
+    scopes: z.array(z.string()).optional(),
+  });
+
+  const apiKeyUpdateSchema = apiKeyCreateSchema.partial().extend({
+    name: z.string().min(1, 'Name is required.'),
+    redirectUris: z.array(z.string().url()).min(1, 'At least one Redirect URI is required.'),
+  });
+
+  const userProfileUpdateSchema = z.object({
+    name: z.string().min(2, 'Name must be at least 2 characters.').max(50, 'Name must not exceed 50 characters.').optional(),
+    avatarUrl: z.string().url('Please enter a valid image URL.').optional().or(z.literal('')),
+  });
+
+
   // This is a protected route.
   // The `isAuthenticated` middleware runs before the route handler.
-  // It can be accessed by a logged-in user via session, or by an API key with the 'read:user' scope.
-  router.get('/profile', isAuthenticated, requireScope('read:user'), async (req, res, next) => {
+  // It can be accessed by:
+  // 1. A logged-in user via session (isAuthenticated).
+  // 2. An API key with the 'read:user' scope (requireScope).
+  // 3. A user with a valid JWT access token (verifyAccessToken).
+  // We will use verifyAccessToken for OAuth 2.0 flow.
+  router.get('/profile', verifyAccessToken, requireTokenScope('read:user'), async (req, res, next) => {
     try {
-      // The user object is available from the session
-      // The `isAuthenticated` or `requireScope` middleware will attach the user to the request.
-      const userId = req.session.user?.id || req.user?.id;
-      const isApiRequest = !!req.apiKey;
+      // The user ID is now available from the decoded JWT payload
+      // The 'sub' from our JWT is the *internal integer ID* of the user.
+      const userId = req.jwt.sub; 
 
-      if (!userId) {
-        return next({ status: 401, message: 'Authentication required.', code: 'AUTH_REQUIRED' });
+      // Ensure userId is a valid number before proceeding.
+      const numericUserId = Number(userId);
+      if (isNaN(numericUserId)) {
+        return next({ status: 400, message: 'Invalid user identifier in token.', code: 'INVALID_TOKEN_SUB' });
       }
 
-      // Fetch the full user profile from the database, but exclude sensitive data
-      const userProfile = await prisma.user.findUnique({
-        where: { id: Number(userId) },
-        select: {
-          id: true,
-          // Conditionally select the email based on the request type
-          email: !isApiRequest, // Only select real email if it's NOT an API request
-          isVerified: true,
-          createdAt: true,
-          // For API requests, fetch the virtual email address
-          virtualEmail: isApiRequest ? { select: { address: true } } : false,
-        },
-      });
+      // The granted scopes are also available
+      const grantedScopes = req.jwt.scope ? req.jwt.scope.split(' ') : [];
 
-      if (!userProfile) {
-        // This case is unlikely if a session exists, but it's good practice to handle it.
-        return next({ status: 404, message: 'User not found', code: 'USER_NOT_FOUND' });
-      }
-
-      // Construct a consistent response payload
-      const responsePayload = {
-        id: userProfile.id,
-        // If it's an API request, the `email` field will contain the virtual email address.
-        // Otherwise, it will contain the real user email.
-        email: isApiRequest ? userProfile.virtualEmail?.address : userProfile.email,
-        isVerified: userProfile.isVerified,
-        createdAt: userProfile.createdAt,
-      };
-
-      res.status(200).json({ user: responsePayload });
+      // The getUserInfo service already handles selecting the correct fields based on scope
+      // It expects the internal integer ID to fetch the user record.
+      const userInfo = await getUserInfo(numericUserId, grantedScopes.join(' '), prisma, log);
+      res.status(200).json(userInfo);
     } catch (error) {
       log.error({ err: error }, 'Error fetching user profile');
       next({ status: 500, message: 'Server error while fetching profile', code: 'SERVER_ERROR' });
+    }
+  });
+
+  // --- نقاط وصول جديدة للملف الشخصي ---
+
+  // GET /api/user/me - جلب بيانات المستخدم المسجل دخوله
+  router.get('/me', isAuthenticated, async (req, res, next) => {
+    try {
+      const userId = Number(req.session.user.id);
+      const userWithActivities = await prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          avatarUrl: true,
+          createdAt: true,
+          // --- جلب آخر 5 أنشطة للمستخدم ---
+          activities: {
+            orderBy: {
+              createdAt: 'desc',
+            },
+            take: 5,
+            select: {
+              id: true,
+              title: true,
+              description: true,
+              createdAt: true,
+            },
+          },
+        },
+      });
+
+      if (!userWithActivities) {
+        return next({ status: 404, message: 'User not found.', code: 'USER_NOT_FOUND' });
+      }
+
+      res.status(200).json(userWithActivities);
+    } catch (error) {
+      next({ status: 500, message: 'Failed to fetch profile data.', code: 'PROFILE_FETCH_ERROR' });
+    }
+  });
+
+  // PATCH /api/user/me - تحديث بيانات المستخدم
+  router.patch('/me', isAuthenticated, async (req, res, next) => {
+    try {
+      const userId = Number(req.session.user.id);
+      const validation = userProfileUpdateSchema.safeParse(req.body);
+      if (!validation.success) {
+        return next({ status: 400, message: validation.error.errors.map(e => e.message).join(', '), code: 'VALIDATION_ERROR' });
+      }
+
+      const { name, avatarUrl } = validation.data;
+
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: { name, avatarUrl },
+      });
+
+      // --- إضافة سجل نشاط ---
+      prisma.activity.create({
+        data: {
+          userId,
+          type: 'profile_updated',
+          title: 'Profile Updated',
+          description: 'Profile information (name or avatar) was updated.',
+          ipAddress: req.ip,
+          userAgent: req.headers['user-agent'],
+        },
+      }).catch(err => log.error({ err }, 'Failed to create profile_updated activity log.'));
+
+      res.status(200).json({ success: true, message: 'Profile updated successfully.', user: updatedUser });
+    } catch (error) {
+      next({ status: 500, message: 'Failed to update profile.', code: 'PROFILE_UPDATE_ERROR' });
+    }
+  });
+
+  // POST /api/user/me/avatar - نقطة وصول جديدة لرفع الصورة
+  router.post('/me/avatar', isAuthenticated, upload.single('avatar'), async (req, res, next) => {
+    try {
+      if (!req.file) {
+        return next({ status: 400, message: 'No file was uploaded.', code: 'FILE_NOT_UPLOADED' });
+      }
+
+      const userId = Number(req.session.user.id);
+      // بناء المسار الذي سيتم حفظه في قاعدة البيانات ويمكن للواجهة الأمامية استخدامه
+      const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+
+      // تحديث المستخدم بالمسار الجديد للصورة
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: { avatarUrl },
+      });
+
+      // --- إضافة سجل نشاط ---
+      prisma.activity.create({
+        data: {
+          userId,
+          type: 'profile_updated',
+          title: 'Avatar Updated',
+          description: 'The profile avatar was updated.',
+          ipAddress: req.ip,
+          userAgent: req.headers['user-agent'],
+        },
+      }).catch(err => log.error({ err }, 'Failed to create profile_updated activity log.'));
+
+      res.status(200).json({
+        success: true,
+        message: 'Avatar uploaded successfully.',
+        avatarUrl: updatedUser.avatarUrl,
+      });
+    } catch (error) {
+      // معالجة أخطاء multer (مثل حجم الملف أو نوعه)
+      if (error instanceof multer.MulterError || error.message.includes('Unsupported file type')) {
+        return next({ status: 400, message: error.message, code: 'UPLOAD_VALIDATION_ERROR' });
+      }
+      next({ status: 500, message: 'Failed to upload avatar.', code: 'AVATAR_UPLOAD_ERROR' });
     }
   });
 
@@ -100,10 +252,11 @@ const createUserRouter = (prisma, log) => {
   // POST /api/user/api-keys
   router.post('/api-keys', isAuthenticated, async (req, res, next) => {
     try {
-      const { name, redirectUris, logoUrl, scopes } = req.body;
-      if (!name || !Array.isArray(redirectUris) || redirectUris.length === 0) {
-        return next({ status: 400, message: 'Name and at least one Redirect URI are required.', code: 'INVALID_INPUT' });
+      const validation = apiKeyCreateSchema.safeParse(req.body);
+      if (!validation.success) {
+        return next({ status: 400, message: validation.error.errors.map(e => e.message).join(', '), code: 'VALIDATION_ERROR' });
       }
+      const { name, redirectUris, logoUrl, scopes } = validation.data;
 
       const userId = Number(req.session.user.id);
       const clientId = `onepass_client_${uuidv4().replace(/-/g, '')}`;
@@ -114,7 +267,7 @@ const createUserRouter = (prisma, log) => {
         data: {
           name,
           clientId,
-          clientSecret, // Note: Storing the raw secret is for one-time display. It will not be queryable.
+          clientSecret, // Add the raw secret to be stored
           hashedSecret,
           redirectUris: redirectUris.join(','), // Store as a comma-separated string
           scopes: (scopes || []).join(','), // Store scopes as a comma-separated string
@@ -122,7 +275,24 @@ const createUserRouter = (prisma, log) => {
           userId,
         },
       });
-      res.status(201).json(createdKey);
+
+    // --- إضافة سجل نشاط ---
+    prisma.activity.create({
+      data: {
+        userId,
+        type: 'api_key_created',
+        title: 'API Key Created',
+        description: `A new API key named "${name}" was created.`,
+        ipAddress: req.ip,
+        userAgent: req.headers['user-agent'],
+      },
+    }).catch(err => log.error({ err }, 'Failed to create api_key_created activity log.'));
+
+      // Return the raw secret only once upon creation. Do not store it.
+      res.status(201).json({
+        ...createdKey,
+        clientSecret: clientSecret, // Add the raw secret to the response for one-time display
+      });
     } catch (error) {
       log.error({ err: error }, 'Error creating API key');
       next({ status: 500, message: 'Failed to create API key', code: 'API_KEY_CREATE_ERROR' });
@@ -133,12 +303,13 @@ const createUserRouter = (prisma, log) => {
   router.patch('/api-keys/:id', isAuthenticated, async (req, res, next) => {
     try {
       const { id } = req.params;
-      const { name, redirectUris, logoUrl, scopes } = req.body;
       const userId = Number(req.session.user.id);
 
-      if (!name || !Array.isArray(redirectUris) || redirectUris.length === 0) {
-        return next({ status: 400, message: 'Name and at least one Redirect URI are required.', code: 'INVALID_INPUT' });
+      const validation = apiKeyUpdateSchema.safeParse(req.body);
+      if (!validation.success) {
+        return next({ status: 400, message: validation.error.errors.map(e => e.message).join(', '), code: 'VALIDATION_ERROR' });
       }
+      const { name, redirectUris, logoUrl, scopes } = validation.data;
 
       const updatedKey = await prisma.apiKey.update({
         where: { id, userId }, // Ensures user can only update their own keys
@@ -149,6 +320,18 @@ const createUserRouter = (prisma, log) => {
           logoUrl,
         },
       });
+
+      // --- إضافة سجل نشاط ---
+      prisma.activity.create({
+        data: {
+          userId,
+          type: 'api_key_updated',
+          title: 'API Key Updated',
+          description: `The API key "${name}" was updated.`,
+          ipAddress: req.ip,
+          userAgent: req.headers['user-agent'],
+        },
+      }).catch(err => log.error({ err }, 'Failed to create api_key_updated activity log.'));
 
       // Format the response to be consistent with the GET endpoint
       const formattedKey = {
@@ -172,9 +355,24 @@ const createUserRouter = (prisma, log) => {
     try {
       const userId = Number(req.session.user.id);
       const { id } = req.params;
+
+      // First, find the key to log its name before deleting
+      const keyToDelete = await prisma.apiKey.findFirst({
+        where: { id, userId },
+      });
+
       await prisma.apiKey.delete({
         where: { id, userId },
       });
+
+      // --- إضافة سجل نشاط ---
+      if (keyToDelete) {
+        prisma.activity.create({
+          data: { userId, type: 'api_key_deleted', title: 'API Key Deleted',
+            description: `The API key "${keyToDelete.name}" was deleted.`, ipAddress: req.ip, userAgent: req.headers['user-agent'],
+           },
+        }).catch(err => log.error({ err }, 'Failed to create api_key_deleted activity log.'));
+      }
       res.status(204).send();
     } catch (error) {
       // Handle case where key is not found or doesn't belong to user
@@ -208,6 +406,18 @@ const createUserRouter = (prisma, log) => {
         where: { id: userId },
         data: { notificationsEnabled: !!enabled },
       });
+
+      // --- إضافة سجل نشاط ---
+      prisma.activity.create({
+        data: {
+          userId,
+          type: 'settings_updated',
+          title: 'Notification Settings Updated',
+          description: `Account notifications were ${enabled ? 'enabled' : 'disabled'}.`,
+          ipAddress: req.ip,
+          userAgent: req.headers['user-agent'],
+        },
+      }).catch(err => log.error({ err }, 'Failed to create settings_updated activity log.'));
       res.status(200).json({ success: true, message: 'Notification settings updated.' });
     } catch (error) {
       next({ status: 500, message: 'Failed to update notification settings', code: 'NOTIFICATION_UPDATE_ERROR' });
@@ -225,6 +435,18 @@ const createUserRouter = (prisma, log) => {
         where: { userId },
         data: { isActive: !!active },
       });
+
+      // --- إضافة سجل نشاط ---
+      prisma.activity.create({
+        data: {
+          userId,
+          type: 'virtual_email_toggled',
+          title: 'Virtual Email Status Changed',
+          description: `The virtual email was ${active ? 'activated' : 'deactivated'}.`,
+          ipAddress: req.ip,
+          userAgent: req.headers['user-agent'],
+        },
+      }).catch(err => log.error({ err }, 'Failed to create virtual_email_toggled activity log.'));
 
       log.info(`User ${userId} toggled virtual email to ${active}`);
       res.status(200).json({ success: true, message: 'Virtual email status updated.' });
@@ -247,6 +469,18 @@ const createUserRouter = (prisma, log) => {
         where: { userId },
         data: { isForwardingActive: !!enabled },
       });
+
+      // --- إضافة سجل نشاط ---
+      prisma.activity.create({
+        data: {
+          userId,
+          type: 'forwarding_toggled',
+          title: 'Forwarding Status Changed',
+          description: `Email forwarding was ${enabled ? 'enabled' : 'disabled'}.`,
+          ipAddress: req.ip,
+          userAgent: req.headers['user-agent'],
+        },
+      }).catch(err => log.error({ err }, 'Failed to create forwarding_toggled activity log.'));
 
       log.info(`User ${userId} toggled email forwarding to ${enabled}`);
       res.status(200).json({ success: true, message: 'Email forwarding status updated.' });
@@ -336,6 +570,18 @@ const createUserRouter = (prisma, log) => {
             isActive: true,
           },
         });
+
+        // --- إضافة سجل نشاط ---
+        prisma.activity.create({
+          data: {
+            userId,
+            type: 'virtual_email_created',
+            title: 'New Virtual Email Created',
+            description: `A new virtual email was created and activated: ${virtualEmail.address}`,
+            ipAddress: req.ip,
+            userAgent: req.headers['user-agent'],
+          },
+        }).catch(err => log.error({ err }, 'Failed to create virtual_email_created activity log.'));
         log.info(`Generated new virtual email for user ${userId}`);
         res.status(201).json({ success: true, email: virtualEmail.address, message: 'Virtual email created and activated.', aliasUsed: !!alias });
       }
@@ -402,6 +648,18 @@ const createUserRouter = (prisma, log) => {
 
       });
 
+      // --- إضافة سجل نشاط ---
+      prisma.activity.create({
+        data: {
+          userId,
+          type: 'virtual_email_regenerated',
+          title: 'Virtual Email Regenerated',
+          description: `A new virtual email was generated: ${newVirtualEmail.address}`,
+          ipAddress: req.ip,
+          userAgent: req.headers['user-agent'],
+        },
+      }).catch(err => log.error({ err }, 'Failed to create virtual_email_regenerated activity log.'));
+
       log.info(`Regenerated virtual email for user ${userId}. New address: ${newVirtualEmail.address} `);
       res.status(200).json({ success: true, email: newVirtualEmail.address, canChange: newVirtualEmail.canChange, message: 'Virtual email regenerated successfully.' });
     } catch (error) {
@@ -425,6 +683,12 @@ const createUserRouter = (prisma, log) => {
           orderBy: { lastActivity: 'desc' },
           skip,
           take: limit,
+          // Include the related ApiKey to get the logoUrl
+          include: {
+            apiKey: {
+              select: { logoUrl: true }
+            }
+          }
         }),
         prisma.linkedSite.count({ where: { userId } }),
       ]);
@@ -451,9 +715,24 @@ const createUserRouter = (prisma, log) => {
     try {
       const userId = Number(req.session.user.id);
       const siteId = Number(req.params.id);
+
+      // Find the site before deleting to log its name
+      const siteToUnlink = await prisma.linkedSite.findFirst({
+        where: { id: siteId, userId },
+      });
+
       await prisma.linkedSite.delete({
         where: { id: siteId, userId },
       });
+
+      // --- إضافة سجل نشاط ---
+      if (siteToUnlink) {
+        prisma.activity.create({
+          data: { userId, type: 'site_unlinked', title: 'Site Unlinked',
+            description: `The site "${siteToUnlink.name}" was unlinked.`, ipAddress: req.ip, userAgent: req.headers['user-agent'],
+           },
+        }).catch(err => log.error({ err }, 'Failed to create site_unlinked activity log.'));
+      }
       log.info(`User ${userId} unlinked site ${siteId}`);
       res.status(204).send();
     } catch (error) {

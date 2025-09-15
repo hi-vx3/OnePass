@@ -48,10 +48,8 @@ const ApiKeysPage = () => {
     const [isSidebarActive, setIsSidebarActive] = useState(false);
 
     const AVAILABLE_SCOPES = [
-        { id: 'read:user', description: 'قراءة معلومات المستخدم الأساسية (الاسم، البريد الوهمي)' },
-        // { id: 'write:user', description: 'تعديل معلومات المستخدم (مثل الاسم)' }, // Example for future use
-        { id: 'read:email', description: 'الوصول إلى البريد الوهمي وعرض الرسائل' },
-        { id: 'write:email', description: 'إرسال رسائل من خلال البريد الوهمي' },
+        { id: 'read:user', description: 'قراءة معلومات المستخدم الأساسية (البريد الوهمي، اسم المستخدم)' },
+        { id: 'read:user:email', description: 'قراءة البريد الإلكتروني الحقيقي للمستخدم (حساس)' }
     ];
 
     useEffect(() => {
@@ -134,7 +132,8 @@ const ApiKeysPage = () => {
                 
                 // Ensure the new key's scopes are an array, just like the backend does for the GET request.
                 const formattedNewKey = {
-                    ...newKey,
+                    ...newKey, // The key object from the POST response
+                    redirectUris: newKey.redirectUris ? newKey.redirectUris.split(',') : [],
                     scopes: newKey.scopes ? newKey.scopes.split(',') : [],
                 };
                 setNewlyCreatedKey(formattedNewKey); // Store the newly created key to show the secret
@@ -532,7 +531,7 @@ const ApiKeysPage = () => {
                                             <div className="flex items-center space-x-2 space-x-reverse">
                                                 <a
                                                     href={`/dev/test-oauth.html?clientId=${key.clientId}&scopes=${encodeURIComponent(key.scopes.join(' '))}`}
-                                                    target="_blank"
+                                            target="_blank" // Opens in a new tab
                                                     rel="noopener noreferrer"
                                                     className="text-sm text-green-600 px-3 py-1 rounded-lg border border-green-200 hover:bg-green-50 flex items-center"
                                                 >

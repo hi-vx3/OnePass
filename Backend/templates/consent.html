@@ -82,17 +82,6 @@
             const appLogoEl = document.getElementById('app-logo');
             const scopeListEl = document.getElementById('scope-list');
             const consentForm = document.getElementById('consent-form');
-            const actionInput = document.getElementById('action-input');
-
-            const scopeDescriptions = {
-                'read:user': 'قراءة معلومات ملفك الشخصي الأساسية (مثل البريد الوهمي واسم المستخدم).',
-                'read:email': 'الوصول إلى البريد الوهمي وعرض الرسائل.',
-                'write:email': 'إرسال رسائل من خلال البريد الوهمي.',
-                'openid': 'التحقق من هويتك.',
-                'profile': 'الوصول إلى معلومات ملفك الشخصي.',
-                'email': 'الوصول إلى بريدك الإلكتروني.'
-            };
-
             // Fetch consent details from the server
             fetch('/api/oauth/consent-details')
                 .then(response => {
@@ -102,7 +91,7 @@
                     return response.json();
                 })
                 .then(data => {
-                    const { client, scope } = data;
+                    const { client, scopes } = data; // Use the new 'scopes' array
 
                     // Populate the UI
                     appNameEl.textContent = client.name;
@@ -111,13 +100,14 @@
                         appLogoEl.src = client.logoUrl;
                     }
 
-                    const scopes = scope ? scope.split(' ') : ['read:user'];
-                    scopeListEl.innerHTML = scopes.map(s => `
-                        <li class="flex items-start">
-                            <svg class="w-4 h-4 text-green-500 mt-1 ml-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                            </svg>
-                            <span>${scopeDescriptions[s] || `الوصول إلى صلاحية: ${s}`}</span>
+                    // تحويل القائمة إلى صناديق اختيار تفاعلية
+                    scopeListEl.innerHTML = scopes.map(scope => `
+                        <li class="flex items-start p-3 bg-gray-100 rounded-md">
+                            <input type="checkbox" id="scope-${scope.id}" name="scopes" value="${scope.id}" checked class="mt-1 h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                            <label for="scope-${scope.id}" class="mr-3 block text-sm text-gray-700">
+                                <span class="font-medium text-gray-900">${scope.id}</span>
+                                <p class="text-gray-500">${scope.description}</p>
+                            </label>
                         </li>
                     `).join('');
 
@@ -129,20 +119,28 @@
                     console.error(error);
                     loadingState.innerHTML = `<p class="text-red-600">${error.message}</p>`;
                 });
-
-            // Handle form submission to avoid default form behavior
+            
+            // Handle form submission to ensure data is sent as JSON
             consentForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const action = e.submitter.value; // 'allow' or 'deny'
-                actionInput.value = action;
+                const action = e.submitter ? e.submitter.value : 'deny'; // 'allow' or 'deny'
                 
-                // Use fetch to submit the form data
+                let payload = { action };
+
+                // إذا وافق المستخدم، اجمع الصلاحيات المحددة فقط
+                if (action === 'allow') {
+                    const approvedScopes = Array.from(document.querySelectorAll('input[name="scopes"]:checked'))
+                                                .map(checkbox => checkbox.value);
+                    payload.approved_scopes = approvedScopes;
+                }
+                
+                // Use fetch to submit the form data as JSON
                 fetch('/api/oauth/consent', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ action: action })
+                    body: JSON.stringify(payload)
                 })
                 .then(response => {
                     // The server will handle the redirect, so we just need to follow it.
@@ -155,6 +153,7 @@
                     alert('An error occurred. Please try again.');
                 });
             });
+
         });
     </script>
 </body>

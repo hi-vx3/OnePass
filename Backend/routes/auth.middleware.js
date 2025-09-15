@@ -14,13 +14,20 @@ function isAuthenticated(req, res, next) {
     return next();
   }
 
-  // If not authenticated, send a 401 Unauthorized error
-  const error = {
-    status: 401,
-    message: 'Authentication required. Please log in.',
-    code: 'AUTH_REQUIRED',
-  };
-  next(error);
+  // If the request is an API request (expects JSON), send a 401 error.
+  if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+    const error = {
+      status: 401,
+      message: 'Authentication required. Please log in.',
+      code: 'AUTH_REQUIRED',
+    };
+    return next(error);
+  }
+
+  // If it's a browser request, redirect to the login page on the frontend.
+  req.session.returnTo = req.originalUrl;
+  const loginUrl = new URL('/login', process.env.FRONTEND_URL || 'http://localhost:3000');
+  res.redirect(loginUrl.toString());
 }
 
 /**
@@ -120,4 +127,32 @@ function verifyAccessToken(req, res, next) {
   }
 }
 
-module.exports = { isAuthenticated, requireScope, verifyAccessToken };
+/**
+ * Middleware factory to check for a required scope within a JWT access token.
+ * This should be used *after* the `verifyAccessToken` middleware.
+ *
+ * @param {string} requiredScope - The scope required to access the route.
+ * @returns {function} An Express middleware function.
+ */
+function requireTokenScope(requiredScope) {
+  return (req, res, next) => {
+    // Ensure the JWT payload is available
+    if (!req.jwt || !req.jwt.scope) {
+      return next({ status: 403, message: 'Forbidden: No scopes present in token.', code: 'NO_SCOPES_IN_TOKEN' });
+    }
+
+    const grantedScopes = req.jwt.scope.split(' ');
+
+    if (!grantedScopes.includes(requiredScope)) {
+      return next({
+        status: 403,
+        message: `Forbidden: This endpoint requires the '${requiredScope}' scope.`,
+        code: 'INSUFFICIENT_TOKEN_SCOPE',
+      });
+    }
+
+    next();
+  };
+}
+
+module.exports = { isAuthenticated, requireScope, verifyAccessToken, requireTokenScope };

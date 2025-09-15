@@ -411,3 +411,40 @@ body {
         transform: rotate(360deg);
     }
 }
+
+/* New styles for Linked Site Cards */
+.linked-site-card {
+    background-color: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 0.75rem; /* 12px */
+    padding: 1rem;
+    transition: all 0.2s ease-in-out;
+}
+.linked-site-card__logo {
+    width: 2.5rem; /* 40px */
+    height: 2.5rem; /* 40px */
+    border-radius: 0.5rem; /* 8px */
+    margin-left: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid #E5E7EB; /* Add a border to the logo container */
+}
+
+.linked-site-card:hover {
+    border-color: #D1D5DB;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.linked-site-card__unlink-btn {
+    color: #9CA3AF;
+    padding: 0.5rem;
+    border-radius: 9999px;
+}
+
+.linked-site-card__unlink-btn:hover {
+    background-color: #FEE2E2;
+    color: #DC2626;
+}

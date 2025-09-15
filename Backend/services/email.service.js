@@ -13,14 +13,29 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-function verifyTransporter(log) {
-  transporter.verify((error) => {
-    if (error) {
-      log.error(`Email transporter error: ${error.message}, Stack: ${error.stack}`);
-    } else {
-      log.info(`Email config: host=${process.env.EMAIL_HOST}, port=${process.env.EMAIL_PORT}, user=${process.env.EMAIL_USER}`);
-    }
+/**
+ * @description يتحقق من اتصال خدمة البريد الإلكتروني.
+ * @returns {Promise<void>} ينجح إذا كان الاتصال صالحًا، ويرفض مع خطأ إذا فشل.
+ */
+async function checkEmailServiceStatus() {
+  return new Promise((resolve, reject) => {
+    transporter.verify((error) => {
+      if (error) {
+        return reject(error);
+      }
+      resolve();
+    });
   });
+}
+
+function verifyTransporter(log) {
+  checkEmailServiceStatus()
+    .then(() => {
+      log.info(`Email config: host=${process.env.EMAIL_HOST}, port=${process.env.EMAIL_PORT}, user=${process.env.EMAIL_USER}`);
+    })
+    .catch(error => {
+      log.error(`Email transporter error: ${error.message}, Stack: ${error.stack}`);
+    });
 }
 
 /**
@@ -31,11 +46,25 @@ function verifyTransporter(log) {
  * @param {boolean} isSuccessNotification Flag to send a success notification email
  * @returns {Promise<string>} Message ID
  */
-async function sendEmail(to, { verificationToken = null, totpCode = null, isSuccessNotification = false } = {}, prisma, log) {
+async function sendEmail(
+  to,
+  {
+    verificationToken = null,
+    totpCode = null,
+    isSuccessNotification = false,
+    newLoginDetails = null,
+    securityAlertDetails = null,
+    isForward = false, // Add isForward to destructuring
+    subject: forwardSubject, // Rename subject to avoid conflict
+    html: forwardHtml, // Rename html to avoid conflict
+  } = {},
+  prisma,
+  log
+) {
   try {
     let subject, html;
 
-    log.info(`Sending email to ${to} with params: verificationToken=${!!verificationToken}, totpCode=${!!totpCode}, isSuccessNotification=${isSuccessNotification}`);
+    log.info(`Sending email to ${to} with params: verificationToken=${!!verificationToken}, totpCode=${!!totpCode}, isSuccessNotification=${isSuccessNotification}, newLogin=${!!newLoginDetails}, securityAlert=${!!securityAlertDetails}`);
 
     if (verificationToken) {
       // Send the initial verification link email
@@ -48,7 +77,7 @@ async function sendEmail(to, { verificationToken = null, totpCode = null, isSucc
         .replace('{{privacy_policy_link}}', 'http://localhost:3001/privacy')
         .replace('{{terms_link}}', 'http://localhost:3001/terms')
         .replace('{{contact_link}}', 'http://localhost:3001/contact');
-      subject = 'تفعيل حسابك - OnePass';
+      subject = 'Activate Your Account - OnePass';
     } else if (isSuccessNotification) {
       // Send the "account verified" success email
       const templatePath = path.join(__dirname, '../templates/email-verification-success.html');
@@ -61,7 +90,7 @@ async function sendEmail(to, { verificationToken = null, totpCode = null, isSucc
         .replace('{{privacy_policy_link}}', 'http://localhost:3001/privacy')
         .replace('{{terms_link}}', 'http://localhost:3001/terms')
         .replace('{{contact_link}}', 'http://localhost:3001/contact');
-      subject = 'تم تفعيل حسابك بنجاح - OnePass';
+      subject = 'Account Activated Successfully - OnePass';
     } else if (totpCode) {
       // Load TOTP template
       const templatePath = path.join(__dirname, '../templates/email-totp.html');
@@ -72,13 +101,35 @@ async function sendEmail(to, { verificationToken = null, totpCode = null, isSucc
         .replace('{{privacy_policy_link}}', 'http://localhost:3001/privacy')
         .replace('{{terms_link}}', 'http://localhost:3001/terms')
         .replace('{{contact_link}}', 'http://localhost:3001/contact');
-      subject = 'رمز التحقق لتسجيل الدخول - OnePass';
+      subject = 'Your Login Verification Code - OnePass';
       log.info(`TOTP email content after replacement: ${html.includes(totpCode) ? 'TOTP code included' : 'TOTP code NOT included'}`);
-    } else if (isForward) {
+    } else if (isForward && forwardSubject && forwardHtml) {
       // Handle forwarded emails
       subject = forwardSubject;
       html = forwardHtml;
-    } else {
+    } else if (newLoginDetails) {
+      // Send a "New Login" notification email
+      const templatePath = path.join(__dirname, '../templates/email-new-login.html');
+      const template = await fs.readFile(templatePath, 'utf-8');
+      html = template
+        .replace('{{username}}', to)
+        .replace('{{login_time}}', newLoginDetails.time)
+        .replace('{{login_ip}}', newLoginDetails.ip)
+        .replace('{{login_location}}', newLoginDetails.location)
+        .replace('{{login_device}}', newLoginDetails.device)
+        .replace('{{contact_link}}', 'http://localhost:3000/login'); // رابط لتأمين الحساب
+      subject = 'Security Alert: New Login to Your Account';
+    } else if (securityAlertDetails) {
+      // Send a "Suspicious Activity" security alert email
+      const templatePath = path.join(__dirname, '../templates/email-security-alert.html');
+      const template = await fs.readFile(templatePath, 'utf-8');
+      html = template
+        .replace('{{username}}', to)
+        .replace('{{alert_time}}', securityAlertDetails.time)
+        .replace('{{alert_ip}}', securityAlertDetails.ip)
+        .replace('{{alert_device}}', securityAlertDetails.device);
+      subject = 'Security Alert: Failed Login Attempts';
+    }  else {
       throw new Error('No email type specified. Provide verificationToken, totpCode, or set isSuccessNotification to true.');
     }
 
@@ -97,4 +148,4 @@ async function sendEmail(to, { verificationToken = null, totpCode = null, isSucc
   }
 }
 
-module.exports = { sendEmail, verifyTransporter };
+module.exports = { sendEmail, verifyTransporter, checkEmailServiceStatus };

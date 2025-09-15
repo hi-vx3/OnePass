@@ -2,6 +2,25 @@ const { v4: uuidv4 } = require('uuid');
 const argon2 = require('argon2');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken'); // You'll need to install this: npm install jsonwebtoken
+const { USER_INFO_SCOPES_MAP, ALLOWED_SCOPES } = require('./oauth.constants');
+
+/**
+ * Generates a cryptographically secure random string.
+ * @param {number} length - The length of the string to generate.
+ * @returns {string} A random string.
+ */
+function generateRandomString(length) {
+    return crypto.randomBytes(length).toString('hex').slice(0, length);
+}
+
+/**
+ * Hashes a verifier to create a PKCE code challenge.
+ * @param {string} verifier - The code verifier string.
+ * @returns {string} The base64-url-encoded SHA-256 hash.
+ */
+function createCodeChallenge(verifier) {
+    return crypto.createHash('sha256').update(verifier).digest('base64url');
+}
 
 /**
  * Validates the initial authorization request.
@@ -10,7 +29,7 @@ const jwt = require('jsonwebtoken'); // You'll need to install this: npm install
  * @param {object} log - Logger.
  * @returns {Promise<object>} The validated client application.
  */
-async function validateAuthorizationRequest(query, prisma, log) {
+async function validateAuthorizationRequest(query, session, prisma, log) {
   const { client_id, redirect_uri, response_type, scope, state, code_challenge, code_challenge_method } = query;
 
   if (response_type !== 'code') {
@@ -27,14 +46,26 @@ async function validateAuthorizationRequest(query, prisma, log) {
     throw { status: 401, message: 'Invalid client_id.', code: 'OAUTH_INVALID_CLIENT' };
   }
 
+  // --- التحقق من صحة Redirect URI ---
   const allowedUris = client.redirectUris ? client.redirectUris.split(',') : [];
-  if (!allowedUris.includes(redirect_uri)) {
-    const errorMessage = `Invalid redirect_uri. The provided URI "${redirect_uri}" is not in the list of allowed URIs for this client. Allowed URIs: [${allowedUris.join(', ')}]`;
-    log.warn(
-      { client_id, provided_uri: redirect_uri, allowed_uris: allowedUris },
-      'Mismatched redirect_uri during authorization request'
-    );
-    throw { status: 400, message: errorMessage, code: 'OAUTH_INVALID_REDIRECT_URI' };
+  let isRedirectUriValid = allowedUris.includes(redirect_uri);
+
+  // **تحسين:** السماح بـ localhost في بيئة التطوير لتسهيل الاختبار المحلي
+  // هذا يجنب المطورين الحاجة إلى إضافة كل منفذ localhost إلى قائمة الروابط المسموح بها.
+  if (!isRedirectUriValid && process.env.NODE_ENV !== 'production') {
+    try {
+      const redirectUrlObject = new URL(redirect_uri);
+      if (redirectUrlObject.hostname === 'localhost') {
+        isRedirectUriValid = true;
+        log.info({ client_id, redirect_uri }, 'Allowed localhost redirect for development environment.');
+      }
+    } catch (e) {
+      // إذا كان الرابط غير صالح، سيفشل التحقق التالي
+    }
+  }
+
+  if (!isRedirectUriValid) {
+    throw { status: 400, message: `Invalid redirect_uri. The provided URI "${redirect_uri}" is not registered for this client.`, code: 'OAUTH_INVALID_REDIRECT_URI' };
   }
 
   // --- Scope Validation ---
@@ -52,7 +83,18 @@ async function validateAuthorizationRequest(query, prisma, log) {
     }
   }
 
-  return { client, scope: requestedScopes.join(' '), state, redirect_uri, code_challenge, code_challenge_method };
+  // --- Server-Side State and PKCE Management ---
+  // The server is now responsible for storing state, nonce, and PKCE challenge from the client.
+  const serverState = generateRandomString(32);
+  const serverNonce = generateRandomString(32);
+
+  // Store these values in the user's session.
+  session.oauth = {
+    ...session.oauth, // Preserve existing data like client, scope, etc.
+    state: state || serverState, // Use client-side state if provided
+    nonce: serverNonce,
+  };
+  return { client, scope: requestedScopes.join(' '), state: state || serverState, redirect_uri, code_challenge, code_challenge_method };
 }
 
 /**
@@ -91,7 +133,7 @@ async function createAuthorizationCode(userId, clientId, redirectUri, scope, cod
  * @param {object} log - Logger.
  * @returns {Promise<object>} An object containing the access token and other details.
  */
-async function exchangeCodeForToken(body, prisma, log) {
+async function exchangeCodeForToken(body, session, prisma, log) {
   const { client_id, client_secret, code, grant_type, redirect_uri, code_verifier } = body;
 
   if (grant_type !== 'authorization_code') {
@@ -124,20 +166,15 @@ async function exchangeCodeForToken(body, prisma, log) {
   }
 
   // --- PKCE Verification ---
-  // This block only runs if a code_challenge was associated with the authorization code.
-  // This makes PKCE optional on the server side, allowing non-PKCE flows for development on localhost.
-  if (authCode.codeChallenge && authCode.codeChallengeMethod === 'S256') {
+  // PKCE (Proof Key for Code Exchange) validation is critical for public clients.
+  if (authCode.codeChallenge) {
+    // The client MUST send the code_verifier.
     if (!code_verifier) {
-      throw { status: 400, message: 'code_verifier is required.', code: 'OAUTH_INVALID_REQUEST' };
+      throw { status: 400, message: 'code_verifier is required for PKCE flow.', code: 'OAUTH_INVALID_GRANT' };
     }
-    const expectedChallenge = crypto
-      .createHash('sha256')
-      .update(code_verifier)
-      .digest('base64')
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=+$/, '');
-
+    // The server hashes the received verifier and compares it to the stored challenge.
+    const expectedChallenge = createCodeChallenge(code_verifier);
+    
     if (expectedChallenge !== authCode.codeChallenge) {
       throw { status: 400, message: 'Invalid code_verifier.', code: 'OAUTH_INVALID_GRANT' };
     }
@@ -145,6 +182,9 @@ async function exchangeCodeForToken(body, prisma, log) {
 
   // Delete the code after use to prevent replay attacks
   await prisma.authorizationCode.delete({ where: { id: authCode.id } });
+
+  // Clean up the session
+  delete session.oauth;
 
   // Link the site to the user's account or update last activity
   try {
@@ -157,13 +197,14 @@ async function exchangeCodeForToken(body, prisma, log) {
       const siteUrl = client.redirectUris.split(',')[0]; // Use the first redirect URI as the site URL
       await prisma.linkedSite.upsert({
         where: {
-          // A unique constraint would be better, but for now, we find by userId and clientId
-          userId_name: { userId: user.id, name: client.name },
+          // Now we can use a more reliable unique identifier
+          userId_clientId: { userId: user.id, clientId: client.clientId },
         },
         update: {
           lastActivity: new Date(),
         },
         create: {
+          clientId: client.clientId,
           userId: user.id,
           name: client.name,
           url: siteUrl,
@@ -204,7 +245,7 @@ async function exchangeCodeForToken(body, prisma, log) {
  * @param {object} log - Logger.
  * @returns {Promise<object>} An object containing user information.
  */
-async function getUserInfo(userId, clientId, prisma, log) {
+async function getUserInfo(userId, grantedScopes, prisma, log) {
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -217,16 +258,26 @@ async function getUserInfo(userId, clientId, prisma, log) {
       throw { status: 404, message: 'User not found.', code: 'USER_NOT_FOUND' };
     }
 
-    // Construct the user info payload
-    const userInfo = {
-      sub: user.id, // 'sub' (subject) is the standard claim for user ID
-      username: user.username || user.email.split('@')[0], // Use username, or fallback to part of the email
-      email: user.virtualEmail ? user.virtualEmail.address : null, // The "fake" email
-      email_verified: user.isVerified,
-      created_at: user.createdAt.toISOString(),
-    };
+    // Dynamically build the user info payload based on granted scopes
+    const userInfo = {};
+    // Handle the case where grantedScopes is an empty string
+    const scopes = grantedScopes ? grantedScopes.split(' ').filter(s => s) : [];
 
-    log.info({ userId, clientId }, 'Successfully fetched user info for client');
+    // Always include default claims
+    for (const [claim, valueFn] of Object.entries(USER_INFO_SCOPES_MAP.default)) {
+      userInfo[claim] = valueFn(user);
+    }
+
+    // Add claims for each granted scope
+    for (const scope of scopes) {
+      if (USER_INFO_SCOPES_MAP[scope]) {
+        for (const [claim, valueFn] of Object.entries(USER_INFO_SCOPES_MAP[scope])) {
+          userInfo[claim] = valueFn(user);
+        }
+      }
+    }
+
+    log.info({ userId, scopes: grantedScopes }, 'Successfully fetched user info for client');
     return userInfo;
 
   } catch (error) {
@@ -245,4 +296,6 @@ module.exports = {
   createAuthorizationCode,
   exchangeCodeForToken,
   getUserInfo,
+  createCodeChallenge, // Export the function
+  ALLOWED_SCOPES, // Export the scopes object
 };
