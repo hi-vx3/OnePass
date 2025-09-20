@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './styles.css';
-import { Shield, ArrowLeft, Loader, Github, Key, Check, ArrowRight } from 'lucide-react';
+import { Shield, ArrowLeft, Loader, Github, Key, Check, ArrowRight, X } from 'lucide-react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
@@ -15,6 +15,7 @@ const translations = {
     "No valid TOTP code found": "لم يتم العثور على رمز تحقق صالح",
     "TOTP code expired": "رمز التحقق منتهي الصلاحية",
     "Invalid TOTP code": "رمز التحقق غير صحيح",
+    "Invalid 2FA code.": "رمز المصادقة الثنائية غير صحيح.",
     "Too many verification attempts. Please wait 15 minutes.": "محاولات تحقق كثيرة جدًا، يرجى الانتظار 15 دقيقة",
     "Server error during TOTP verification": "حدث خطأ في الخادم أثناء التحقق من رمز التحقق"
 };
@@ -24,15 +25,24 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const [step, setStep] = useState(1);
     const [email, setEmail] = useState('');
-    const [code, setCode] = useState(['', '', '', '', '', '']);
+    const [code, setCode] = useState(Array(6).fill(''));
     const [resendTimer, setResendTimer] = useState(90);
     const [countdownTimer, setCountdownTimer] = useState(90);
     const [emailError, setEmailError] = useState('');
     const [totpError, setTotpError] = useState('');
     const [totpSuccess, setTotpSuccess] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [authStep, setAuthStep] = useState('email'); // 'email', '2fa_app', or 'recovery'
     const [redirectCountdown, setRedirectCountdown] = useState(null); // حالة جديدة للعد التنازلي
     const codeInputsRef = useRef([]);
+
+    // Reset state when going back to step 1
+    const resetToInitialStep = () => {
+        setStep(1);
+        setAuthStep('email');
+        setTotpError('');
+        setTotpSuccess('');
+    };
 
     useEffect(() => {
         let resendInterval, countdownInterval;
@@ -62,10 +72,6 @@ const LoginPage = () => {
             clearInterval(resendInterval);
             clearInterval(countdownInterval);
         };
-
-        if (step === 2 && codeInputsRef.current[0]) {
-            codeInputsRef.current[0].focus();
-        }
     }, [step]);
 
     useEffect(() => {
@@ -73,6 +79,13 @@ const LoginPage = () => {
             navigate('/dashboard', { replace: true });
         }
     }, [user, authLoading, navigate]);
+
+    useEffect(() => {
+        // Focus first input when step 2 is shown
+        if (step === 2 && codeInputsRef.current[0]) {
+            codeInputsRef.current[0].focus();
+        }
+    }, [step, authStep]); // Re-run on authStep change too
 
     if (authLoading) {
         return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -89,11 +102,21 @@ const LoginPage = () => {
         try {
             const response = await api.post('/auth/request-totp', { email });
             const data = response.data;
-            // لا نعرض رسالة نجاح هنا، بل ننتقل مباشرة للخطوة التالية
+            setAuthStep(data.twoFactorType === 'app' ? '2fa_app' : 'email');
+            setTotpSuccess(translations[data.message] || data.message);
             setStep(2);
         } catch (error) {
             const errorMessage = error.response?.data?.message || error.message || 'حدث خطأ في الاتصال بالخادم';
-            setEmailError(handleCooldownMessage(errorMessage));
+            const friendlyMessage = handleCooldownMessage(errorMessage);
+            setEmailError(friendlyMessage);
+
+            // إذا كانت الرسالة تتعلق بفترة انتظار، انتقل إلى الخطوة الثانية لعرض المؤقت
+            if (error.response?.status === 429 && errorMessage.includes('Please wait')) {
+                setTotpError(friendlyMessage); // عرض رسالة الخطأ في شاشة الرمز
+                setEmailError(''); // مسح الخطأ من الشاشة الأولى
+                setStep(2); // الانتقال إلى شاشة إدخال الرمز
+            }
+
         } finally {
             setIsLoading(false);
         }
@@ -109,40 +132,55 @@ const LoginPage = () => {
         setTotpError('');
         setIsLoading(true);
         try {
-            const response = await api.post('/auth/verify-totp', { email, code: totpCode });
+            let url;
+            if (authStep === 'email') {
+                url = '/auth/verify-totp';
+            } else if (authStep === '2fa_app') {
+                url = '/auth/verify-2fa';
+            } else { // authStep === 'recovery'
+                url = '/auth/verify-recovery';
+            }
+            const response = await api.post(url, { email, code: totpCode });
             const { data } = response;
-            // --- تعطيل النموذج عند النجاح ---
-            // منع المستخدم من الضغط مرة أخرى أثناء انتظار إعادة التوجيه
-            setIsLoading(true); 
-            setTotpSuccess(translations[data.message] || data.message || 'تم التحقق من رمز التحقق بنجاح');
-            login(data.user); // Update auth context
-            setTimeout(() => {
-                setStep(3);
+
+            if (data.nextStep === '2fa_app') {
+                // First factor passed, move to 2FA
+                setAuthStep('2fa_app');
+                setTotpSuccess(data.message);
+                setCode(['', '', '', '', '', '']); // Clear inputs for the next code
+                setTimeout(() => codeInputsRef.current[0]?.focus(), 0);
+            } else {
+                // Login complete
+                setTotpSuccess('تم تسجيل الدخول بنجاح! جاري إعادة التوجيه...');
+                login(data.user);
+                setStep(3); // Move to success screen
                 setTimeout(() => {
-                    navigate('/dashboard'); // Use navigate for routing
+                    navigate('/dashboard');
                 }, 2000);
-            }, 1500);
+            }
         } catch (error) {
             const errorData = error.response?.data;
             const errorMessage = errorData?.message || errorData?.error || 'حدث خطأ في الاتصال بالخادم';
 
             setTotpError(handleCooldownMessage(errorMessage));
+            setCode(Array(6).fill('')); // Clear inputs on error
+            setTimeout(() => codeInputsRef.current[0]?.focus(), 0);
 
             // --- عرض بيانات الخطأ لأغراض التصحيح ---
             console.log('بيانات الخطأ المستلمة من الخادم:', errorData);
 
             // --- التعامل مع حالة إلغاء الرمز ---
             // يتم بدء العد التنازلي إذا كان رمز الخطأ هو OTP_CANCELLED أو إذا كانت الرسالة تشير إلى 0 محاولات
-            if (errorData?.code === 'OTP_CANCELLED' || (typeof errorMessage === 'string' && errorMessage.includes('0 attempts remaining'))) {
+            if (errorData?.code === 'OTP_CANCELLED' || (typeof errorMessage === 'string' && (errorMessage.includes('0 attempts remaining') || errorMessage.includes('Invalid recovery code')))) {
                 setIsLoading(true); // تعطيل الحقول الأخرى
                 setRedirectCountdown(3); // بدء العد التنازلي من 3
 
                 const countdownInterval = setInterval(() => {
                     setRedirectCountdown(prev => {
-                        if (prev <= 1) {
+                        if (prev !== null && prev <= 1) {
                             clearInterval(countdownInterval);
                             // عند انتهاء العد، أعد المستخدم إلى الخطوة الأولى
-                            setStep(1);
+                            resetToInitialStep();
                             setCode(['', '', '', '', '', '']);
                             setTotpError('');
                             setRedirectCountdown(null); // إعادة تعيين العداد
@@ -180,10 +218,10 @@ const LoginPage = () => {
             newCode[index] = value;
             setCode(newCode);
 
-            if (value && index < 5) {
+            if (value && index < 5 && codeInputsRef.current[index + 1]) {
                 codeInputsRef.current[index + 1].focus();
             }
-
+            // Auto-submit logic removed to allow for recovery code entry which can have hyphens
             if (newCode.every(c => c.length === 1)) {
                 handleTotpSubmit(new Event('submit', { cancelable: true }));
             }
@@ -191,7 +229,7 @@ const LoginPage = () => {
     };
 
     const handleKeyDown = (e, index) => {
-        if (e.key === 'Backspace' && !code[index] && index > 0) {
+        if (e.key === 'Backspace' && !code[index] && index > 0 && codeInputsRef.current[index - 1]) {
             codeInputsRef.current[index - 1].focus();
         }
     };
@@ -202,25 +240,24 @@ const LoginPage = () => {
     };
 
     const handleCooldownMessage = (message) => {
+        // --- معالجة رسالة فترة الانتظار (Cooldown) ---
         if (typeof message === 'string' && message.includes('Please wait') && message.includes('seconds')) {
             const secondsMatch = message.match(/\d+/); // Extract numbers from the string
             if (secondsMatch) {
                 const remainingSeconds = parseInt(secondsMatch[0], 10);
-                // **Improvement**: If we get a cooldown message, we can sync our timers.
-                // This is useful if the user refreshes the page and the server still has a cooldown.
                 if (remainingSeconds > 0) {
                     setResendTimer(remainingSeconds);
                     setCountdownTimer(remainingSeconds);
                 }
-                return `يرجى الانتظار ${secondsMatch[0]} ثانية قبل طلب رمز جديد`;
+                return `لقد طلبت الرمز عدة مرات. يرجى الانتظار ${remainingSeconds} ثانية قبل المحاولة مرة أخرى.`;
             }
         }
+
         // --- معالجة رسالة عدد المحاولات المتبقية ---
         if (typeof message === 'string' && message.startsWith('Invalid code') && message.includes('attempts remaining')) {
             const attemptsMatch = message.match(/\d+/);
             if (attemptsMatch) {
                 const attempts = attemptsMatch[0];
-                // --- التعامل مع حالة انتهاء المحاولات ---
                 if (attempts === '0') {
                     return 'لقد استنفدت جميع المحاولات. سيتم إعادتك لطلب رمز جديد.';
                 }
@@ -228,6 +265,22 @@ const LoginPage = () => {
                 return `رمز التحقق غير صحيح. تبقى لديك ${attemptWord}.`;
             }
         }
+
+        // --- معالجة رسالة إلغاء الرمز بسبب كثرة المحاولات ---
+        if (typeof message === 'string' && message.includes('OTP canceled due to too many failed attempts')) {
+            return 'تم إلغاء الرمز بسبب كثرة المحاولات الفاشلة. يرجى طلب رمز جديد.';
+        }
+
+        // --- معالجة رسالة الحظر المؤقت ---
+        if (typeof message === 'string' && message.includes('Too many failed attempts. Please try again in')) {
+            const minutesMatch = message.match(/\d+/);
+            if (minutesMatch) {
+                const minutes = minutesMatch[0];
+                return `محاولات فاشلة كثيرة جدًا. يرجى المحاولة مرة أخرى خلال ${minutes} دقائق.`;
+            }
+        }
+
+        // --- الترجمة من القاموس أو إرجاع الرسالة الأصلية ---
         return translations[message] || message || 'حدث خطأ غير متوقع';
     };
 
@@ -321,13 +374,10 @@ const LoginPage = () => {
                                     <span className="px-2 bg-white text-gray-500">أو الدخول عبر</span>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-2 gap-3 mt-4">
+                            <div className="grid grid-cols-1 gap-3 mt-4">
                                 <a href="http://localhost:3001/api/auth/github" className="w-full inline-flex justify-center py-2.5 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors" rel="noopener noreferrer">
-                                    <Github className="h-5 w-5" />
-                                </a>
-                                <a href="http://localhost:3001/api/auth/google" className="w-full inline-flex justify-center py-2.5 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors" rel="noopener noreferrer">
-                                    {/* Google icon is not in lucide-react, using text or a generic icon is an option */}
-                                    <span className="font-bold">G</span>
+                                    <Github className="h-5 w-5 ml-2" />
+                                    <span>المتابعة باستخدام Github</span>
                                 </a>
                             </div>
                         </div>
@@ -339,7 +389,15 @@ const LoginPage = () => {
                             </div>
                             <h2 className="mt-6 text-center text-2xl font-extrabold text-gray-900">التحقق بخطوتين</h2>
                             <p className="mt-2 text-center text-sm text-gray-600">
-                                تم إرسال رمز التحقق المكون من 6 أرقام إلى <span className="font-medium text-indigo-600">{email}</span>
+                                {authStep === 'email' && 
+                                    <>تم إرسال رمز التحقق المكون من 6 أرقام إلى <span className="font-medium text-indigo-600">{email}</span></>
+                                }
+                                {authStep === '2fa_app' && 
+                                    <span className="font-medium text-indigo-600">{totpSuccess || 'أدخل الرمز من تطبيق المصادقة'}</span>
+                                }
+                                {authStep === 'recovery' && 
+                                    <span className="font-medium text-indigo-600">أدخل أحد أكواد الاسترداد الخاصة بك</span>
+                                }
                             </p>
                             <form className="mt-6 space-y-6" onSubmit={handleTotpSubmit}>
                                 <div className="flex justify-between space-x-2">
@@ -350,7 +408,7 @@ const LoginPage = () => {
                                             type="text"
                                             maxLength="1"
                                             className="code-input w-12 h-12 text-center text-xl border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                            ref={el => codeInputsRef.current[index] = el}
+                                            ref={el => (codeInputsRef.current[index] = el)}
                                             disabled={isLoading} // تعطيل الحقل أثناء التحميل
                                             value={digit}
                                             onChange={(e) => handleCodeChange(e, index)}
@@ -395,17 +453,31 @@ const LoginPage = () => {
                                 {totpError && <div className="login-form__error mb-4">{totpError}</div>}
                                 <button
                                     onClick={handleResend}
-                                    className={`text-sm ${resendTimer === 0 ? 'text-indigo-600 hover:text-indigo-500' : 'text-gray-400'} transition-colors`}
+                                    className={`text-sm ${
+                                        resendTimer === 0 && authStep === 'email'
+                                        ? 'text-indigo-600 hover:text-indigo-500' 
+                                        : 'text-gray-400 cursor-not-allowed'
+                                    } transition-colors`}
                                     disabled={resendTimer !== 0}
                                 >
                                     إعادة إرسال الرمز {resendTimer > 0 && `(${resendTimer})`}
                                 </button>
                             </div>
                             <div className="text-center mt-4">
-                                <button onClick={() => setStep(1)} className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                                    <ArrowRight className="h-4 w-4 inline ml-1" />
+                                <button onClick={resetToInitialStep} className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                                    <ArrowRight className="h-4 w-4 inline ml-1" /> 
                                     العودة لإدخال البريد الإلكتروني
                                 </button>
+                                {authStep === '2fa_app' && (
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setAuthStep('recovery')} 
+                                        className="text-sm text-gray-500 hover:text-indigo-600 transition-colors ml-4"
+                                    >
+                                        <X className="h-4 w-4 inline ml-1" />
+                                        استخدام رمز استرداد
+                                    </button>
+                                )}
                             </div>
                         </div>
                     )}

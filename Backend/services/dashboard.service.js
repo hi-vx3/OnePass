@@ -46,6 +46,8 @@ const getDashboardStats = async (userId, prisma, log) => {
     };
  
     const stats = {
+      name: userWithCounts?.name, // <-- إضافة اسم المستخدم
+      email: userWithCounts?.email, // <-- إضافة البريد الإلكتروني
       totalMessages: counts.notifications,
       linkedSites: counts.linkedSites,
       apiKeys: counts.apiKeys,

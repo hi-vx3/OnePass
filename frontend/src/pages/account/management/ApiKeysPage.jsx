@@ -233,51 +233,6 @@ const ApiKeysPage = () => {
     return (
         <div className="min-h-screen text-gray-800 font-inter" dir="rtl">
             {/* Toast Notifications Container */}
-            <div className="fixed top-5 left-5 z-50 space-y-2">
-                {toasts.map(toast => (
-                    <div
-                        key={toast.id}
-                        className={`flex items-center px-4 py-3 rounded-lg shadow-lg border-r-4 animate-fade-in ${
-                            toast.type === 'success'
-                                ? 'bg-green-100 border-green-500 text-green-700'
-                                : 'bg-red-100 border-red-500 text-red-700'
-                        }`}
-                    >
-                        <p>{toast.message}</p>
-                        <button onClick={() => removeToast(toast.id)} className="mr-4 text-lg">&times;</button>
-                    </div>
-                ))}
-            </div>
-            <header className="bg-white shadow-sm sticky top-0 z-20">
-                <div className="container mx-auto px-4 py-3">
-                    <div className="flex justify-between items-center">
-                        <div className="flex items-center">
-                            <button className="lg:hidden text-gray-600 mr-3" onClick={toggleMobileMenu}>
-                                <Menu className="text-xl" />
-                            </button>
-                            <div className="bg-indigo-100 p-2 rounded-lg">
-                                <Shield className="text-indigo-600 text-xl" />
-                            </div>
-                            <span className="mr-3 text-xl font-bold brand-text-gradient">OnePass</span>
-                        </div>
-                        <nav className="hidden md:flex space-x-6 space-x-reverse">
-                            <Link to="/dashboard" className="text-gray-600 hover:text-indigo-600">الرئيسية</Link>
-                            <a href="#" className="text-gray-600 hover:text-indigo-600">المطورون</a>
-                            <a href="#" className="text-gray-600 hover:text-indigo-600">التوثيق</a>
-                            <Link to="/dashboard" className="text-indigo-600 font-medium">لوحة التحكم</Link>
-                        </nav>
-                        <div className="flex items-center space-x-4 space-x-reverse">
-                            <button className="relative text-gray-600">
-                                <Bell className="text-xl" />
-                                <span className="absolute -top-1 -left-1 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center">3</span>
-                            </button>
-                            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
-                                <User className="text-indigo-600" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </header>
 
             <div className={`overlay ${isSidebarActive ? 'active' : ''}`} onClick={toggleMobileMenu}></div>
 
@@ -288,7 +243,7 @@ const ApiKeysPage = () => {
                             <h2 className="font-bold text-lg text-gray-800">لوحة المطورين</h2>
                         </div>
                         <nav className="space-y-2">
-                            <Link to="/dashboard" className="flex items-center py-2 px-3 text-gray-600 hover:bg-gray-100 rounded-lg">
+                            <Link to="/docs" className="flex items-center py-2 px-3 text-gray-600 hover:bg-gray-100 rounded-lg">
                                 <BarChart2 className="ml-2" />
                                 <span>نظرة عامة</span>
                             </Link>

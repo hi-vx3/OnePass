@@ -50,6 +50,7 @@ async function sendEmail(
   to,
   {
     verificationToken = null,
+    emailChangeToken = null, // إضافة خيار جديد
     totpCode = null,
     isSuccessNotification = false,
     newLoginDetails = null,
@@ -64,13 +65,24 @@ async function sendEmail(
   try {
     let subject, html;
 
-    log.info(`Sending email to ${to} with params: verificationToken=${!!verificationToken}, totpCode=${!!totpCode}, isSuccessNotification=${isSuccessNotification}, newLogin=${!!newLoginDetails}, securityAlert=${!!securityAlertDetails}`);
+    log.info(`Sending email to ${to} with params: verificationToken=${!!verificationToken}, emailChangeToken=${!!emailChangeToken}, totpCode=${!!totpCode}, isSuccessNotification=${isSuccessNotification}, newLogin=${!!newLoginDetails}, securityAlert=${!!securityAlertDetails}`);
 
     if (verificationToken) {
       // Send the initial verification link email
       const templatePath = path.join(__dirname, '../templates/email-verification.html');
       const template = await fs.readFile(templatePath, 'utf-8');
       const verificationLink = `${process.env.BASE_URL}/api/auth/verify?token=${verificationToken}`;
+      html = template
+        .replace('{{username}}', to)
+        .replace(/{{verification_link}}/g, verificationLink)
+        .replace('{{privacy_policy_link}}', 'http://localhost:3001/privacy')
+        .replace('{{terms_link}}', 'http://localhost:3001/terms')
+        .replace('{{contact_link}}', 'http://localhost:3001/contact');
+      subject = 'Activate Your Account - OnePass';
+    } else if (emailChangeToken) {
+      const templatePath = path.join(__dirname, '../templates/email-verification.html'); // يمكن استخدام نفس القالب
+      const template = await fs.readFile(templatePath, 'utf-8');
+      const verificationLink = `${process.env.BASE_URL}/api/auth/confirm-email-change?token=${emailChangeToken}`;
       html = template
         .replace('{{username}}', to)
         .replace(/{{verification_link}}/g, verificationLink)

@@ -1,4 +1,22 @@
 /**
+ * إظهار شاشة التحميل
+ * @function showLoader
+ */
+function showLoader() {
+    const loader = document.getElementById('loader-overlay');
+    if (loader) loader.style.display = 'flex';
+}
+
+/**
+ * إخفاء شاشة التحميل
+ * @function hideLoader
+ */
+function hideLoader() {
+    const loader = document.getElementById('loader-overlay');
+    if (loader) loader.style.display = 'none';
+}
+
+/**
  * دالة مساعدة لجلب توكن الوصول من التخزين المحلي (مثال)
  * @returns {string|null} توكن الوصول أو null إذا لم يتم العثور عليه
  */
@@ -21,6 +39,8 @@ async function loadApiKeys() {
         // window.location.href = '/login';
         return;
     }
+
+    showLoader(); // إظهار التحميل قبل بدء الطلب
     try {
         const response = await fetch('/api/user/api-keys', {
             method: 'GET',
@@ -60,6 +80,8 @@ async function loadApiKeys() {
             }
         ];
         renderApiKeys();
+    } finally {
+        hideLoader(); // إخفاء التحميل في كل الحالات (نجاح أو فشل)
     }
 }
 
@@ -86,6 +108,7 @@ async function handleApiKeyGeneration(e) {
         return;
     }
 
+    showLoader(); // إظهار التحميل
     try {
         const response = await fetch('/api/user/api-keys', {
             method: 'POST',
@@ -109,6 +132,8 @@ async function handleApiKeyGeneration(e) {
     } catch (error) {
         console.error('Error creating API key:', error);
         showAlert('فشل في إنشاء مفتاح API', 'error');
+    } finally {
+        hideLoader(); // إخفاء التحميل
     }
 }
 
@@ -128,6 +153,7 @@ async function confirmDelete() {
         return;
     }
 
+    showLoader(); // إظهار التحميل
     try {
         const response = await fetch(`/api/user/api-keys/${state.keyToDelete}`, {
             method: 'DELETE',
@@ -148,5 +174,7 @@ async function confirmDelete() {
     } catch (error) {
         console.error('Error deleting API key:', error);
         showAlert('فشل في حذف مفتاح API', 'error');
+    } finally {
+        hideLoader(); // إخفاء التحميل
     }
 }

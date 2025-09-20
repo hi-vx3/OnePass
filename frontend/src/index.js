@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css'; // Assuming you will have a CSS file for Tailwind
+import './styles/main.css'; // Assuming you will have a CSS file for Tailwind
 import App from './App';
 import { AuthProvider } from './context/AuthContext';
 import { BrowserRouter } from 'react-router-dom';

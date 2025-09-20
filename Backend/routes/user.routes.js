@@ -1,17 +1,39 @@
 const express = require('express');
 const { isAuthenticated, requireScope, verifyAccessToken, requireTokenScope } = require('./auth.middleware');
 const { z } = require('zod');
+const { rateLimit } = require('express-rate-limit');
 const { v4: uuidv4 } = require('uuid');
+const UAParser = require('ua-parser-js');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { getUserInfo } = require('../services/oauth.service');
+const { verifyTOTP } = require('../services/auth.service'); // <-- استيراد verifyTOTP
+const speakeasy = require('speakeasy'); // <-- استيراد speakeasy
+const { getSessionOnlineDetails } = require('../services/websocket.service'); // <-- استيراد دالة التحقق من الاتصال
 
+const { sendEmail } = require('../services/email.service'); // <-- إضافة استيراد خدمة البريد
 // Argon2 for hashing client secrets
 const argon2 = require('argon2');
 
-const createUserRouter = (prisma, log) => {
+const createUserRouter = (prisma, log, redisClient) => {
   const router = express.Router();
+
+  const MAX_EMAIL_CHANGE_ATTEMPTS = 3;
+
+  // --- محدد المعدل لطلبات إعادة إرسال بريد التفعيل ---
+  const emailChangeLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 دقيقة
+    max: 5, // 5 طلبات كحد أقصى لكل مستخدم في النافذة الزمنية
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: (req, res) => req.session.user.id, // استخدام معرف المستخدم كمفتاح
+    message: {
+      status: 429,
+      message: 'لقد طلبت إعادة إرسال بريد التفعيل عدة مرات. يرجى المحاولة مرة أخرى لاحقًا.',
+      code: 'TOO_MANY_RESEND_REQUESTS',
+    },
+  });
 
   // --- إعداد Multer لرفع الصور ---
   const avatarUploadPath = path.join(__dirname, '..', 'public', 'uploads', 'avatars');
@@ -63,9 +85,11 @@ const createUserRouter = (prisma, log) => {
   const userProfileUpdateSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters.').max(50, 'Name must not exceed 50 characters.').optional(),
     avatarUrl: z.string().url('Please enter a valid image URL.').optional().or(z.literal('')),
+    email: z.string().email('Please enter a valid email address.').optional(),
+    verificationCode: z.string().optional(), // Add verification code to schema
   });
 
-
+ 
   // This is a protected route.
   // The `isAuthenticated` middleware runs before the route handler.
   // It can be accessed by:
@@ -104,35 +128,40 @@ const createUserRouter = (prisma, log) => {
   router.get('/me', isAuthenticated, async (req, res, next) => {
     try {
       const userId = Number(req.session.user.id);
-      const userWithActivities = await prisma.user.findUnique({
+      const userProfile = await prisma.user.findUnique({
         where: { id: userId },
         select: {
           id: true,
           email: true,
+          pendingEmail: true, // <-- إضافة هذا السطر
           name: true,
+          subscriptionTier: true, // <-- إضافة هذا السطر
           avatarUrl: true,
+          totpSecret: true, // <-- إضافة هذا الحقل للتحقق من حالة 2FA
+          isDeveloper: true, // <-- إضافة حقل وضع المطورين
+          notificationsEnabled: true,
           createdAt: true,
-          // --- جلب آخر 5 أنشطة للمستخدم ---
-          activities: {
-            orderBy: {
-              createdAt: 'desc',
-            },
-            take: 5,
+          virtualEmail: {
             select: {
-              id: true,
-              title: true,
-              description: true,
-              createdAt: true,
+              address: true,
+              isActive: true,
+              isForwardingActive: true,
+              canChange: true,
             },
           },
         },
       });
 
-      if (!userWithActivities) {
+      if (!userProfile) {
         return next({ status: 404, message: 'User not found.', code: 'USER_NOT_FOUND' });
       }
 
-      res.status(200).json(userWithActivities);
+      // تحويل البيانات قبل إرسالها للواجهة الأمامية
+      res.status(200).json({
+        ...userProfile,
+        twoFactorAuth: !!userProfile.totpSecret, // إضافة حقل منطقي يوضح حالة 2FA
+        isDeveloper: !!userProfile.isDeveloper, // التأكد من إرسال قيمة منطقية
+      });
     } catch (error) {
       next({ status: 500, message: 'Failed to fetch profile data.', code: 'PROFILE_FETCH_ERROR' });
     }
@@ -147,28 +176,83 @@ const createUserRouter = (prisma, log) => {
         return next({ status: 400, message: validation.error.errors.map(e => e.message).join(', '), code: 'VALIDATION_ERROR' });
       }
 
-      const { name, avatarUrl } = validation.data;
+      const { name, avatarUrl, email, verificationCode } = validation.data;
+
+      const dataToUpdate = {};
+      if (name !== undefined) dataToUpdate.name = name;
+      if (avatarUrl !== undefined) dataToUpdate.avatarUrl = avatarUrl;
+
+      // إذا تم تقديم بريد إلكتروني جديد، قم بتحديثه وإعادة تعيين حالة التحقق
+      if (email) {
+        const currentUser = await prisma.user.findUnique({ where: { id: userId } });
+
+        // --- التحقق من الرمز باستخدام auth.service ---
+        const { loginFailed, errorMessage, errorCode } = await verifyTOTP(currentUser.email, verificationCode, req, prisma, log, redisClient, 'email_change');
+
+        if (loginFailed) {
+          return next({ status: 401, message: errorMessage, code: errorCode });
+        }
+
+        // --- إذا كان الرمز صالحًا، تابع منطق تغيير البريد الإلكتروني ---
+        const existingUser = await prisma.user.findFirst({
+          where: {
+            OR: [{ email: email }, { pendingEmail: email }],
+            NOT: { id: userId },
+          },
+        });
+
+        if (existingUser) {
+          return next({ status: 409, message: 'This email address is already in use or pending for another account.', code: 'EMAIL_ALREADY_IN_USE' });
+        }
+
+        const newVerificationToken = uuidv4();
+        const verificationTokenExpiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+        // لا تقم بتحديث البريد الأساسي، بل قم بتعيين البريد المعلق
+        dataToUpdate.pendingEmail = email;
+        dataToUpdate.verificationToken = newVerificationToken;
+        dataToUpdate.verificationTokenExpiresAt = verificationTokenExpiresAt;
+        // مسح رمز TOTP بعد استخدامه بنجاح لتغيير البريد
+        dataToUpdate.totpCode = null;
+        dataToUpdate.totpExpiresAt = null;
+
+        // انتظر إرسال البريد الإلكتروني قبل المتابعة
+        await sendEmail(email, { emailChangeToken: newVerificationToken }, prisma, log);
+      }
 
       const updatedUser = await prisma.user.update({
         where: { id: userId },
-        data: { name, avatarUrl },
+        data: dataToUpdate,
       });
 
       // --- إضافة سجل نشاط ---
+      const activityDescription = email 
+        ? 'Requested to change primary email address.' 
+        : 'Profile information (name or avatar) was updated.';
       prisma.activity.create({
         data: {
           userId,
           type: 'profile_updated',
           title: 'Profile Updated',
-          description: 'Profile information (name or avatar) was updated.',
+          description: activityDescription,
           ipAddress: req.ip,
           userAgent: req.headers['user-agent'],
         },
       }).catch(err => log.error({ err }, 'Failed to create profile_updated activity log.'));
 
-      res.status(200).json({ success: true, message: 'Profile updated successfully.', user: updatedUser });
+      // Convert BigInt fields to strings for JSON serialization to avoid errors
+      const userForJson = {
+        ...updatedUser,
+        publicId: updatedUser.publicId.toString(),
+      };
+
+      res.status(200).json({ success: true, message: 'Profile updated successfully.', user: userForJson });
     } catch (error) {
-      next({ status: 500, message: 'Failed to update profile.', code: 'PROFILE_UPDATE_ERROR' });
+      // Log the detailed, original error from Prisma for debugging
+      log.error({ err: error }, 'A critical error occurred while updating the user profile.');
+      
+      // Pass a generic, safe error to the client
+      next({ status: 500, message: 'An internal error occurred while updating the profile.', code: 'PROFILE_UPDATE_ERROR' });
     }
   });
 
@@ -212,6 +296,66 @@ const createUserRouter = (prisma, log) => {
         return next({ status: 400, message: error.message, code: 'UPLOAD_VALIDATION_ERROR' });
       }
       next({ status: 500, message: 'Failed to upload avatar.', code: 'AVATAR_UPLOAD_ERROR' });
+    }
+  });
+
+  // POST /api/user/cancel-email-change - إلغاء طلب تغيير البريد الإلكتروني المعلق
+  router.post('/cancel-email-change', isAuthenticated, async (req, res, next) => {
+    try {
+      const userId = Number(req.session.user.id);
+
+      // Find the user to ensure there is a pending change to cancel
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { pendingEmail: true },
+      });
+
+      if (!user || !user.pendingEmail) {
+        return next({ status: 400, message: 'No pending email change request to cancel.', code: 'NO_PENDING_REQUEST' });
+      }
+
+      // Clear the pending email and token
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          pendingEmail: null,
+          verificationToken: null,
+        },
+      });
+
+      // --- إضافة سجل نشاط ---
+      prisma.activity.create({
+        data: { userId, type: 'email_change_cancelled', title: 'Email Change Cancelled', description: `The request to change email to "${user.pendingEmail}" was cancelled.`, ipAddress: req.ip, userAgent: req.headers['user-agent'], },
+      }).catch(err => log.error({ err }, 'Failed to create email_change_cancelled activity log.'));
+
+      res.status(200).json({ success: true, message: 'Email change request has been cancelled.' });
+    } catch (error) {
+      log.error({ err: error }, 'A critical error occurred while cancelling the email change.');
+      next({ status: 500, message: 'An internal error occurred.', code: 'CANCEL_EMAIL_CHANGE_ERROR' });
+    }
+  });
+
+  // POST /api/user/resend-email-change - إعادة إرسال بريد تفعيل تغيير البريد
+  router.post('/resend-email-change', isAuthenticated, emailChangeLimiter, async (req, res, next) => {
+    try {
+      const userId = Number(req.session.user.id);
+
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { pendingEmail: true, verificationToken: true },
+      });
+
+      if (!user || !user.pendingEmail || !user.verificationToken) {
+        return next({ status: 400, message: 'No pending email change request to resend.', code: 'NO_PENDING_REQUEST' });
+      }
+
+      // Resend the email
+      await sendEmail(user.pendingEmail, { emailChangeToken: user.verificationToken }, prisma, log);
+
+      res.status(200).json({ success: true, message: `Verification email has been resent to ${user.pendingEmail}.` });
+    } catch (error) {
+      log.error({ err: error }, 'A critical error occurred while resending the email change verification.');
+      next({ status: 500, message: 'An internal error occurred.', code: 'RESEND_EMAIL_CHANGE_ERROR' });
     }
   });
 
@@ -776,6 +920,258 @@ const createUserRouter = (prisma, log) => {
     } catch (error) {
       log.error({ err: error }, 'Error fetching forwarded email logs');
       next({ status: 500, message: 'Failed to fetch forwarded email logs', code: 'FORWARDED_LOGS_FETCH_ERROR' });
+    }
+  });
+
+  // GET /api/user/sessions - جلب الجلسات النشطة للمستخدم
+  router.get('/sessions', isAuthenticated, async (req, res, next) => {
+    try {
+      const userId = Number(req.session.user.id);
+      const currentSessionId = req.sessionID;
+
+
+      // --- تحسين الأداء: استخدام SMEMBERS بدلاً من KEYS ---
+      const sessionIds = await redisClient.smembers(`user:${userId}:sessions`);
+      const userSessions = [];
+
+      for (const sessionId of sessionIds) {
+        const sessionData = await redisClient.get(`onepass:session:${sessionId}`);
+        if (sessionData) {
+          try {
+            const session = JSON.parse(sessionData);
+            // التحقق من أن الجلسة لا تزال تابعة للمستخدم (كإجراء احترازي)
+            if (session.user && Number(session.user.id) === userId) { 
+              const parser = new UAParser(session.userAgent);
+              const uaResult = parser.getResult();
+              const browser = uaResult.browser.name ? `${uaResult.browser.name} ${uaResult.browser.version}` : 'متصفح غير معروف';
+              const os = uaResult.os.name ? `${uaResult.os.name} ${uaResult.os.version}` : 'نظام تشغيل غير معروف';
+              const onlineStatus = getSessionOnlineDetails(userId, sessionId);
+
+              userSessions.push({
+                id: sessionId,
+                device: `${browser} على ${os}`,
+                ip: session.ip || 'غير معروف',
+                lastActivity: session.lastSeen || new Date(session.cookie.expires).toISOString(), // استخدام lastSeen إن وجد
+                isCurrent: sessionId === currentSessionId,
+                isOnline: onlineStatus.isOnline,
+                connectedAt: onlineStatus.connectedAt,
+              });
+            }
+          } catch (e) {
+            log.warn({ sessionId, err: e }, 'Failed to parse session data from Redis.');
+          }
+        }
+      }
+
+      res.status(200).json(userSessions);
+    } catch (error) {
+      log.error({ err: error }, 'Failed to fetch user sessions.');
+      next({ status: 500, message: 'Failed to fetch active sessions.', code: 'SESSION_FETCH_ERROR' });
+    }
+  });
+
+  // DELETE /api/user/sessions/:sessionId - إنهاء جلسة محددة
+  router.delete('/sessions/:sessionId', isAuthenticated, async (req, res, next) => {
+    try {
+      const userId = Number(req.session.user.id);
+      const { sessionId } = req.params;
+      const currentSessionId = req.sessionID;
+
+      if (sessionId === currentSessionId) {
+        return next({ status: 400, message: 'You cannot terminate your current session.', code: 'CANNOT_TERMINATE_CURRENT_SESSION' });
+      }
+      
+      // --- إزالة الجلسة من مجموعة Redis الخاصة بالمستخدم ---
+      await redisClient.srem(`user:${userId}:sessions`, sessionId);
+      
+      // --- حذف بيانات الجلسة من Redis ---
+      await redisClient.del(`onepass:session:${sessionId}`);
+
+      res.status(204).send();
+    } catch (error) {
+      log.error({ err: error }, 'Failed to terminate session.');
+      next({ status: 500, message: 'Failed to terminate session.', code: 'SESSION_TERMINATE_ERROR' });
+    }
+  });
+
+  // --- 2FA Endpoints ---
+
+  // POST /api/user/2fa/generate - Generate a new 2FA secret and QR code
+  router.post('/2fa/generate', isAuthenticated, async (req, res, next) => {
+    try {
+      const secret = speakeasy.generateSecret({
+        name: `OnePass (${req.session.user.email})`,
+        length: 20,
+      });
+
+      // Store the temporary secret in the session until verified
+      req.session.tempTotpSecret = secret.base32;
+
+      // Explicitly save the session to ensure the temp secret is stored
+      req.session.save((err) => {
+        if (err) {
+          return next({ status: 500, message: 'Failed to save session for 2FA setup.', code: '2FA_SESSION_SAVE_ERROR' });
+        }
+        res.json({ secret: secret.base32, otpauth_url: secret.otpauth_url });
+      });
+    } catch (error) {
+      next({ status: 500, message: 'Failed to generate 2FA secret.', code: '2FA_GENERATE_ERROR' });
+    }
+  });
+
+  // POST /api/user/2fa/verify - Verify the 2FA code and enable it
+  router.post('/2fa/verify', isAuthenticated, async (req, res, next) => {
+    const { token } = req.body;
+    const tempSecret = req.session.tempTotpSecret;
+    const userId = Number(req.session.user.id);
+
+    if (!tempSecret) {
+      return next({ status: 400, message: 'No 2FA setup process started.', code: '2FA_NO_SECRET' });
+    }
+
+    const verified = speakeasy.totp.verify({
+      secret: tempSecret,
+      encoding: 'base32',
+      token: token,
+      window: 1, // Allow 1-step tolerance in time
+    });
+
+    if (verified) {
+      // On successful verification, save the secret to the user's record
+      await prisma.user.update({
+        where: { id: userId },
+        data: { totpSecret: tempSecret },
+      });
+
+      // Clear the temporary secret from the session
+      delete req.session.tempTotpSecret;
+
+      // --- Generate and store recovery codes ---
+      const recoveryCodes = Array.from({ length: 10 }, () => 
+        `${Math.random().toString(36).substring(2, 6)}-${Math.random().toString(36).substring(2, 6)}`.toUpperCase()
+      );
+
+      const hashedCodes = await Promise.all(
+        recoveryCodes.map(code => argon2.hash(code))
+      );
+
+      // Use a transaction to ensure atomicity
+      await prisma.$transaction([
+        // Delete old codes
+        prisma.recoveryCode.deleteMany({
+          where: { userId },
+        }),
+        // Create new codes
+        prisma.recoveryCode.createMany({
+          data: hashedCodes.map(hashedCode => ({
+            userId,
+            hashedCode,
+          })),
+        }),
+      ]);
+
+      res.json({
+        success: true,
+        message: '2FA enabled successfully.',
+        recoveryCodes: recoveryCodes, // Send plain-text codes to the user ONCE
+      });
+    } else {
+      next({ status: 400, message: 'Invalid 2FA token.', code: '2FA_INVALID_TOKEN' });
+    }
+  });
+
+  // POST /api/user/2fa/disable - Disable 2FA for the user
+  router.post('/2fa/disable', isAuthenticated, async (req, res, next) => {
+    try {
+      const userId = Number(req.session.user.id);
+
+      // Simply clear the secret from the user's record
+      await prisma.user.update({
+        where: { id: userId },
+        data: { totpSecret: null },
+      });
+
+      res.json({ success: true, message: '2FA disabled successfully.' });
+    } catch (error) {
+      next({ status: 500, message: 'Failed to disable 2FA.', code: '2FA_DISABLE_ERROR' });
+    }
+  });
+
+  // POST /api/user/2fa/regenerate-recovery - Regenerate recovery codes
+  router.post('/2fa/regenerate-recovery', isAuthenticated, async (req, res, next) => {
+    try {
+      const userId = Number(req.session.user.id);
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      // Ensure 2FA is enabled before allowing regeneration
+      if (!user || !user.totpSecret) {
+        return next({ status: 400, message: '2FA is not enabled for this account.', code: '2FA_NOT_ENABLED' });
+      }
+
+      // --- Generate and store new recovery codes ---
+      const recoveryCodes = Array.from({ length: 10 }, () =>
+        `${Math.random().toString(36).substring(2, 6)}-${Math.random().toString(36).substring(2, 6)}`.toUpperCase()
+      );
+
+      const hashedCodes = await Promise.all(
+        recoveryCodes.map(code => argon2.hash(code))
+      );
+
+      // Use a transaction to delete old codes and create new ones atomically
+      await prisma.$transaction([
+        prisma.recoveryCode.deleteMany({
+          where: { userId },
+        }),
+        prisma.recoveryCode.createMany({
+          data: hashedCodes.map(hashedCode => ({
+            userId,
+            hashedCode,
+          })),
+        }),
+      ]);
+
+      log.info({ userId }, 'Successfully regenerated recovery codes.');
+
+      res.json({ success: true, message: 'Recovery codes regenerated successfully.', recoveryCodes });
+    } catch (error) {
+      log.error({ err: error }, 'Failed to regenerate recovery codes.');
+      next({ status: 500, message: 'Failed to regenerate recovery codes.', code: 'RECOVERY_CODE_REGEN_ERROR' });
+    }
+  });
+
+  // PATCH /api/user/developer-mode - Toggle developer mode
+  router.patch('/developer-mode', isAuthenticated, async (req, res, next) => {
+    try {
+      const userId = Number(req.session.user.id);
+      const { enabled } = req.body;
+
+      if (typeof enabled !== 'boolean') {
+        return next({ status: 400, message: 'A boolean "enabled" field is required.', code: 'VALIDATION_ERROR' });
+      }
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: { isDeveloper: enabled },
+      });
+
+      // --- إضافة سجل نشاط ---
+      prisma.activity.create({
+        data: { userId, type: 'developer_mode_toggled', title: 'Developer Mode Changed',
+          description: `Developer mode was ${enabled ? 'enabled' : 'disabled'}.`, ipAddress: req.ip, userAgent: req.headers['user-agent'],
+        },
+      }).catch(err => log.error({ err }, 'Failed to create developer_mode_toggled activity log.'));
+
+      // --- تحديث الجلسة فوراً ---
+      // هذا يضمن أن التغيير ينعكس في جميع أنحاء التطبيق دون الحاجة لتسجيل الخروج
+      if (req.session.user) {
+        req.session.user.isDeveloper = enabled;
+      }
+
+      res.status(200).json({ success: true, message: `Developer mode has been ${enabled ? 'enabled' : 'disabled'}.`, isDeveloper: enabled });
+    } catch (error) {
+      next({ status: 500, message: 'Failed to update developer mode.', code: 'DEVELOPER_MODE_ERROR' });
     }
   });
 

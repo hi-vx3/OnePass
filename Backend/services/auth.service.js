@@ -2,10 +2,11 @@
      const speakeasy = require('speakeasy');
      const crypto = require('crypto');
      const { sendEmail } = require('./email.service');
+     const { sendEventToUser } = require('./sse.service');
      const { sendNotificationToUser } = require('./websocket.service');
 
-     const MAX_TOTP_ATTEMPTS = 5;
-     const LOCKOUT_DURATION_MINUTES = 5; // تخفيض مدة الحظر إلى 5 دقائق
+     const MAX_TOTP_ATTEMPTS = 3; // الحد الأقصى لمحاولات إدخال الرمز
+     const LOCKOUT_DURATION_MINUTES = 2; // مدة صلاحية الرمز بالدقائق
 
      /**
       * Generates a unique, large random number to be used as a public ID.
@@ -106,46 +107,49 @@
            throw { status: 403, message: 'Account must be verified before logging in', code: 'AUTH_NOT_VERIFIED' };
          }
 
-         // Check if a valid TOTP code already exists
-         if (user.totpCode && user.totpExpiresAt && new Date() < user.totpExpiresAt) {
-           const remainingSeconds = Math.ceil((user.totpExpiresAt - new Date()) / 1000);
-           throw { status: 429, message: `Please wait ${remainingSeconds} seconds before requesting a new code`, code: 'AUTH_TOO_MANY_REQUESTS' };
-         }
+         // --- Always send an email-based TOTP for the first step of login ---
+         log.info({ email: user.email }, 'Sending email-based TOTP for login.');
 
-         let totpSecret = user.totpSecret;
-         if (!totpSecret) {
-           totpSecret = speakeasy.generateSecret({ length: 20 }).base32;
-           await prisma.user.update({
-             where: { id: user.id },
-             data: { totpSecret },
-           });
-         }
-
+         // Generate a temporary secret for email-based TOTP. This is NOT the 2FA secret.
+         const tempSecret = speakeasy.generateSecret({ length: 20 }).base32;
+ 
          const totpCode = speakeasy.totp({
-           secret: totpSecret,
+           secret: tempSecret,
            encoding: 'base32',
+           step: 120, // Code is valid for 2 minutes
          });
 
-         const totpExpiresAt = new Date(Date.now() + 90 * 1000); // 90 seconds
+         const totpExpiresAt = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes expiry
 
+         // Store the temporary code and its expiry in the user record
          await prisma.user.update({
            where: { id: user.id },
            data: { totpCode, totpExpiresAt },
          });
 
-         log.info(`Generated TOTP code: ${totpCode} for ${email}`);
-
-         await sendEmail(email, { totpCode }, prisma, log);
-
-         return 'TOTP code sent successfully.';
+         log.info(`Generated email TOTP code for ${email}`);
+ 
+         try {
+           await sendEmail(email, { totpCode }, prisma, log);
+           return { message: 'A verification code has been sent to your email.', twoFactorType: 'email' };
+         } catch (emailError) {
+           log.error({ err: emailError }, 'Failed to send TOTP email.');
+           throw { status: 500, message: 'Failed to send verification code.', code: 'EMAIL_SEND_ERROR' };
+         }
        } catch (error) {
+         // Check for Prisma-specific connection errors
+         if (error.code === 'P1001') { // P1001 is Prisma's code for "Can't reach database server"
+           log.error({ err: error }, 'Database connection error during TOTP request.');
+           throw { status: 503, message: 'Service temporarily unavailable. Cannot connect to the database.', code: 'DATABASE_UNAVAILABLE' };
+         }
+
          log.error({ err: error }, 'Request TOTP error');
          if (error.status) throw error;
          throw { status: 500, message: 'Server error during TOTP request', code: 'SERVER_ERROR' };
        }
      }
 
-     async function verifyTOTP(email, code, req, prisma, log) { // إضافة req للحصول على IP و userAgent
+     async function verifyTOTP(email, code, req, prisma, log, redisClient, purpose = 'login') { // إضافة redisClient
        try {
          const user = await prisma.user.findUnique({ where: { email } });
          if (!user) {
@@ -158,20 +162,21 @@
             return { user, loginFailed: true, remainingAttempts: 0, errorMessage: `Too many failed attempts. Please try again in ${remainingMinutes} minutes.`, errorCode: 'AUTH_LOCKED_OUT' };
          }
 
-         if (!user.totpSecret || !user.totpCode || !user.totpExpiresAt) {
+         if (!user.totpCode || !user.totpExpiresAt) {
             return { user, loginFailed: true, remainingAttempts: 0, errorMessage: 'No valid TOTP code found', errorCode: 'AUTH_NO_VALID_TOTP' };
          }
 
+         // --- Verify using Email-based Code ---
          if (new Date() > user.totpExpiresAt) {
-            return { user, loginFailed: true, remainingAttempts: 0, errorMessage: 'TOTP code has expired', errorCode: 'AUTH_TOTP_EXPIRED' };
+           return { user, loginFailed: true, remainingAttempts: 0, errorMessage: 'TOTP code has expired', errorCode: 'AUTH_TOTP_EXPIRED' };
          }
 
-    const isValid = user.totpCode === code; // Compare the codes
+         const isValid = user.totpCode === code;
 
-    if (!isValid) {
-      // --- Logic for handling a failed attempt ---
-      const newAttempts = (user.totpLoginAttempts || 0) + 1;
-      let remainingAttempts = MAX_TOTP_ATTEMPTS - newAttempts;
+         if (!isValid) {
+           // --- Logic for handling a failed attempt ---
+           const newAttempts = (user.totpLoginAttempts || 0) + 1;
+           let remainingAttempts = MAX_TOTP_ATTEMPTS - newAttempts;
 
       let updateData = { totpLoginAttempts: newAttempts };
 
@@ -209,21 +214,33 @@
       return { user, loginFailed: true, remainingAttempts };
          }
 
-    // --- Logic for a successful login ---
-    // On successful login, reset attempts, lockout, and the code itself
+         // --- Logic for a successful login ---
+         // On successful login, reset attempts and lockout.
+         // Clear the temporary email code.
+         const dataToUpdate = { totpLoginAttempts: 0, totpBlockedUntil: null };
+         dataToUpdate.totpCode = null;
+         dataToUpdate.totpExpiresAt = null;
+
          await prisma.user.update({
            where: { id: user.id },
-           data: { totpCode: null, totpExpiresAt: null, totpLoginAttempts: 0, totpBlockedUntil: null },
+           data: dataToUpdate,
          });
 
-         // --- إرسال إشعار فوري عبر WebSocket ---
-         sendNotificationToUser(user.id, {
-           type: 'notification',
-           payload: {
-             title: 'New Login',
-             message: 'A successful login to your account has occurred.',
-           }
-         });
+         // --- ربط الجلسة بالمستخدم في Redis ---
+         redisClient.sadd(`user:${user.id}:sessions`, req.sessionID);
+
+         // --- إرسال إشعار فوري ---
+         // تم نقل منطق إنشاء سجل النشاط إلى auth.routes.js
+         // الآن سنقوم فقط بإرسال إشعار بسيط عبر WebSocket و SSE
+         // ملاحظة: هذا الجزء أصبح الآن مكرراً لأن auth.routes.js سيرسل النشاط الفعلي.
+         // يمكن تحسين هذا لاحقاً، لكن الآن سنركز على حل المشكلة الأساسية.
+         const loginNotification = {
+            feedType: 'notification', title: 'New Login', message: 'A successful login occurred.',
+            type: 'success', createdAt: new Date().toISOString()
+         }
+
+         sendNotificationToUser(user.id, { type: 'notification', payload: loginNotification });
+         sendEventToUser(user.id, 'new_notification', loginNotification);
 
     // Return a safe user object and success status
          return {

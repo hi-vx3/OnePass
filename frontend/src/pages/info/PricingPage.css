@@ -1,0 +1,76 @@
+.pricing-page {
+  background-color: #f9fafb;
+}
+
+.pricing-card {
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.pricing-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.pricing-card.featured {
+  border-color: #4f46e5;
+  transform: scale(1.02);
+}
+
+.featured-badge {
+  position: absolute;
+  top: 1.5rem;
+  left: -50px;
+  transform: rotate(-45deg);
+  background-color: #4f46e5;
+  color: white;
+  padding: 0.25rem 4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.cta-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 2rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+  background-color: #eef2ff;
+  color: #4338ca;
+  border: 1px solid transparent;
+}
+
+.cta-button:hover {
+  background-color: #e0e7ff;
+  transform: translateY(-2px);
+}
+
+.cta-button.featured {
+  background-color: #4f46e5;
+  color: white;
+}
+
+.cta-button.featured:hover {
+  background-color: #4338ca;
+}
+
+.cta-button svg {
+  transition: transform 0.2s ease-in-out;
+}
+
+.cta-button:hover svg {
+  transform: translateX(-4px);
+}

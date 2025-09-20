@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
-import api from '../services/api.js';
+import axios from 'axios';
 
 const AuthContext = createContext(null);
 
@@ -7,33 +7,41 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Function to fetch user session from the server
   const fetchUser = useCallback(async () => {
-    // Check for an active session when the app loads
     try {
-      const response = await api.get('/auth/session');
+      const response = await axios.get('http://localhost:3001/api/auth/session', { withCredentials: true });
       if (response.data.loggedIn) {
-          setUser(response.data.user);
+        setUser(response.data.user);
       } else {
         setUser(null);
       }
     } catch (error) {
+      console.error('Failed to fetch user session:', error);
       setUser(null);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   }, []);
 
+  // Fetch user on initial component mount
   useEffect(() => {
     fetchUser();
   }, [fetchUser]);
 
+  // Function to handle login
   const login = (userData) => {
     setUser(userData);
   };
 
+  // Function to handle logout
   const logout = async () => {
-    await api.post('/auth/logout');
-    setUser(null);
+    try {
+      await axios.post('http://localhost:3001/api/auth/logout', {}, { withCredentials: true });
+      setUser(null);
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   // Function to update parts of the user object dynamically
@@ -52,7 +60,7 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === null) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;

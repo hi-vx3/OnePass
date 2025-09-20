@@ -25,7 +25,8 @@ import {
     LogOut
 } from 'lucide-react'; // FeatherIcon is not used, lucide-react is. Let's stick to lucide-react.
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // <-- 1. استيراد useNavigate
+import toast, { Toaster } from 'react-hot-toast'; // <-- 1. استيراد المكتبة
 import './DashboardPage.css';
 
 const DashboardPage = () => {
@@ -45,12 +46,11 @@ const DashboardPage = () => {
     const [isForwardingActive, setIsForwardingActive] = useState(true);
     const [forwardedLogs, setForwardedLogs] = useState([]);
     const [logsPagination, setLogsPagination] = useState({ currentPage: 1, totalPages: 1 });
-    const [canChange, setCanChange] = useState(true);
-    const [showRegenerateModal, setShowRegenerateModal] = useState(false);
     const [showDeactivateModal, setShowDeactivateModal] = useState(false);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-    const [newAlias, setNewAlias] = useState('');
     const [user, setUser] = useState({ name: 'مستخدم وهمي', dob: '1998-05-15' });
+    const [isPushSubscribed, setIsPushSubscribed] = useState(false); // <-- 1. حالة جديدة لتتبع الاشتراك
+    const navigate = useNavigate(); // <-- 2. الحصول على دالة navigate
 
     // --- Helper Function ---
     const formatTimeAgo = (timestamp) => {
@@ -144,15 +144,188 @@ const DashboardPage = () => {
         }
     };
 
+    // --- وظائف خاصة بإشعارات الدفع ---
+    const urlBase64ToUint8Array = (base64String) => {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    };
+
+    const subscribeToPushNotifications = async () => {
+        try {
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                console.warn('Push messaging is not supported');
+                return;
+            }
+
+            const registration = await navigator.serviceWorker.register('/sw.js');
+            let subscription = await registration.pushManager.getSubscription();
+
+            if (subscription === null) {
+                console.log('Not subscribed, subscribing now...');
+                const vapidPublicKey = 'BA..._YOUR_PUBLIC_KEY_...'; // <-- استبدل بمفتاحك العام
+                if (!vapidPublicKey.startsWith('B')) {
+                    console.error('VAPID public key is not configured correctly.');
+                    return;
+                }
+
+                subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+                });
+
+                // إرسال الاشتراك إلى الخادم
+                await axios.post('http://localhost:3001/api/user/push-subscription', subscription, { withCredentials: true });
+                console.log('Successfully subscribed to push notifications.');
+            } else {
+                console.log('Already subscribed.');
+            }
+        } catch (error) {
+            console.error('Failed to subscribe to push notifications:', error);
+        }
+    };
+
+    const handlePushSubscriptionToggle = async () => {
+        if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+            toast.error('إشعارات الدفع غير مدعومة في هذا المتصفح.');
+            return;
+        }
+
+        const registration = await navigator.serviceWorker.ready;
+        const currentSubscription = await registration.pushManager.getSubscription();
+
+        if (currentSubscription) {
+            // --- إلغاء الاشتراك ---
+            await axios.delete('http://localhost:3001/api/user/push-subscription', {
+                data: { endpoint: currentSubscription.endpoint },
+                withCredentials: true,
+            });
+            await currentSubscription.unsubscribe();
+            setIsPushSubscribed(false);
+            toast.success('تم إلغاء الاشتراك في إشعارات الدفع بنجاح.');
+        } else {
+            // --- الاشتراك ---
+            await subscribeToPushNotifications();
+            setIsPushSubscribed(true);
+            toast.success('تم الاشتراك في إشعارات الدفع بنجاح.');
+        }
+    };
+
     useEffect(() => {
+        // 1. جلب البيانات الأولية عند تحميل الصفحة
         loadDashboardData();
         loadLinkedSites(1);
         loadForwardedLogs(1);
+
+        // 2. تأثيرات بصرية
         const cards = document.querySelectorAll('.fade-in');
         cards.forEach((card, index) => {
             card.style.animationDelay = `${index * 0.1}s`;
         });
-    }, []);
+
+        // 3. التحقق من حالة الاشتراك في إشعارات الدفع
+        if ('serviceWorker' in navigator && 'PushManager' in window) {
+            navigator.serviceWorker.ready.then(registration => {
+                registration.pushManager.getSubscription().then(subscription => {
+                    if (subscription) {
+                        setIsPushSubscribed(true);
+                    }
+                });
+            });
+        }
+
+        // 3. إعداد اتصال SSE لاستقبال التحديثات الفورية
+        const eventSource = new EventSource('http://localhost:3001/api/notifications/stream', { withCredentials: true });
+
+        eventSource.onopen = () => {
+            console.log('SSE connection established.');
+        };
+
+        // الاستماع لحدث إشعار عام (سواء كان نشاطاً أو إشعاراً)
+        eventSource.addEventListener('new_notification', (event) => {
+            const newEvent = JSON.parse(event.data);
+            console.log('New event received via SSE:', newEvent);
+
+            // 1. إضافة الحدث الجديد إلى قائمة "آخر التحديثات"
+            setCombinedFeed(prevFeed => [ newEvent, ...prevFeed]);
+
+            // 2. تحديث الإحصائيات بناءً على نوع الحدث
+            setStats(prevStats => {
+                switch (newEvent.type) {
+                    case 'site_linked':
+                        return { ...prevStats, linkedSites: prevStats.linkedSites + 1 };
+                    case 'site_unlinked':
+                        return { ...prevStats, linkedSites: prevStats.linkedSites - 1 };
+                    case 'api_key_created':
+                        return { ...prevStats, apiKeys: prevStats.apiKeys + 1 };
+                    case 'api_key_deleted':
+                        return { ...prevStats, apiKeys: prevStats.apiKeys - 1 };
+                    default:
+                        return prevStats; // لا تغيير في الإحصائيات
+                }
+            });
+
+            // 3. عرض إشعار منبثق (Toast)
+            const isActivity = newEvent.feedType === 'activity';
+            const colors = isActivity ? getActivityColor(newEvent.type) : getNotificationColor(newEvent.type);
+            // ملاحظة: getNotificationIcon و getActivityIcon قد لا تكونا معرفتين في هذا النطاق
+            // سنقوم بتعريفهما أو استيرادهما إذا لزم الأمر، لكن للتبسيط سنستخدم أيقونة ثابتة الآن.
+            const Icon = isActivity ? Activity : Bell; // استخدام أيقونات متاحة
+
+            // 4. تحديد المسار المستهدف للنقر على الإشعار المنبثق
+            const getPathForEvent = (event) => {
+                switch (event.type) {
+                    case 'profile_updated':
+                    case 'settings_updated':
+                    case 'api_key_created':
+                    case 'api_key_updated':
+                    case 'api_key_deleted':
+                        return '/settings'; // كل هذه الأحداث مرتبطة بصفحة الإعدادات
+                    default:
+                        return null; // لا يوجد مسار محدد للأنواع الأخرى
+                }
+            };
+            const path = getPathForEvent(newEvent);
+
+            toast.custom((t) => (
+                <div
+                    // 5. إضافة onClick وتغيير شكل المؤشر إذا كان هناك مسار
+                    onClick={() => {
+                        if (path) navigate(path);
+                        toast.dismiss(t.id);
+                    }}
+                    className={`${t.visible ? 'animate-enter' : 'animate-leave'} max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5 ${path ? 'cursor-pointer' : ''}`}
+                >
+                    <div className="flex-1 w-0 p-4">
+                        <div className="flex items-start">
+                            <div className={`flex-shrink-0 w-10 h-10 rounded-full ${colors.bg} flex items-center justify-center`}>
+                                <Icon className={`${colors.text} w-6 h-6`} />
+                            </div>
+                            <div className="mr-3 flex-1">
+                                <p className="text-sm font-medium text-gray-900">{newEvent.title}</p>
+                                <p className="mt-1 text-sm text-gray-500">{newEvent.message || newEvent.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ), { duration: 6000 }); // يختفي الإشعار بعد 6 ثوانٍ
+        });
+
+        eventSource.onerror = (error) => {
+            console.error('SSE Error:', error);
+            eventSource.close();
+        };
+
+        // 4. إغلاق الاتصال عند مغادرة الصفحة لمنع تسرب الذاكرة
+        return () => {
+            eventSource.close();
+        };
+    }, []); // مصفوفة فارغة تعني أن هذا الـ hook سيعمل مرة واحدة فقط عند تحميل المكون
         const loadDashboardData = async () => {
         setIsLoading(true);
         try {
@@ -166,7 +339,6 @@ const DashboardPage = () => {
             setIsEmailActive(data.isEmailActive);
             setIsForwardingActive(data.isForwardingActive);
             setApiKeys(data.apiKeysList);
-             setCanChange(data.canChange);
             
             // Combine notifications and activities into a single feed
             const activities = data.recentActivities.map(item => ({ ...item, feedType: 'activity' }));
@@ -176,7 +348,7 @@ const DashboardPage = () => {
 
             // Set fake user data from backend if available, otherwise use default
             setUser({
-                name: data.username || 'مستخدم وهمي', // Assuming username is part of the response
+                name: data.name || data.email.split('@')[0] || 'مستخدم', // Show name from data or use email prefix if available
                 dob: data.dob || '1998-05-15', // Assuming dob is part of the response
             });
         } catch (error) {
@@ -233,32 +405,6 @@ const DashboardPage = () => {
         }, 2000);
     };
 
-    const handleRegenerateVirtualEmail = async (useAlias = false) => {
-        setIsLoading(true);
-        try {
-            if (useAlias && (!newAlias || newAlias.length < 3)) {
-                showError('يجب أن يتكون الاسم المستعار من 3 أحرف على الأقل.');
-                setIsLoading(false);
-                return;
-            }
-
-            const payload = useAlias && newAlias ? { alias: newAlias } : {};
-            const response = await axios.post('http://localhost:3001/api/user/virtual-email/regenerate', payload, { withCredentials: true });
-            if (response.data.success) {
-                setVirtualEmail(response.data.email);
-                setIsEmailActive(true);
-                setCanChange(response.data.canChange); // Update the canChange state
-                setShowRegenerateModal(false);
-                setNewAlias('');
-                alert('تم إنشاء بريد وهمي جديد بنجاح.'); // Using alert for success feedback
-            }
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || 'حدث خطأ أثناء إنشاء البريد الوهمي الجديد';
-            showError(errorMessage);
-        } finally {
-            setIsLoading(false);
-        }
-    };
     const handleToggleForwarding = async () => {
         const newForwardingState = !isForwardingActive;
         try {
@@ -380,6 +526,26 @@ const DashboardPage = () => {
         }
     };
 
+    const handleClearAllNotifications = async () => {
+        if (!window.confirm('هل أنت متأكد من رغبتك في مسح جميع الإشعارات؟ لا يمكن التراجع عن هذا الإجراء.')) {
+            return;
+        }
+
+        try {
+            // استدعاء نقطة الوصول الجديدة في الواجهة الخلفية
+            await axios.delete('http://localhost:3001/api/user/notifications', { withCredentials: true });
+            
+            // تحديث الواجهة الأمامية فوراً عن طريق إزالة الإشعارات من الحالة
+            setCombinedFeed(prevFeed => prevFeed.filter(item => item.feedType !== 'notification'));
+            
+            toast.success('تم مسح جميع الإشعارات بنجاح.');
+
+        } catch (error) {
+            console.error('Error clearing notifications:', error);
+            showError('حدث خطأ أثناء مسح الإشعارات.');
+        }
+    };
+
     const getNotificationColor = (type) => {
         const colors = {
             security: { bg: 'bg-red-100', text: 'text-red-600' },
@@ -449,55 +615,8 @@ const DashboardPage = () => {
 
     return (
         <div className="min-h-screen dashboard-container font-inter" dir="rtl">
-            <header className="bg-white shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16 items-center">
-                        <div className="flex items-center">
-                            <div className="flex-shrink-0 flex items-center" >
-                                <Shield className="text-indigo-600 w-8 h-8" />
-                                <span className="ml-2 text-xl font-bold text-gray-900">OnePass</span>
-                            </div>
-                            <nav className="hidden md:ml-6 md:flex md:items-center md:space-x-4 mr-6">
-                                <Link to="/" className="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">الرئيسية</Link>
-                                <Link to="/settings" className="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">الإعدادات</Link>
-                            </nav>
-                        </div>
-                        <div className="flex items-center">
-                            <div className="flex items-center mr-4">
-                                <div className={`status-badge flex items-center bg-${isEmailActive ? 'green' : 'gray'}-100 text-${isEmailActive ? 'green' : 'gray'}-800 text-xs font-medium px-3 py-1 rounded-full`}>
-                                    <div className={`w-2 h-2 bg-${isEmailActive ? 'green' : 'gray'}-500 rounded-full mr-1`}></div>
-                                    {isEmailActive ? 'نشط' : 'موقوف'}
-                                </div>
-                            </div>
-                            <div className="relative">
-                                <button 
-                                    onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                                    className="flex items-center text-sm p-1 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-                                >
-                                    <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-semibold">{user.name.charAt(0)}</div>
-                                    <span className="mr-2 text-gray-800 font-medium hidden sm:block">{user.name}</span>
-                                    <ChevronDown className="w-4 h-4 text-gray-500 mr-1 hidden sm:block" />
-                                </button>
-                                {isProfileMenuOpen && (
-                                    <div 
-                                        className="origin-top-left absolute left-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" 
-                                        role="menu" 
-                                        aria-orientation="vertical" 
-                                        aria-labelledby="user-menu-button"
-                                    >
-                                        <Link to="/settings" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
-                                            الإعدادات
-                                        </Link>
-                                        <button onClick={handleLogout} className="flex items-center w-full text-right px-4 py-2 text-sm text-red-600 hover:bg-gray-100" role="menuitem">
-                                            <LogOut className="w-4 h-4 ml-2" /> تسجيل الخروج
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            {/* 2. إضافة مكون Toaster لعرض الإشعارات */}
+            <Toaster position="top-left" reverseOrder={false} />
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="mb-8 fade-in">
@@ -544,29 +663,27 @@ const DashboardPage = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-1 space-y-6">
                         <div className="bg-white rounded-xl shadow-md p-6 card-hover fade-in">
-                            <div className="flex items-center mb-4">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center">
                                 <h2 className="text-lg font-semibold text-gray-900">البريد الوهمي</h2>
                                 {virtualEmail && <span className={`w-2.5 h-2.5 rounded-full mr-2 ${isEmailActive ? 'bg-green-500' : 'bg-gray-400'}`}></span>}
+                                </div>
+                                {virtualEmail && (
+                                    <button className={`text-sm font-medium transition-colors flex items-center p-1 rounded-md ${isEmailActive ? 'text-red-600 hover:bg-red-100' : 'text-green-600 hover:bg-green-100'}`} onClick={handleToggleEmail} title={isEmailActive ? 'إيقاف البريد الوهمي' : 'تفعيل البريد الوهمي'}>
+                                        <Power className="w-4 h-4" />
+                                    </button>
+                                )}
                             </div>
                             {virtualEmail ? (
                                 <>
-                                    <div className="flex items-center justify-between bg-gray-50 rounded-md border border-gray-200">
-                                        <div className="flex items-center p-3">
+                                    <div className="flex items-center justify-between bg-gray-50 rounded-md border border-gray-200 p-3">
+                                        <div className="flex items-center min-w-0">
                                             <Mail className="text-gray-500 w-5 h-5 ml-2" />
-                                            <span className="text-gray-800 font-medium">{virtualEmail}</span>
+                                            <span className="text-gray-800 font-medium truncate">{virtualEmail}</span>
                                         </div>
-                                        <div className="flex items-center space-x-2 pl-3">
-                                            <button className="text-gray-500 hover:text-indigo-600 transition-colors" onClick={handleCopyEmail} disabled={isCopied}>
+                                        <button className="text-gray-500 hover:text-indigo-600 transition-colors mr-2" onClick={handleCopyEmail} disabled={isCopied} title="نسخ البريد">
                                                 {isCopied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                                             </button>
-                                         {canChange && (   <button className="text-gray-500 hover:text-blue-600 transition-colors" onClick={() => setShowRegenerateModal(true)}>
-                                                <RefreshCw className="w-4 h-4" />
-                                            </button>)}
-
-                                            <button className={`text-sm font-medium transition-colors flex items-center p-1 rounded-md ${isEmailActive ? 'text-red-600 hover:bg-red-100' : 'text-green-600 hover:bg-green-100'}`} onClick={handleToggleEmail}>
-                                                <Power className="w-4 h-4" />
-                                            </button>
-                                        </div>
                                     </div>
                                     <div className="flex items-center justify-between pt-4 mt-4 border-t border-gray-100">
                                         <div>
@@ -613,7 +730,16 @@ const DashboardPage = () => {
                         <div className="bg-white rounded-xl shadow-md p-6 card-hover fade-in">
                             <div className="flex items-center justify-between mb-4">
                                 <h2 className="text-lg font-semibold text-gray-900">آخر التحديثات</h2>
-                                {combinedFeed.some(item => item.feedType === 'notification' && !item.isRead) && <span className="notification-dot w-2 h-2 bg-red-500 rounded-full"></span>}
+                                <div className="flex items-center gap-3">
+                                    {combinedFeed.some(item => item.feedType === 'notification' && !item.isRead) && <span className="notification-dot w-2 h-2 bg-red-500 rounded-full"></span>}
+                                    {combinedFeed.some(item => item.feedType === 'notification') && (
+                                        <button 
+                                            onClick={handleClearAllNotifications}
+                                            className="text-gray-400 hover:text-red-500 transition-colors"
+                                            title="مسح جميع الإشعارات"
+                                        ><Trash2 className="w-4 h-4" /></button>
+                                    )}
+                                </div>
                             </div>
                             <div className="space-y-4">
                                 {combinedFeed.length === 0 ? (
@@ -641,16 +767,32 @@ const DashboardPage = () => {
                                     );
                                 }))}
                             </div>
-                            <div className="mt-4 pt-4 border-t border-gray-200">
-                                <label className="flex items-center text-sm text-gray-700">
-                                    <input
-                                        type="checkbox"
-                                        className="rounded text-indigo-600 focus:ring-indigo-500"
-                                        checked={notificationsEnabled}
-                                        onChange={handleNotificationsToggle}
-                                    />
-                                    <span className="mr-2">تشغيل الإشعارات</span>
-                                </label>
+                        </div>
+                        <div className="bg-white rounded-xl shadow-md p-6 card-hover fade-in">
+                            <h2 className="text-lg font-semibold text-gray-900 mb-4">إعدادات الإشعارات</h2>
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">إشعارات آخر التحديثات</label>
+                                        <span className="text-xs text-gray-500">تحديثات فورية داخل لوحة التحكم</span>
+                                    </div>
+                                    <label className="toggle-switch">
+                                        <input type="checkbox" checked={notificationsEnabled} onChange={handleNotificationsToggle} />
+                                        <span className="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">إشعارات الدفع الأمنية</label>
+                                        <span className="text-xs text-gray-500">تنبيهات للحالات الحرجة على جهازك</span>
+                                    </div>
+                                    <button
+                                        onClick={handlePushSubscriptionToggle}
+                                        className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${isPushSubscribed ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}
+                                    >
+                                        {isPushSubscribed ? 'إلغاء الاشتراك' : 'اشتراك'}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -740,89 +882,6 @@ const DashboardPage = () => {
                 </div>
             </main>
 
-            {showRegenerateModal && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md m-4">
-                        <h3 className="text-lg font-bold text-gray-900 mb-2">إعادة إنشاء البريد الوهمي</h3>
-                        <div className="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700 p-4 mb-4" role="alert">
-                            <p className="font-bold">تحذير</p>
-                            <p>هذا الإجراء سيحذف بريدك الحالي نهائياً. ستفقد الوصول إلى أي حسابات مرتبطة به.</p>
-                        </div>
-                        
-                        <div className="space-y-4">
-                            <p className="text-gray-500 text-center">يمكنك اختيار اسم مستعار جديد أو إنشاء واحد عشوائي.</p>
-                            <div>
-                                <label htmlFor="new-alias" className="block text-sm font-medium text-gray-700 text-right mb-1">اسم مستعار جديد (اختياري)</label>
-                                <div className="flex items-center w-full rounded-md shadow-sm border border-gray-300 focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500 transition-all">
-                                    <input 
-                                        type="text" 
-                                        id="new-alias" 
-                                        className="flex-grow block w-full px-3 py-2 border-0 rounded-r-md focus:outline-none sm:text-sm text-right"
-                                        placeholder="my-new-alias"
-                                        value={newAlias}
-                                        onChange={(e) => setNewAlias(e.target.value)}
-                                        disabled={isLoading}
-                                    />
-                                    <div className="flex items-center pl-3 pr-2 bg-gray-50 border-r border-gray-300 rounded-l-md">
-                                        <span className="text-gray-500 sm:text-sm whitespace-nowrap">@onepass.me</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <button className="btn-primary text-sm px-4 py-2 rounded-md flex items-center justify-center w-full" onClick={() => handleRegenerateVirtualEmail(true)} disabled={isLoading}>
-                                {isLoading ? <Loader className="w-4 h-4 animate-spin" /> : <><Plus className="w-4 h-4 ml-2" /> إنشاء بريد جديد</>}
-                            </button>
-                            <button className="btn-secondary text-sm px-4 py-2 rounded-md flex items-center justify-center w-full border border-gray-300" onClick={() => handleRegenerateVirtualEmail(false)} disabled={isLoading}>
-                                {isLoading ? <Loader className="w-4 h-4 animate-spin" /> : <><RefreshCw className="w-4 h-4 ml-2" /> إنشاء بريد عشوائي جديد</>}
-                            </button>
-                            <button className="text-sm text-gray-600 hover:text-gray-900 w-full mt-2" onClick={() => setShowRegenerateModal(false)} disabled={isLoading}>
-                                إلغاء
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {showDeactivateModal && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md m-4">
-                        <div className="flex items-start">
-                            <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                                <AlertTriangle className="h-6 w-6 text-red-600" aria-hidden="true" />
-                            </div>
-                            <div className="mt-3 text-center sm:mt-0 sm:mr-4 sm:text-right">
-                                <h3 className="text-lg leading-6 font-medium text-gray-900">
-                                    إيقاف البريد الوهمي
-                                </h3>
-                                <div className="mt-2">
-                                    <p className="text-sm text-gray-500">
-                                        هل أنت متأكد؟ عند إيقاف البريد، لن تتمكن من استقبال أي رسائل جديدة على هذا العنوان.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-                            <button type="button" className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 sm:mr-3 sm:w-auto sm:text-sm" onClick={confirmDeactivateEmail} disabled={isLoading}>{isLoading ? <Loader className="w-5 h-5 animate-spin" /> : 'تأكيد الإيقاف'}</button>
-                            <button type="button" className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm" onClick={() => setShowDeactivateModal(false)} disabled={isLoading}>إلغاء</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            <footer className="bg-white border-t border-gray-200 mt-16 py-8">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex flex-col md:flex-row justify-between items-center">
-                        <div className="flex items-center mb-4 md:mb-0">
-                            <Shield className="text-indigo-600 w-5 h-5" />
-                            <span className="mr-2 text-sm text-gray-600">© 2025 OnePass. جميع الحقوق محفوظة.</span>
-                        </div>
-                        <div className="flex space-x-6">
-                            <a href="#" className="text-sm text-gray-500 hover:text-indigo-600 transition-colors">سياسة الخصوصية</a>
-                            <a href="#" className="text-sm text-gray-500 hover:text-indigo-600 transition-colors">شروط الخدمة</a>
-                            <a href="#" className="text-sm text-gray-500 hover:text-indigo-600 transition-colors">اتصل بنا</a>
-                        </div>
-                    </div>
-                </div>
-            </footer>
         </div>
     );
 };

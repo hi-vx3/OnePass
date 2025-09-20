@@ -3,6 +3,7 @@ const argon2 = require('argon2');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken'); // You'll need to install this: npm install jsonwebtoken
 const { USER_INFO_SCOPES_MAP, ALLOWED_SCOPES } = require('./oauth.constants');
+const { sendEventToUser } = require('./sse.service'); // <-- استيراد خدمة SSE
 
 /**
  * Generates a cryptographically secure random string.
@@ -188,6 +189,7 @@ async function exchangeCodeForToken(body, session, prisma, log) {
 
   // Link the site to the user's account or update last activity
   try {
+    let wasCreated = false;
     const user = await prisma.user.findUnique({
       where: { id: authCode.userId },
       include: { virtualEmail: true },
@@ -195,7 +197,16 @@ async function exchangeCodeForToken(body, session, prisma, log) {
 
     if (user && client) {
       const siteUrl = client.redirectUris.split(',')[0]; // Use the first redirect URI as the site URL
-      await prisma.linkedSite.upsert({
+
+      // Check if the site already exists to determine if it's a new link
+      const existingSite = await prisma.linkedSite.findUnique({
+        where: { userId_clientId: { userId: user.id, clientId: client.clientId } },
+      });
+      if (!existingSite) {
+        wasCreated = true;
+      }
+
+      const linkedSite = await prisma.linkedSite.upsert({
         where: {
           // Now we can use a more reliable unique identifier
           userId_clientId: { userId: user.id, clientId: client.clientId },
@@ -212,6 +223,22 @@ async function exchangeCodeForToken(body, session, prisma, log) {
         },
       });
       log.info(`Upserted linked site '${client.name}' for user ID ${user.id}`);
+
+      // If a new site was linked, create an activity and send an SSE event
+      if (wasCreated) {
+        const activity = await prisma.activity.create({
+          data: {
+            userId: user.id,
+            type: 'site_linked',
+            title: 'New Site Linked',
+            description: `A new site "${client.name}" was linked to your account.`,
+            ipAddress: 'N/A', // IP is from the client app's server, not the user's
+            userAgent: 'OAuth Flow',
+          },
+        });
+        // Send the event to update the feed and stats
+        sendEventToUser(user.id, 'new_notification', { ...activity, feedType: 'activity' });
+      }
     }
   } catch (upsertError) {
     log.error({ err: upsertError }, 'Failed to upsert linked site during token exchange.');
